@@ -551,7 +551,7 @@ Possible future improvements:
 
 ## Author
 
-Developed as part of a professional Full-Stack portfolio project.
+Carlos.
 
 Project: TransitOps Platform  
 Layer: Front-End Control Panel  
