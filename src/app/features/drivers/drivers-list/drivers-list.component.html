@@ -1,0 +1,155 @@
+<app-page-header
+  title="Drivers"
+  subtitle="Manage drivers, licenses and operational status."
+  actionLabel="New Driver"
+  actionLink="/drivers/new"
+  [actionRoles]="['ADMIN']"
+/>
+
+@if (successMessage) {
+  <div class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+}
+
+<div class="filters-card">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Search drivers</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by name, license, email or phone"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label" for="statusFilter">Status</label>
+      <select
+        id="statusFilter"
+        class="form-select"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="">All statuses</option>
+        <option value="ACTIVE">Active</option>
+        <option value="SUSPENDED">Suspended</option>
+        <option value="INACTIVE">Inactive</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <p class="filters-summary">Showing {{ drivers.length }} of {{ allDrivers.length }} drivers.</p>
+</div>
+
+@if (isLoading) {
+  <app-loading-spinner text="Loading drivers..." />
+} @else if (errorMessage) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+} @else if (drivers.length === 0) {
+  <app-empty-state
+    title="No drivers found"
+    message="There are no drivers registered yet."
+    actionLabel="Create driver"
+    actionLink="/drivers/new"
+    [actionRoles]="['ADMIN']"
+  />
+} @else {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>License</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (driver of drivers; track driver.id) {
+              <tr>
+                <td class="fw-semibold">{{ driver.firstName }} {{ driver.lastName }}</td>
+                <td>{{ driver.licenseNumber }}</td>
+                <td>{{ driver.email }}</td>
+                <td>{{ driver.phone }}</td>
+                <td>
+                  <app-status-badge [status]="driver.status" />
+                </td>
+
+                <td class="text-end">
+                  <ng-container *appHasRole="['ADMIN']">
+                    <div class="btn-group btn-group-sm">
+                      @if (driver.status !== 'ACTIVE') {
+                        <button
+                          type="button"
+                          class="btn btn-outline-success"
+                          [disabled]="isUpdating(driver)"
+                          (click)="updateDriverStatus(driver, 'ACTIVE')"
+                        >
+                          @if (isUpdating(driver)) {
+                            ...
+                          } @else {
+                            Active
+                          }
+                        </button>
+                      }
+
+                      @if (driver.status !== 'SUSPENDED') {
+                        <button
+                          type="button"
+                          class="btn btn-outline-warning"
+                          [disabled]="isUpdating(driver)"
+                          (click)="updateDriverStatus(driver, 'SUSPENDED')"
+                        >
+                          @if (isUpdating(driver)) {
+                            ...
+                          } @else {
+                            Suspend
+                          }
+                        </button>
+                      }
+
+                      @if (driver.status !== 'INACTIVE') {
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger"
+                          [disabled]="isUpdating(driver)"
+                          (click)="updateDriverStatus(driver, 'INACTIVE')"
+                        >
+                          @if (isUpdating(driver)) {
+                            ...
+                          } @else {
+                            Inactive
+                          }
+                        </button>
+                      }
+                    </div>
+                  </ng-container>
+
+                  <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
+                    <span class="text-muted small"> View only </span>
+                  </ng-container>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

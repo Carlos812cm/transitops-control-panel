@@ -1,0 +1,26 @@
+.access-denied {
+  min-height: calc(100vh - 76px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.access-denied-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 1rem;
+}
+
+.access-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}

@@ -1,0 +1,176 @@
+<app-page-header
+  title="Trips"
+  subtitle="Schedule, monitor and update transportation trips."
+  actionLabel="New Trip"
+  actionLink="/trips/new"
+  [actionRoles]="['ADMIN', 'OPERATOR', 'SUPERVISOR']"
+/>
+
+@if (successMessage) {
+  <div class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+}
+
+<div class="filters-card">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Search trips</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by vehicle, driver, route or notes"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select
+        class="form-select"
+        title="Filter trips by status"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="">All statuses</option>
+        <option value="SCHEDULED">Scheduled</option>
+        <option value="IN_PROGRESS">In progress</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <p class="filters-summary">Showing {{ trips.length }} of {{ allTrips.length }} trips.</p>
+</div>
+
+@if (isLoading) {
+  <app-loading-spinner text="Loading trips..." />
+} @else if (errorMessage) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+} @else if (trips.length === 0) {
+  <app-empty-state
+    title="No trips found"
+    message="There are no trips scheduled yet."
+    actionLabel="Create trip"
+    actionLink="/trips/new"
+  />
+} @else {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Vehicle</th>
+              <th>Driver</th>
+              <th>Route</th>
+              <th>Scheduled Departure</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (trip of trips; track trip.id) {
+              <tr>
+                <td class="fw-semibold">
+                  {{ getVehicleLabel(trip) }}
+                </td>
+
+                <td>
+                  {{ getDriverName(trip) }}
+                </td>
+
+                <td>
+                  {{ getRouteLabel(trip) }}
+                </td>
+
+                <td>
+                  {{ trip.scheduledDeparture | date: 'medium' }}
+                </td>
+
+                <td>
+                  <app-status-badge [status]="trip.status" />
+                </td>
+
+                <td>
+                  {{ trip.notes || '—' }}
+                </td>
+
+                <td class="text-end">
+                  <ng-container *appHasRole="['ADMIN', 'OPERATOR', 'SUPERVISOR']">
+                    <div class="btn-group btn-group-sm">
+                      @if (canStart(trip)) {
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary"
+                          [disabled]="isUpdating(trip)"
+                          (click)="updateTripStatus(trip, 'IN_PROGRESS')"
+                        >
+                          @if (isUpdating(trip)) {
+                            ...
+                          } @else {
+                            Start
+                          }
+                        </button>
+                      }
+
+                      @if (canComplete(trip)) {
+                        <button
+                          type="button"
+                          class="btn btn-outline-success"
+                          [disabled]="isUpdating(trip)"
+                          (click)="updateTripStatus(trip, 'COMPLETED')"
+                        >
+                          @if (isUpdating(trip)) {
+                            ...
+                          } @else {
+                            Complete
+                          }
+                        </button>
+                      }
+
+                      @if (canCancel(trip)) {
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger"
+                          [disabled]="isUpdating(trip)"
+                          (click)="updateTripStatus(trip, 'CANCELLED')"
+                        >
+                          @if (isUpdating(trip)) {
+                            ...
+                          } @else {
+                            Cancel
+                          }
+                        </button>
+                      }
+
+                      @if (!canStart(trip) && !canComplete(trip) && !canCancel(trip)) {
+                        <span class="text-muted small"> No actions </span>
+                      }
+                    </div>
+                  </ng-container>
+
+                  <ng-container *appHasRole="['VIEWER']">
+                    <span class="text-muted small"> View only </span>
+                  </ng-container>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

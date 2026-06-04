@@ -1,0 +1,43 @@
+.admin-layout {
+  min-height: 100vh;
+  display: flex;
+  background-color: #f5f7fb;
+}
+
+.admin-content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 260px;
+}
+
+.admin-main {
+  padding: 1.5rem;
+}
+
+.layout-backdrop {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .admin-content {
+    margin-left: 0;
+  }
+
+  .admin-main {
+    padding: 1rem;
+  }
+
+  .layout-backdrop.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 998;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-main {
+    padding: 0.85rem;
+  }
+}

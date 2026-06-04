@@ -1,0 +1,175 @@
+<app-page-header
+  title="New Driver"
+  subtitle="Register a new driver and define operational status."
+/>
+
+<div class="card border-0 shadow-sm driver-form-card">
+  <div class="card-body p-4">
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <form [formGroup]="driverForm" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="firstName" class="form-label">First name</label>
+
+          <input
+            id="firstName"
+            type="text"
+            class="form-control"
+            formControlName="firstName"
+            placeholder="Ana"
+            [class.is-invalid]="firstName.invalid && firstName.touched"
+          />
+
+          @if (firstName.hasError('required') && firstName.touched) {
+            <div class="invalid-feedback">First name is required.</div>
+          }
+
+          @if (firstName.hasError('minlength') && firstName.touched) {
+            <div class="invalid-feedback">First name must have at least 2 characters.</div>
+          }
+
+          @if (firstName.hasError('maxlength') && firstName.touched) {
+            <div class="invalid-feedback">First name cannot exceed 60 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="lastName" class="form-label">Last name</label>
+
+          <input
+            id="lastName"
+            type="text"
+            class="form-control"
+            formControlName="lastName"
+            placeholder="Torres"
+            [class.is-invalid]="lastName.invalid && lastName.touched"
+          />
+
+          @if (lastName.hasError('required') && lastName.touched) {
+            <div class="invalid-feedback">Last name is required.</div>
+          }
+
+          @if (lastName.hasError('minlength') && lastName.touched) {
+            <div class="invalid-feedback">Last name must have at least 2 characters.</div>
+          }
+
+          @if (lastName.hasError('maxlength') && lastName.touched) {
+            <div class="invalid-feedback">Last name cannot exceed 60 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="licenseNumber" class="form-label">License number</label>
+
+          <input
+            id="licenseNumber"
+            type="text"
+            class="form-control"
+            formControlName="licenseNumber"
+            placeholder="LIC-2026-001"
+            [class.is-invalid]="licenseNumber.invalid && licenseNumber.touched"
+          />
+
+          @if (licenseNumber.hasError('required') && licenseNumber.touched) {
+            <div class="invalid-feedback">License number is required.</div>
+          }
+
+          @if (licenseNumber.hasError('minlength') && licenseNumber.touched) {
+            <div class="invalid-feedback">License number must have at least 4 characters.</div>
+          }
+
+          @if (licenseNumber.hasError('maxlength') && licenseNumber.touched) {
+            <div class="invalid-feedback">License number cannot exceed 30 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="phone" class="form-label">Phone</label>
+
+          <input
+            id="phone"
+            type="tel"
+            class="form-control"
+            formControlName="phone"
+            placeholder="5512345678"
+            [class.is-invalid]="phone.invalid && phone.touched"
+          />
+
+          @if (phone.hasError('required') && phone.touched) {
+            <div class="invalid-feedback">Phone is required.</div>
+          }
+
+          @if ((phone.hasError('minlength') || phone.hasError('maxlength')) && phone.touched) {
+            <div class="invalid-feedback">Enter a valid phone number.</div>
+          }
+        </div>
+
+        <div class="col-md-8">
+          <label for="email" class="form-label">Email</label>
+
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            placeholder="ana.torres@transitops.com"
+            [class.is-invalid]="email.invalid && email.touched"
+          />
+
+          @if (email.hasError('required') && email.touched) {
+            <div class="invalid-feedback">Email is required.</div>
+          }
+
+          @if (email.hasError('email') && email.touched) {
+            <div class="invalid-feedback">Enter a valid email address.</div>
+          }
+
+          @if (email.hasError('maxlength') && email.touched) {
+            <div class="invalid-feedback">Email cannot exceed 100 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label for="status" class="form-label">Status</label>
+
+          <select
+            id="status"
+            class="form-select"
+            formControlName="status"
+            [class.is-invalid]="status.invalid && status.touched"
+          >
+            <option value="ACTIVE">Active</option>
+            <option value="SUSPENDED">Suspended</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+
+          @if (status.hasError('required') && status.touched) {
+            <div class="invalid-feedback">Status is required.</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/drivers" class="btn btn-outline-secondary"> Cancel </a>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="driverForm.invalid || isSubmitting"
+        >
+          @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Saving...
+          } @else {
+            Save Driver
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<aside class="sidebar" [class.open]="isOpen">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <span class="brand-icon">T</span>
+
+      <div>
+        <h1>TransitOps</h1>
+        <p>Control Panel</p>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="sidebar-close"
+      aria-label="Close sidebar"
+      (pointerup)="closeOnNavigation()"
+      (keydown.enter)="closeOnNavigation()"
+      (keydown.space)="closeOnNavigation(); $event.preventDefault()"
+    >
+      ✕
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a routerLink="/dashboard" routerLinkActive="active" (click)="closeOnNavigation()">
+      <span>Dashboard</span>
+    </a>
+
+    <a routerLink="/vehicles" routerLinkActive="active" (click)="closeOnNavigation()">
+      <span>Vehicles</span>
+    </a>
+
+    <a routerLink="/drivers" routerLinkActive="active" (click)="closeOnNavigation()">
+      <span>Drivers</span>
+    </a>
+
+    <a routerLink="/routes" routerLinkActive="active" (click)="closeOnNavigation()">
+      <span>Routes</span>
+    </a>
+
+    <a routerLink="/trips" routerLinkActive="active" (click)="closeOnNavigation()">
+      <span>Trips</span>
+    </a>
+
+    <a
+      routerLink="/admin"
+      routerLinkActive="active"
+      (click)="closeOnNavigation()"
+      *appHasRole="'ADMIN'"
+    >
+      <span>Admin</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <p>TransitOps Platform</p>
+    <span>Angular Admin System</span>
+  </div>
+</aside>

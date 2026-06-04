@@ -1,0 +1,213 @@
+<app-page-header title="Dashboard" subtitle="Operational summary for TransitOps Platform." />
+
+@if (isLoading) {
+  <app-loading-spinner text="Loading dashboard data..." />
+} @else if (errorMessage) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+} @else {
+  <section class="dashboard-grid mb-4">
+    <div class="dashboard-card">
+      <div>
+        <p>Total Vehicles</p>
+        <h2>{{ stats.totalVehicles }}</h2>
+      </div>
+
+      <a routerLink="/vehicles" class="card-link"> View </a>
+    </div>
+
+    <div class="dashboard-card">
+      <div>
+        <p>Available Vehicles</p>
+        <h2>{{ stats.availableVehicles }}</h2>
+      </div>
+
+      <span class="metric-success"> Ready </span>
+    </div>
+
+    <div class="dashboard-card">
+      <div>
+        <p>Active Drivers</p>
+        <h2>{{ stats.activeDrivers }}</h2>
+      </div>
+
+      <a routerLink="/drivers" class="card-link"> View </a>
+    </div>
+
+    <div class="dashboard-card">
+      <div>
+        <p>Active Routes</p>
+        <h2>{{ stats.activeRoutes }}</h2>
+      </div>
+
+      <a routerLink="/routes" class="card-link"> View </a>
+    </div>
+  </section>
+
+  <section class="row g-4 mb-4">
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h3 class="section-title">Fleet status</h3>
+
+          <div class="status-row">
+            <span>Available</span>
+            <strong>{{ stats.availableVehicles }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>Maintenance</span>
+            <strong>{{ stats.maintenanceVehicles }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>Inactive</span>
+            <strong>{{ stats.inactiveVehicles }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h3 class="section-title">Driver status</h3>
+
+          <div class="status-row">
+            <span>Active</span>
+            <strong>{{ stats.activeDrivers }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>Suspended</span>
+            <strong>{{ stats.suspendedDrivers }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>Inactive</span>
+            <strong>{{ stats.inactiveDrivers }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h3 class="section-title">Trip status</h3>
+
+          <div class="status-row">
+            <span>Scheduled</span>
+            <strong>{{ stats.scheduledTrips }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>In progress</span>
+            <strong>{{ stats.inProgressTrips }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>Completed</span>
+            <strong>{{ stats.completedTrips }}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>Cancelled</span>
+            <strong>{{ stats.cancelledTrips }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row g-4">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title mb-1">Latest trips</h3>
+              <p class="section-subtitle mb-0">Most recent scheduled transportation operations.</p>
+            </div>
+
+            <a routerLink="/trips" class="btn btn-sm btn-outline-primary"> View all </a>
+          </div>
+
+          @if (latestTrips.length === 0) {
+            <app-empty-state
+              title="No trips yet"
+              message="There are no trips scheduled at this moment."
+              actionLabel="Create trip"
+              actionLink="/trips/new"
+              [actionRoles]="['ADMIN', 'OPERATOR', 'SUPERVISOR']"
+            />
+          } @else {
+            <div class="table-responsive mt-3">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Driver</th>
+                    <th>Route</th>
+                    <th>Departure</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (trip of latestTrips; track trip.id) {
+                    <tr>
+                      <td class="fw-semibold">
+                        {{ getVehicleLabel(trip) }}
+                      </td>
+
+                      <td>
+                        {{ getDriverName(trip) }}
+                      </td>
+
+                      <td>
+                        {{ getRouteLabel(trip) }}
+                      </td>
+
+                      <td>
+                        {{ trip.scheduledDeparture | date: 'medium' }}
+                      </td>
+
+                      <td>
+                        <app-status-badge [status]="trip.status" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h3 class="section-title">Quick actions</h3>
+
+          <div class="quick-actions">
+            <a routerLink="/vehicles" class="quick-action"> Vehicles </a>
+
+            <a routerLink="/drivers" class="quick-action"> Drivers </a>
+
+            <a routerLink="/routes" class="quick-action"> Routes </a>
+
+            <a routerLink="/trips" class="quick-action"> Trips </a>
+          </div>
+
+          <div class="dashboard-note mt-4">
+            <strong>Operational rule:</strong>
+            Trips can only be scheduled with available vehicles, active drivers and active routes.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+}

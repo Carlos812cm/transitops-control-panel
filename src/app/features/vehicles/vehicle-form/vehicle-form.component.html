@@ -1,0 +1,169 @@
+<app-page-header title="New Vehicle" subtitle="Register a new vehicle for TransitOps Platform." />
+
+<div class="card border-0 shadow-sm vehicle-form-card">
+  <div class="card-body p-4">
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="unitNumber" class="form-label">Unit Number</label>
+
+          <input
+            id="unitNumber"
+            type="text"
+            class="form-control"
+            formControlName="unitNumber"
+            placeholder="BUS-100"
+            [class.is-invalid]="unitNumber.invalid && unitNumber.touched"
+          />
+
+          @if (unitNumber.hasError('required') && unitNumber.touched) {
+            <div class="invalid-feedback">Unit number is required.</div>
+          }
+
+          @if (unitNumber.hasError('minlength') && unitNumber.touched) {
+            <div class="invalid-feedback">Unit number must have at least 3 characters.</div>
+          }
+
+          @if (unitNumber.hasError('maxlength') && unitNumber.touched) {
+            <div class="invalid-feedback">Unit number cannot exceed 20 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="brand" class="form-label">Brand</label>
+
+          <input
+            id="brand"
+            type="text"
+            class="form-control"
+            formControlName="brand"
+            placeholder="Mercedes-Benz"
+            [class.is-invalid]="brand.invalid && brand.touched"
+          />
+
+          @if (brand.hasError('required') && brand.touched) {
+            <div class="invalid-feedback">Brand is required.</div>
+          }
+
+          @if (brand.hasError('maxlength') && brand.touched) {
+            <div class="invalid-feedback">Brand cannot exceed 60 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="model" class="form-label">Model</label>
+
+          <input
+            id="model"
+            type="text"
+            class="form-control"
+            formControlName="model"
+            placeholder="Sprinter"
+            [class.is-invalid]="model.invalid && model.touched"
+          />
+
+          @if (model.hasError('required') && model.touched) {
+            <div class="invalid-feedback">Model is required.</div>
+          }
+
+          @if (model.hasError('maxlength') && model.touched) {
+            <div class="invalid-feedback">Model cannot exceed 60 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-3">
+          <label for="year" class="form-label">Year</label>
+
+          <input
+            id="year"
+            type="number"
+            class="form-control"
+            formControlName="year"
+            [class.is-invalid]="year.invalid && year.touched"
+          />
+
+          @if (year.hasError('required') && year.touched) {
+            <div class="invalid-feedback">Year is required.</div>
+          }
+
+          @if ((year.hasError('min') || year.hasError('max')) && year.touched) {
+            <div class="invalid-feedback">Enter a valid vehicle year.</div>
+          }
+        </div>
+
+        <div class="col-md-3">
+          <label for="capacity" class="form-label">Capacity</label>
+
+          <input
+            id="capacity"
+            type="number"
+            class="form-control"
+            formControlName="capacity"
+            [class.is-invalid]="capacity.invalid && capacity.touched"
+          />
+
+          @if (capacity.hasError('required') && capacity.touched) {
+            <div class="invalid-feedback">Capacity is required.</div>
+          }
+
+          @if ((capacity.hasError('min') || capacity.hasError('max')) && capacity.touched) {
+            <div class="invalid-feedback">Capacity must be between 1 and 120.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="status" class="form-label">Status</label>
+
+          <select
+            id="status"
+            class="form-select"
+            formControlName="status"
+            [class.is-invalid]="status.invalid && status.touched"
+          >
+            <option value="AVAILABLE">Available</option>
+            <option value="MAINTENANCE">Maintenance</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+
+          @if (status.hasError('required') && status.touched) {
+            <div class="invalid-feedback">Status is required.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="lastMaintenanceDate" class="form-label"> Last maintenance date </label>
+
+          <input
+            id="lastMaintenanceDate"
+            type="date"
+            class="form-control"
+            formControlName="lastMaintenanceDate"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/vehicles" class="btn btn-outline-secondary"> Cancel </a>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="vehicleForm.invalid || isSubmitting"
+        >
+          @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Saving...
+          } @else {
+            Save Vehicle
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

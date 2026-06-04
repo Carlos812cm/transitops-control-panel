@@ -1,0 +1,169 @@
+<app-page-header
+  title="New Trip"
+  subtitle="Schedule a new trip using an available vehicle, active driver and active route."
+/>
+
+@if (isLoadingData) {
+  <app-loading-spinner text="Loading available resources..." />
+} @else if (errorMessage) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+} @else if (
+  availableVehicles.length === 0 || activeDrivers.length === 0 || activeRoutes.length === 0
+) {
+  <app-empty-state
+    title="Not enough available resources"
+    message="You need at least one available vehicle, one active driver and one active route to schedule a trip."
+  />
+
+  <div class="resource-summary mt-3">
+    <div class="resource-item">
+      <span>Available vehicles</span>
+      <strong>{{ availableVehicles.length }}</strong>
+    </div>
+
+    <div class="resource-item">
+      <span>Active drivers</span>
+      <strong>{{ activeDrivers.length }}</strong>
+    </div>
+
+    <div class="resource-item">
+      <span>Active routes</span>
+      <strong>{{ activeRoutes.length }}</strong>
+    </div>
+  </div>
+} @else {
+  <div class="card border-0 shadow-sm trip-form-card">
+    <div class="card-body p-4">
+      <form [formGroup]="tripForm" (ngSubmit)="onSubmit()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="vehicleId" class="form-label">Vehicle</label>
+
+            <select
+              id="vehicleId"
+              class="form-select"
+              formControlName="vehicleId"
+              [class.is-invalid]="vehicleId.invalid && vehicleId.touched"
+            >
+              <option value="">Select vehicle</option>
+
+              @for (vehicle of availableVehicles; track vehicle.id) {
+                <option [value]="vehicle.id">
+                  {{ vehicle.unitNumber }} - {{ vehicle.brand }} {{ vehicle.model }}
+                </option>
+              }
+            </select>
+
+            @if (vehicleId.hasError('required') && vehicleId.touched) {
+              <div class="invalid-feedback">Vehicle is required.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label for="driverId" class="form-label">Driver</label>
+
+            <select
+              id="driverId"
+              class="form-select"
+              formControlName="driverId"
+              [class.is-invalid]="driverId.invalid && driverId.touched"
+            >
+              <option value="">Select driver</option>
+
+              @for (driver of activeDrivers; track driver.id) {
+                <option [value]="driver.id">
+                  {{ driver.firstName }} {{ driver.lastName }} - {{ driver.licenseNumber }}
+                </option>
+              }
+            </select>
+
+            @if (driverId.hasError('required') && driverId.touched) {
+              <div class="invalid-feedback">Driver is required.</div>
+            }
+          </div>
+
+          <div class="col-md-8">
+            <label for="routeId" class="form-label">Route</label>
+
+            <select
+              id="routeId"
+              class="form-select"
+              formControlName="routeId"
+              [class.is-invalid]="routeId.invalid && routeId.touched"
+            >
+              <option value="">Select route</option>
+
+              @for (route of activeRoutes; track route.id) {
+                <option [value]="route.id">
+                  {{ route.name }}: {{ route.origin }} → {{ route.destination }}
+                </option>
+              }
+            </select>
+
+            @if (routeId.hasError('required') && routeId.touched) {
+              <div class="invalid-feedback">Route is required.</div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="scheduledDeparture" class="form-label"> Scheduled departure </label>
+
+            <input
+              id="scheduledDeparture"
+              type="datetime-local"
+              class="form-control"
+              formControlName="scheduledDeparture"
+              [class.is-invalid]="scheduledDeparture.invalid && scheduledDeparture.touched"
+            />
+
+            @if (scheduledDeparture.hasError('required') && scheduledDeparture.touched) {
+              <div class="invalid-feedback">Scheduled departure is required.</div>
+            }
+          </div>
+
+          <div class="col-12">
+            <label for="notes" class="form-label">Notes</label>
+
+            <textarea
+              id="notes"
+              class="form-control"
+              rows="4"
+              formControlName="notes"
+              placeholder="Optional trip notes..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="business-rules-box">
+          <h2>Business rules applied</h2>
+
+          <ul>
+            <li>Only available vehicles can be selected.</li>
+            <li>Only active drivers can be selected.</li>
+            <li>Only active routes can be selected.</li>
+            <li>The Back-End validates the final operation before creating the trip.</li>
+          </ul>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/trips" class="btn btn-outline-secondary"> Cancel </a>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="tripForm.invalid || isSubmitting"
+          >
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              Scheduling...
+            } @else {
+              Schedule Trip
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,33 @@
+<header
+  class="navbar-panel"
+  (pointerup)="handleHeaderInteraction($event)"
+  (click)="handleHeaderInteraction($event)"
+>
+  <button
+    type="button"
+    class="mobile-sidebar-toggle"
+    aria-label="Open sidebar"
+    [class.hidden]="isSidebarOpen"
+    (click)="openSidebar($event)"
+  >
+    ☰
+  </button>
+
+  <div class="navbar-left">
+    <div>
+      <h2>TransitOps Control Panel</h2>
+      <p>Administrative transportation operations dashboard</p>
+    </div>
+  </div>
+
+  @if (currentUser$ | async; as user) {
+    <div class="navbar-user">
+      <span class="user-role">{{ user.role }}</span>
+      <span class="user-name">{{ user.name }}</span>
+
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  }
+</header>

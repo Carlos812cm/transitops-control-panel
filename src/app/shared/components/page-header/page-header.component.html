@@ -1,0 +1,21 @@
+<div class="page-header">
+  <div>
+    <h1>{{ title }}</h1>
+
+    @if (subtitle) {
+      <p>{{ subtitle }}</p>
+    }
+  </div>
+
+  @if (actionLabel && actionLink) {
+    @if (actionRoles.length > 0) {
+      <a *appHasRole="actionRoles" class="btn btn-primary" [routerLink]="actionLink">
+        {{ actionLabel }}
+      </a>
+    } @else {
+      <a class="btn btn-primary" [routerLink]="actionLink">
+        {{ actionLabel }}
+      </a>
+    }
+  }
+</div>

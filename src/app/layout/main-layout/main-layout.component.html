@@ -1,0 +1,13 @@
+<div class="admin-layout">
+  <app-sidebar [isOpen]="isSidebarOpen()" (navItemClicked)="closeSidebar()" />
+
+  <div class="layout-backdrop" [class.show]="isSidebarOpen()" (pointerup)="closeSidebar()"></div>
+
+  <div class="admin-content">
+    <app-navbar [isSidebarOpen]="isSidebarOpen()" (menuClicked)="openSidebar()" />
+
+    <main class="admin-main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

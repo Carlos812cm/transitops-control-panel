@@ -1,0 +1,157 @@
+<app-page-header
+  title="Vehicles"
+  subtitle="Manage fleet availability and operational status."
+  actionLabel="Create vehicle"
+  actionLink="/vehicles/new"
+  [actionRoles]="['ADMIN']"
+></app-page-header>
+
+@if (successMessage) {
+  <div class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+}
+
+<div class="filters-card">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Search vehicles</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by unit number, brand or model"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select
+        class="form-select"
+        title="Filter vehicles by status"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="">All statuses</option>
+        <option value="AVAILABLE">Available</option>
+        <option value="MAINTENANCE">Maintenance</option>
+        <option value="INACTIVE">Inactive</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <p class="filters-summary">Showing {{ vehicles.length }} of {{ allVehicles.length }} vehicles.</p>
+</div>
+
+@if (isLoading) {
+  <app-loading-spinner text="Loading vehicles..." />
+} @else if (errorMessage) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+} @else if (vehicles.length === 0) {
+  <app-empty-state
+    title="No vehicles found"
+    message="There are no vehicles registered yet."
+    actionLabel="Create vehicle"
+    actionLink="/vehicles/new"
+    [actionRoles]="['ADMIN']"
+  />
+} @else {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Unit Number</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Year</th>
+              <th>Capacity</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (vehicle of vehicles; track vehicle.id) {
+              <tr>
+                <td class="fw-semibold">{{ vehicle.unitNumber }}</td>
+                <td>{{ vehicle.brand }}</td>
+                <td>{{ vehicle.model }}</td>
+                <td>{{ vehicle.year }}</td>
+                <td>{{ vehicle.capacity }}</td>
+                <td>
+                  <app-status-badge [status]="vehicle.status" />
+                </td>
+
+                <td class="text-end">
+                  <ng-container *appHasRole="['ADMIN']">
+                    <div class="btn-group btn-group-sm">
+                      @if (vehicle.status !== 'AVAILABLE') {
+                        <button
+                          type="button"
+                          class="btn btn-outline-success"
+                          [disabled]="isUpdating(vehicle)"
+                          (click)="updateVehicleStatus(vehicle, 'AVAILABLE')"
+                        >
+                          @if (isUpdating(vehicle)) {
+                            ...
+                          } @else {
+                            Available
+                          }
+                        </button>
+                      }
+
+                      @if (vehicle.status !== 'MAINTENANCE') {
+                        <button
+                          type="button"
+                          class="btn btn-outline-warning"
+                          [disabled]="isUpdating(vehicle)"
+                          (click)="updateVehicleStatus(vehicle, 'MAINTENANCE')"
+                        >
+                          @if (isUpdating(vehicle)) {
+                            ...
+                          } @else {
+                            Maintenance
+                          }
+                        </button>
+                      }
+
+                      @if (vehicle.status !== 'INACTIVE') {
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger"
+                          [disabled]="isUpdating(vehicle)"
+                          (click)="updateVehicleStatus(vehicle, 'INACTIVE')"
+                        >
+                          @if (isUpdating(vehicle)) {
+                            ...
+                          } @else {
+                            Inactive
+                          }
+                        </button>
+                      }
+                    </div>
+                  </ng-container>
+
+                  <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
+                    <span class="text-muted small"> View only </span>
+                  </ng-container>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

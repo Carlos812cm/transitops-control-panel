@@ -1,0 +1,176 @@
+<app-page-header
+  title="New Route"
+  subtitle="Create an operational route available for trip scheduling."
+/>
+
+<div class="card border-0 shadow-sm route-form-card">
+  <div class="card-body p-4">
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <form [formGroup]="routeForm" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label for="name" class="form-label">Route name</label>
+
+          <input
+            id="name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            placeholder="CDMX Norte - Polanco"
+            [class.is-invalid]="name.invalid && name.touched"
+          />
+
+          @if (name.hasError('required') && name.touched) {
+            <div class="invalid-feedback">Route name is required.</div>
+          }
+
+          @if (name.hasError('minlength') && name.touched) {
+            <div class="invalid-feedback">Route name must have at least 3 characters.</div>
+          }
+
+          @if (name.hasError('maxlength') && name.touched) {
+            <div class="invalid-feedback">Route name cannot exceed 80 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label for="status" class="form-label">Status</label>
+
+          <select
+            id="status"
+            class="form-select"
+            formControlName="status"
+            [class.is-invalid]="status.invalid && status.touched"
+          >
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+
+          @if (status.hasError('required') && status.touched) {
+            <div class="invalid-feedback">Status is required.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="origin" class="form-label">Origin</label>
+
+          <input
+            id="origin"
+            type="text"
+            class="form-control"
+            formControlName="origin"
+            placeholder="Terminal Norte"
+            [class.is-invalid]="origin.invalid && origin.touched"
+          />
+
+          @if (origin.hasError('required') && origin.touched) {
+            <div class="invalid-feedback">Origin is required.</div>
+          }
+
+          @if (origin.hasError('minlength') && origin.touched) {
+            <div class="invalid-feedback">Origin must have at least 3 characters.</div>
+          }
+
+          @if (origin.hasError('maxlength') && origin.touched) {
+            <div class="invalid-feedback">Origin cannot exceed 100 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="destination" class="form-label">Destination</label>
+
+          <input
+            id="destination"
+            type="text"
+            class="form-control"
+            formControlName="destination"
+            placeholder="Polanco"
+            [class.is-invalid]="destination.invalid && destination.touched"
+          />
+
+          @if (destination.hasError('required') && destination.touched) {
+            <div class="invalid-feedback">Destination is required.</div>
+          }
+
+          @if (destination.hasError('minlength') && destination.touched) {
+            <div class="invalid-feedback">Destination must have at least 3 characters.</div>
+          }
+
+          @if (destination.hasError('maxlength') && destination.touched) {
+            <div class="invalid-feedback">Destination cannot exceed 100 characters.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="distanceKm" class="form-label">Distance Km</label>
+
+          <input
+            id="distanceKm"
+            type="number"
+            class="form-control"
+            formControlName="distanceKm"
+            [class.is-invalid]="distanceKm.invalid && distanceKm.touched"
+          />
+
+          @if (distanceKm.hasError('required') && distanceKm.touched) {
+            <div class="invalid-feedback">Distance is required.</div>
+          }
+
+          @if ((distanceKm.hasError('min') || distanceKm.hasError('max')) && distanceKm.touched) {
+            <div class="invalid-feedback">Distance must be between 1 and 5000 km.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="estimatedDurationMinutes" class="form-label">
+            Estimated duration minutes
+          </label>
+
+          <input
+            id="estimatedDurationMinutes"
+            type="number"
+            class="form-control"
+            formControlName="estimatedDurationMinutes"
+            [class.is-invalid]="
+              estimatedDurationMinutes.invalid && estimatedDurationMinutes.touched
+            "
+          />
+
+          @if (estimatedDurationMinutes.hasError('required') && estimatedDurationMinutes.touched) {
+            <div class="invalid-feedback">Estimated duration is required.</div>
+          }
+
+          @if (
+            (estimatedDurationMinutes.hasError('min') ||
+              estimatedDurationMinutes.hasError('max')) &&
+            estimatedDurationMinutes.touched
+          ) {
+            <div class="invalid-feedback">Duration must be between 1 and 1440 minutes.</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/routes" class="btn btn-outline-secondary"> Cancel </a>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="routeForm.invalid || isSubmitting"
+        >
+          @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Saving...
+          } @else {
+            Save Route
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

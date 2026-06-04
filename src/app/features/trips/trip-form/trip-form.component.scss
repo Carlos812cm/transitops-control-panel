@@ -1,0 +1,83 @@
+.trip-form-card {
+  max-width: 1080px;
+  border-radius: 1rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.business-rules-box {
+  margin-top: 1.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.business-rules-box h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.65rem;
+}
+
+.business-rules-box ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.business-rules-box li + li {
+  margin-top: 0.25rem;
+}
+
+.resource-summary {
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.resource-item {
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resource-item span {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.resource-item strong {
+  font-size: 1.3rem;
+  color: #111827;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+@media (max-width: 768px) {
+  .resource-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
