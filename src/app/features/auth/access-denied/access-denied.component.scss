@@ -15,8 +15,8 @@
   width: 56px;
   height: 56px;
   border-radius: 999px;
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--app-danger-bg);
+  color: var(--app-danger-text);
   display: inline-flex;
   align-items: center;
   justify-content: center;

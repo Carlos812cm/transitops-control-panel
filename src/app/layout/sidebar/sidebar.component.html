@@ -17,7 +17,7 @@
       (keydown.enter)="closeOnNavigation()"
       (keydown.space)="closeOnNavigation(); $event.preventDefault()"
     >
-      ✕
+      <span aria-hidden="true">&times;</span>
     </button>
   </div>
 
@@ -53,7 +53,28 @@
   </nav>
 
   <div class="sidebar-footer">
-    <p>TransitOps Platform</p>
-    <span>Angular Admin System</span>
+    @if (currentTheme(); as theme) {
+      <button
+        type="button"
+        class="theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-pressed]="theme === 'dark'"
+        [attr.aria-label]="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      >
+        <span class="theme-toggle-icon" aria-hidden="true">
+          @if (theme === 'dark') {
+            L
+          } @else {
+            D
+          }
+        </span>
+        <span>{{ theme === 'dark' ? 'Light mode' : 'Dark mode' }}</span>
+      </button>
+    }
+
+    <div class="sidebar-meta">
+      <p>TransitOps Platform</p>
+      <span>Angular Admin System</span>
+    </div>
   </div>
 </aside>

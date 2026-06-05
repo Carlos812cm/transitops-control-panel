@@ -1,16 +1,12 @@
-<header
-  class="navbar-panel"
-  (pointerup)="handleHeaderInteraction($event)"
-  (click)="handleHeaderInteraction($event)"
->
+<header class="navbar-panel">
   <button
     type="button"
     class="mobile-sidebar-toggle"
     aria-label="Open sidebar"
     [class.hidden]="isSidebarOpen"
-    (click)="openSidebar($event)"
+    (click)="openMenu()"
   >
-    ☰
+    <span aria-hidden="true">&#9776;</span>
   </button>
 
   <div class="navbar-left">
@@ -20,7 +16,7 @@
     </div>
   </div>
 
-  @if (currentUser$ | async; as user) {
+  @if (currentUser(); as user) {
     <div class="navbar-user">
       <span class="user-role">{{ user.role }}</span>
       <span class="user-name">{{ user.name }}</span>

@@ -5,11 +5,11 @@
 }
 
 .dashboard-card {
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 1rem;
   padding: 1.25rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 0.125rem 0.5rem rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--app-border);
+  box-shadow: 0 0.125rem 0.5rem var(--app-shadow);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -17,14 +17,14 @@
 }
 
 .dashboard-card p {
-  color: #6b7280;
+  color: var(--app-text-muted);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
 
 .dashboard-card h2 {
   margin: 0;
-  color: #111827;
+  color: var(--app-text);
   font-weight: 800;
   font-size: 2rem;
 }
@@ -33,12 +33,12 @@
   text-decoration: none;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #2563eb;
+  color: var(--app-primary);
 }
 
 .metric-success {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--app-success-bg);
+  color: var(--app-success-text);
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -48,12 +48,12 @@
 .section-title {
   font-size: 1rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--app-text);
   margin-bottom: 1rem;
 }
 
 .section-subtitle {
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-size: 0.9rem;
 }
 
@@ -69,7 +69,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.85rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .status-row:last-child {
@@ -77,12 +77,12 @@
 }
 
 .status-row span {
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-size: 0.9rem;
 }
 
 .status-row strong {
-  color: #111827;
+  color: var(--app-text);
   font-size: 1.1rem;
 }
 
@@ -94,31 +94,31 @@
 .quick-action {
   display: block;
   text-decoration: none;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  color: #111827;
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
   font-weight: 700;
   padding: 0.85rem 1rem;
   border-radius: 0.75rem;
 }
 
 .quick-action:hover {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background: var(--app-hover);
+  border-color: var(--app-primary-soft-border);
+  color: var(--app-primary);
 }
 
 .dashboard-note {
-  background: #f9fafb;
-  border-left: 4px solid #2563eb;
+  background: var(--app-surface-muted);
+  border-left: 4px solid var(--app-primary);
   padding: 1rem;
   border-radius: 0.75rem;
-  color: #4b5563;
+  color: var(--app-text-muted);
   font-size: 0.9rem;
 }
 
 .table th {
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;

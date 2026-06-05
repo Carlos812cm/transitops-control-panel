@@ -1,7 +1,7 @@
 .navbar-panel {
   min-height: 76px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
   padding: 0.85rem 1.5rem;
   display: flex;
   align-items: center;
@@ -28,13 +28,13 @@
   font-size: 1.1rem;
   margin: 0;
   font-weight: 800;
-  color: #111827;
+  color: var(--app-text);
 }
 
 .navbar-panel p {
   margin: 0;
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 
 .navbar-user {
@@ -49,22 +49,22 @@
 }
 
 .mobile-sidebar-toggle:hover {
-  background: #6c757d;
-  color: #ffffff;
+  background: var(--app-hover);
+  color: var(--app-primary);
 }
 
 .user-role {
   font-size: 0.75rem;
   font-weight: 800;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--app-primary-soft);
+  color: var(--app-primary-soft-text);
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
 }
 
 .user-name {
   font-weight: 700;
-  color: #111827;
+  color: var(--app-text);
 }
 
 @media (max-width: 992px) {
@@ -82,13 +82,13 @@
     z-index: 1001;
     width: 40px;
     height: 40px;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
     border-radius: 0.75rem;
-    color: #111827;
+    color: var(--app-text);
     font-size: 1.2rem;
     font-weight: 800;
-    box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.12);
+    box-shadow: 0 0.5rem 1.5rem var(--app-shadow-lg);
   }
 }
 

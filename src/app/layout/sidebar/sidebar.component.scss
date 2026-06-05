@@ -1,8 +1,8 @@
 .sidebar {
   width: 260px;
   min-height: 100vh;
-  background: #111827;
-  color: #ffffff;
+  background: var(--app-sidebar-bg);
+  color: var(--app-sidebar-text);
   padding: 1.25rem 1rem;
   position: fixed;
   inset: 0 auto 0 0;
@@ -27,8 +27,8 @@
 .brand-icon {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  background: #2563eb;
+  border-radius: 0.75rem;
+  background: var(--app-sidebar-brand-bg);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +44,7 @@
 
 .sidebar-brand p {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--app-sidebar-muted);
   margin: 0;
 }
 
@@ -52,7 +52,7 @@
   display: none;
   border: 0;
   background: transparent;
-  color: #ffffff;
+  color: var(--app-sidebar-text);
   font-size: 1.8rem;
   line-height: 1;
 }
@@ -64,7 +64,7 @@
 }
 
 .sidebar-nav a {
-  color: #d1d5db;
+  color: var(--app-sidebar-link);
   text-decoration: none;
   padding: 0.8rem 0.9rem;
   border-radius: 0.75rem;
@@ -75,19 +75,61 @@
 }
 
 .sidebar-nav a:hover {
-  background: #1f2937;
-  color: #ffffff;
+  background: var(--app-sidebar-hover);
+  color: var(--app-sidebar-text);
 }
 
 .sidebar-nav a.active {
-  background: #2563eb;
-  color: #ffffff;
+  background: var(--app-sidebar-active);
+  color: var(--app-sidebar-text);
 }
 
 .sidebar-footer {
   margin-top: auto;
-  border-top: 1px solid #1f2937;
+  border-top: 1px solid var(--app-sidebar-border);
   padding-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.theme-toggle {
+  width: 100%;
+  border: 1px solid var(--app-sidebar-border);
+  background: var(--app-sidebar-toggle-bg);
+  color: var(--app-sidebar-text);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--app-sidebar-hover);
+  border-color: var(--app-sidebar-active);
+}
+
+.theme-toggle-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 999px;
+  background: var(--app-sidebar-active);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.sidebar-meta {
+  min-width: 0;
 }
 
 .sidebar-footer p {
@@ -97,7 +139,7 @@
 }
 
 .sidebar-footer span {
-  color: #9ca3af;
+  color: var(--app-sidebar-muted);
   font-size: 0.75rem;
 }
 

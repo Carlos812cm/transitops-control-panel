@@ -1,7 +1,7 @@
 .admin-layout {
   min-height: 100vh;
   display: flex;
-  background-color: #f5f7fb;
+  background-color: var(--app-bg);
 }
 
 .admin-content {
@@ -31,7 +31,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: var(--app-backdrop);
     z-index: 998;
   }
 }
