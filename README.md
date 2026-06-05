@@ -1,8 +1,10 @@
 # TransitOps Control Panel
 
+English | [Español](README.es.md)
+
 TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It provides a role-aware interface to manage vehicles, drivers, routes and trips through a REST API.
 
-This repository represents the Front-End layer of the TransitOps Platform portfolio project. It is designed to demonstrate professional Angular architecture, typed API integration, authentication, role-based UI behavior, reactive forms, dashboard metrics, table filters and responsive layout.
+This repository represents the Front-End layer of the TransitOps Platform portfolio project. It is designed to demonstrate professional Angular architecture, typed API integration, authentication, role-based UI behavior, reactive forms, dashboard metrics, table filters, responsive layout and light/dark theme support.
 
 ---
 
@@ -19,6 +21,7 @@ The goal of this project is to present a realistic Front-End administrative syst
 - Table searching and filtering
 - Loading, empty and error states
 - Responsive admin layout
+- Light and dark theme support with local persistence
 - Local mock API for independent Front-End testing
 
 The project can be used in interview scenarios as a Front-End Angular project, or as the UI layer of a wider Full-Stack TransitOps Platform.
@@ -184,6 +187,12 @@ IN_PROGRESS -> COMPLETED
 IN_PROGRESS -> CANCELLED
 ```
 
+### Theme Support
+
+TransitOps Control Panel includes light and dark theme support.
+
+The selected theme is persisted using `localStorage`, allowing the user preference to remain active after refreshing or reopening the application. The theme system uses a global `ThemeService`, CSS variables and Bootstrap `data-bs-theme` integration.
+
 ---
 
 ## Business Rules
@@ -266,6 +275,7 @@ The `core` layer contains application-wide logic.
 | `auth.interceptor.ts`  | Adds the token to API requests               |
 | `error.interceptor.ts` | Handles unauthorized and forbidden responses |
 | `auth.service.ts`      | Handles login, logout and user session       |
+| `theme.service.ts`     | Handles light/dark theme persistence         |
 | `vehicles.service.ts`  | Vehicle API operations                       |
 | `drivers.service.ts`   | Driver API operations                        |
 | `routes.service.ts`    | Route API operations                         |
@@ -477,6 +487,7 @@ docs/screenshots/routes.png
 docs/screenshots/trips.png
 docs/screenshots/trip-form.png
 docs/screenshots/access-denied.png
+docs/screenshots/dark-theme.png
 docs/screenshots/mobile-sidebar.png
 ```
 
@@ -497,6 +508,7 @@ This project demonstrates:
 - Local table filtering
 - Status transitions from administrative tables
 - Responsive layout with mobile sidebar
+- Light/dark theme system with CSS variables
 - Local mock API for independent testing
 
 ---
@@ -505,11 +517,11 @@ This project demonstrates:
 
 A concise explanation for interviews:
 
-> TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It consumes a REST API to manage vehicles, drivers, routes and trips. I implemented authentication, protected routes, role-based UI actions, reusable components, reactive forms, typed HTTP services, table filters, status transitions and a responsive layout.
+> TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It consumes a REST API to manage vehicles, drivers, routes and trips. I implemented authentication, protected routes, role-based UI actions, reusable components, reactive forms, typed HTTP services, table filters, status transitions, light/dark theme support and a responsive layout.
 
 A more technical explanation:
 
-> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, plus a reusable structural directive to hide UI elements based on the current user role.
+> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, a reusable structural directive to hide UI elements based on the current user role, and a ThemeService to manage light/dark UI preferences with local persistence.
 
 Business-focused explanation:
 
@@ -533,10 +545,13 @@ Implemented:
 - Role-based buttons and access control
 - Search and status filters
 - Loading, error and empty states
+- Light and dark theme support
 - Local mock API with tests
 
 Possible future improvements:
 
+- Settings section
+- English/Spanish language selector
 - Edit forms
 - Detail pages
 - Server-side pagination
