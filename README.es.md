@@ -22,6 +22,7 @@ El objetivo de este proyecto es presentar un sistema administrativo realista, no
 - Estados de carga, error y datos vacíos.
 - Layout administrativo responsive.
 - Tema claro y tema oscuro con persistencia local.
+- Página de configuración con selector de idioma inglés/español.
 - Mock API local para probar el Front-End de forma independiente.
 
 El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angular**, o como la capa visual de una plataforma **Full-Stack** más amplia llamada TransitOps Platform.
@@ -185,6 +186,12 @@ La aplicación incluye soporte para tema claro y tema oscuro.
 
 El tema seleccionado se guarda en `localStorage`, por lo que la preferencia del usuario se mantiene después de refrescar o volver a abrir la aplicación. El sistema de temas utiliza un servicio global, variables CSS y la integración de Bootstrap mediante `data-bs-theme`.
 
+### Configuración y soporte de idioma
+
+La sección de configuración está disponible para usuarios autenticados desde la zona inferior del sidebar.
+
+Los usuarios pueden cambiar el idioma de la interfaz entre inglés y español. El idioma seleccionado se guarda en `localStorage` mediante un `LanguageService` global, y las etiquetas soportadas del sidebar y de Configuración se actualizan inmediatamente después de la selección.
+
 ---
 
 ## Reglas de negocio
@@ -218,6 +225,7 @@ Reglas principales representadas en la UI y en la mock API:
 | `/trips` | Gestión de viajes | Usuarios autenticados |
 | `/trips/new` | Crear viaje | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
 | `/admin` | Área demo solo admin | `ADMIN` |
+| `/settings` | Configuración de usuario e idioma | Usuarios autenticados |
 | `/access-denied` | Pantalla de acceso no autorizado | Usuarios autenticados |
 
 ---
@@ -239,7 +247,8 @@ src/
 │   │   ├── vehicles/
 │   │   ├── drivers/
 │   │   ├── routes/
-│   │   └── trips/
+│   │   ├── trips/
+│   │   └── settings/
 │   ├── layout/
 │   │   ├── auth-layout/
 │   │   ├── main-layout/
@@ -268,6 +277,7 @@ La capa `core` contiene lógica global de la aplicación.
 | `error.interceptor.ts` | Maneja respuestas no autorizadas o prohibidas |
 | `auth.service.ts` | Maneja login, logout y sesión de usuario |
 | `theme.service.ts` | Maneja tema claro/oscuro y persistencia |
+| `language.service.ts` | Maneja persistencia de idioma inglés/español |
 | `vehicles.service.ts` | Operaciones API de vehículos |
 | `drivers.service.ts` | Operaciones API de conductores |
 | `routes.service.ts` | Operaciones API de rutas |
@@ -501,6 +511,7 @@ Este proyecto demuestra:
 - Transiciones de estado desde tablas administrativas.
 - Layout responsive con sidebar móvil.
 - Sistema de tema claro/oscuro con variables CSS.
+- Preferencia de idioma inglés/español con persistencia local.
 - Mock API local para pruebas independientes.
 
 ---
@@ -513,7 +524,7 @@ Explicación breve:
 
 Explicación técnica:
 
-> La aplicación usa Angular standalone components, Angular Router, HttpClient y RxJS. La comunicación por dominio está separada en servicios como VehiclesService, DriversService, RoutesService y TripsService. La autenticación se maneja mediante AuthService, con un token local adjuntado automáticamente por un interceptor HTTP. También implementé guards de autenticación y validación de roles, una directiva estructural reutilizable para ocultar elementos según el rol actual y un ThemeService para manejar tema claro/oscuro con persistencia local.
+> La aplicación usa Angular standalone components, Angular Router, HttpClient y RxJS. La comunicación por dominio está separada en servicios como VehiclesService, DriversService, RoutesService y TripsService. La autenticación se maneja mediante AuthService, con un token local adjuntado automáticamente por un interceptor HTTP. También implementé guards de autenticación y validación de roles, una directiva estructural reutilizable para ocultar elementos según el rol actual, un ThemeService para manejar tema claro/oscuro y un LanguageService para preferencias de idioma inglés/español con persistencia local.
 
 Explicación de negocio:
 
@@ -538,12 +549,11 @@ Implementado:
 - Búsqueda y filtros por estado.
 - Estados de carga, error y datos vacíos.
 - Tema claro y tema oscuro.
+- Sección de configuración con selector de idioma inglés/español.
 - Mock API local con pruebas.
 
 Mejoras futuras posibles:
 
-- Sección de configuración.
-- Selector de idioma inglés/español.
 - Formularios de edición.
 - Páginas de detalle.
 - Paginación server-side.

@@ -1,0 +1,33 @@
+<app-page-header [title]="t('settings.title')" [subtitle]="t('settings.subtitle')" />
+
+<section class="settings-panel">
+  <div class="settings-section-header">
+    <div>
+      <h2>{{ t('settings.language.title') }}</h2>
+      <p>{{ t('settings.language.description') }}</p>
+    </div>
+  </div>
+
+  <div class="language-options" role="radiogroup" [attr.aria-label]="t('settings.language.title')">
+    @for (option of languageOptions; track option.code) {
+      <button
+        type="button"
+        class="language-option"
+        role="radio"
+        [class.selected]="currentLanguage() === option.code"
+        [attr.aria-checked]="currentLanguage() === option.code"
+        (click)="setLanguage(option.code)"
+      >
+        <span class="language-option-main">
+          <span class="language-option-label">{{ t(option.labelKey) }}</span>
+          <span class="language-option-code">{{ option.code.toUpperCase() }}</span>
+        </span>
+
+        @if (currentLanguage() === option.code) {
+          <span class="language-option-current">{{ t('settings.language.current') }}</span>
+        }
+      </button>
+    }
+  </div>
+</section>
+

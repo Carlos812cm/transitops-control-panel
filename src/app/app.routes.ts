@@ -125,6 +125,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'settings',
+        canActivate: [roleGuard],
+        data: {
+          roles: ['ADMIN', 'OPERATOR', 'SUPERVISOR', 'VIEWER'],
+        },
+        loadComponent: () =>
+          import('./features/settings/settings.component').then((m) => m.SettingsComponent),
+      },
+      {
         path: 'access-denied',
         loadComponent: () =>
           import('./features/auth/access-denied/access-denied.component').then(
