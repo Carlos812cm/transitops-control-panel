@@ -57,13 +57,19 @@
   line-height: 1;
 }
 
-.sidebar-nav {
+.sidebar-nav,
+.sidebar-footer-nav {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.sidebar-nav a {
+.sidebar-footer-nav {
+  margin: 0;
+}
+
+.sidebar-nav a,
+.sidebar-footer-nav a {
   color: var(--app-sidebar-link);
   text-decoration: none;
   padding: 0.8rem 0.9rem;
@@ -74,12 +80,14 @@
     color 0.15s ease;
 }
 
-.sidebar-nav a:hover {
+.sidebar-nav a:hover,
+.sidebar-footer-nav a:hover {
   background: var(--app-sidebar-hover);
   color: var(--app-sidebar-text);
 }
 
-.sidebar-nav a.active {
+.sidebar-nav a.active,
+.sidebar-footer-nav a.active {
   background: var(--app-sidebar-active);
   color: var(--app-sidebar-text);
 }

@@ -5,14 +5,14 @@
 
       <div>
         <h1>TransitOps</h1>
-        <p>Control Panel</p>
+        <p>{{ t('sidebar.brand.subtitle') }}</p>
       </div>
     </div>
 
     <button
       type="button"
       class="sidebar-close"
-      aria-label="Close sidebar"
+      [attr.aria-label]="t('sidebar.close')"
       (pointerup)="closeOnNavigation()"
       (keydown.enter)="closeOnNavigation()"
       (keydown.space)="closeOnNavigation(); $event.preventDefault()"
@@ -23,23 +23,23 @@
 
   <nav class="sidebar-nav">
     <a routerLink="/dashboard" routerLinkActive="active" (click)="closeOnNavigation()">
-      <span>Dashboard</span>
+      <span>{{ t('sidebar.dashboard') }}</span>
     </a>
 
     <a routerLink="/vehicles" routerLinkActive="active" (click)="closeOnNavigation()">
-      <span>Vehicles</span>
+      <span>{{ t('sidebar.vehicles') }}</span>
     </a>
 
     <a routerLink="/drivers" routerLinkActive="active" (click)="closeOnNavigation()">
-      <span>Drivers</span>
+      <span>{{ t('sidebar.drivers') }}</span>
     </a>
 
     <a routerLink="/routes" routerLinkActive="active" (click)="closeOnNavigation()">
-      <span>Routes</span>
+      <span>{{ t('sidebar.routes') }}</span>
     </a>
 
     <a routerLink="/trips" routerLinkActive="active" (click)="closeOnNavigation()">
-      <span>Trips</span>
+      <span>{{ t('sidebar.trips') }}</span>
     </a>
 
     <a
@@ -48,18 +48,31 @@
       (click)="closeOnNavigation()"
       *appHasRole="'ADMIN'"
     >
-      <span>Admin</span>
+      <span>{{ t('sidebar.admin') }}</span>
     </a>
   </nav>
 
   <div class="sidebar-footer">
+    <nav class="sidebar-footer-nav" [attr.aria-label]="t('sidebar.settings')">
+      <a
+        routerLink="/settings"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+        *appHasRole="settingsRoles"
+      >
+        <span>{{ t('sidebar.settings') }}</span>
+      </a>
+    </nav>
+
     @if (currentTheme(); as theme) {
       <button
         type="button"
         class="theme-toggle"
         (click)="toggleTheme()"
         [attr.aria-pressed]="theme === 'dark'"
-        [attr.aria-label]="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+        [attr.aria-label]="
+          theme === 'dark' ? t('sidebar.theme.switchToLight') : t('sidebar.theme.switchToDark')
+        "
       >
         <span class="theme-toggle-icon" aria-hidden="true">
           @if (theme === 'dark') {
@@ -68,13 +81,13 @@
             D
           }
         </span>
-        <span>{{ theme === 'dark' ? 'Light mode' : 'Dark mode' }}</span>
+        <span>{{ theme === 'dark' ? t('sidebar.theme.light') : t('sidebar.theme.dark') }}</span>
       </button>
     }
 
     <div class="sidebar-meta">
-      <p>TransitOps Platform</p>
-      <span>Angular Admin System</span>
+      <p>{{ t('sidebar.meta.project') }}</p>
+      <span>{{ t('sidebar.meta.description') }}</span>
     </div>
   </div>
 </aside>

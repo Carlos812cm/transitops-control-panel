@@ -22,6 +22,7 @@ The goal of this project is to present a realistic Front-End administrative syst
 - Loading, empty and error states
 - Responsive admin layout
 - Light and dark theme support with local persistence
+- Settings page with English and Spanish language selection
 - Local mock API for independent Front-End testing
 
 The project can be used in interview scenarios as a Front-End Angular project, or as the UI layer of a wider Full-Stack TransitOps Platform.
@@ -193,6 +194,12 @@ TransitOps Control Panel includes light and dark theme support.
 
 The selected theme is persisted using `localStorage`, allowing the user preference to remain active after refreshing or reopening the application. The theme system uses a global `ThemeService`, CSS variables and Bootstrap `data-bs-theme` integration.
 
+### Settings and Language Support
+
+The Settings section is available to authenticated users from the lower area of the sidebar.
+
+Users can switch the interface language between English and Spanish. The selected language is persisted using `localStorage` through a global `LanguageService`, and supported sidebar and Settings labels update immediately after selection.
+
 ---
 
 ## Business Rules
@@ -226,6 +233,7 @@ Main rules represented in the UI and mock API:
 | `/trips`         | Trip management            | Authenticated users               |
 | `/trips/new`     | Create trip                | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
 | `/admin`         | Admin-only demo area       | `ADMIN`                           |
+| `/settings`      | User settings and language | Authenticated users               |
 | `/access-denied` | Unauthorized access screen | Authenticated users               |
 
 ---
@@ -247,7 +255,8 @@ src/
 │   │   ├── vehicles/
 │   │   ├── drivers/
 │   │   ├── routes/
-│   │   └── trips/
+│   │   ├── trips/
+│   │   └── settings/
 │   ├── layout/
 │   │   ├── auth-layout/
 │   │   ├── main-layout/
@@ -276,6 +285,7 @@ The `core` layer contains application-wide logic.
 | `error.interceptor.ts` | Handles unauthorized and forbidden responses |
 | `auth.service.ts`      | Handles login, logout and user session       |
 | `theme.service.ts`     | Handles light/dark theme persistence         |
+| `language.service.ts`  | Handles English/Spanish language persistence |
 | `vehicles.service.ts`  | Vehicle API operations                       |
 | `drivers.service.ts`   | Driver API operations                        |
 | `routes.service.ts`    | Route API operations                         |
@@ -509,6 +519,7 @@ This project demonstrates:
 - Status transitions from administrative tables
 - Responsive layout with mobile sidebar
 - Light/dark theme system with CSS variables
+- English/Spanish language preference with local persistence
 - Local mock API for independent testing
 
 ---
@@ -521,7 +532,7 @@ A concise explanation for interviews:
 
 A more technical explanation:
 
-> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, a reusable structural directive to hide UI elements based on the current user role, and a ThemeService to manage light/dark UI preferences with local persistence.
+> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, a reusable structural directive to hide UI elements based on the current user role, a ThemeService to manage light/dark UI preferences and a LanguageService for English/Spanish UI preferences with local persistence.
 
 Business-focused explanation:
 
@@ -546,12 +557,11 @@ Implemented:
 - Search and status filters
 - Loading, error and empty states
 - Light and dark theme support
+- Settings section with English/Spanish language selector
 - Local mock API with tests
 
 Possible future improvements:
 
-- Settings section
-- English/Spanish language selector
 - Edit forms
 - Detail pages
 - Server-side pagination
