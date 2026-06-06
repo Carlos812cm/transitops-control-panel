@@ -1,0 +1,92 @@
+.register-card {
+  width: min(100%, 900px);
+  border-radius: 1rem;
+}
+
+.register-success-card {
+  max-width: 520px;
+}
+
+.register-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.register-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: var(--app-primary);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.75rem;
+}
+
+.register-section {
+  border-top: 1px solid var(--app-border);
+  padding-top: 1.15rem;
+  margin-bottom: 1.35rem;
+}
+
+.register-section h2 {
+  color: var(--app-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.register-action-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.register-action-field .btn {
+  white-space: nowrap;
+}
+
+.register-note {
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}
+
+.register-success-message {
+  color: var(--app-success-text);
+  font-weight: 600;
+}
+
+.register-login-link {
+  font-size: 0.95rem;
+}
+
+.register-success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin: 1.25rem auto 1rem;
+  border-radius: 50%;
+  background: var(--app-success-bg);
+  color: var(--app-success-text);
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+@media (max-width: 768px) {
+  .register-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .register-action-field {
+    grid-template-columns: 1fr;
+  }
+
+  .register-action-field .btn {
+    width: 100%;
+  }
+}

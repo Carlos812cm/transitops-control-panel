@@ -8,6 +8,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  phone?: string;
   role: UserRole;
   status: UserStatus;
   createdAt?: Date;
@@ -22,4 +23,39 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   user: User;
+}
+
+export type PublicRegistrationRole = Exclude<UserRole, 'ADMIN'>;
+
+export interface VerificationCodeResponseData {
+  destination: string;
+  code: string;
+  expiresInMinutes: number;
+}
+
+export interface RequestEmailCodeRequest {
+  email: string;
+}
+
+export interface RequestPhoneCodeRequest {
+  phone: string;
+}
+
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  phoneCode: string;
+  email: string;
+  emailCode: string;
+  password: string;
+  confirmPassword: string;
+  requestedRole: PublicRegistrationRole;
+}
+
+export interface RegisterResponseData {
+  id: number;
+  email: string;
+  phone: string;
+  requestedRole: PublicRegistrationRole;
 }

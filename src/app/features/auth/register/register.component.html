@@ -1,0 +1,305 @@
+@if (isRegistrationSuccessful) {
+  <div class="card border-0 shadow-sm register-card register-success-card">
+    <div class="card-body p-4 p-md-5 text-center">
+      <span class="register-brand">TransitOps</span>
+      <div class="register-success-icon" aria-hidden="true">✓</div>
+      <h1 class="h4 fw-bold mb-2">{{ t('auth.register.successTitle') }}</h1>
+      <p class="text-muted mb-4">{{ t('auth.register.successMessage') }}</p>
+
+      <a routerLink="/login" class="btn btn-primary">
+        {{ t('auth.register.goToLogin') }}
+      </a>
+    </div>
+  </div>
+} @else {
+  <div class="card border-0 shadow-sm register-card">
+    <div class="card-body p-4 p-md-5">
+      <div class="register-heading mb-4">
+        <span class="register-brand">TransitOps</span>
+        <div>
+          <h1 class="h4 fw-bold mb-1">{{ t('auth.register.title') }}</h1>
+          <p class="text-muted mb-0">{{ t('auth.register.subtitle') }}</p>
+        </div>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <section class="register-section">
+          <h2>{{ t('auth.register.personalInfo') }}</h2>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="firstName" class="form-label">{{ t('auth.register.firstName') }}</label>
+              <input
+                id="firstName"
+                type="text"
+                class="form-control"
+                formControlName="firstName"
+                autocomplete="given-name"
+                [class.is-invalid]="isInvalid(firstName)"
+              />
+
+              @if (firstName.hasError('required') && firstName.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.firstNameRequired') }}
+                </div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="lastName" class="form-label">{{ t('auth.register.lastName') }}</label>
+              <input
+                id="lastName"
+                type="text"
+                class="form-control"
+                formControlName="lastName"
+                autocomplete="family-name"
+                [class.is-invalid]="isInvalid(lastName)"
+              />
+
+              @if (lastName.hasError('required') && lastName.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.lastNameRequired') }}
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="register-section">
+          <h2>{{ t('auth.register.accountAccess') }}</h2>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="email" class="form-label">{{ t('auth.login.email') }}</label>
+              <div class="register-action-field">
+                <input
+                  id="email"
+                  type="email"
+                  class="form-control"
+                  formControlName="email"
+                  autocomplete="email"
+                  placeholder="name@transitops.com"
+                  [class.is-invalid]="isInvalid(email)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-primary"
+                  [disabled]="email.invalid || isEmailCodeLoading"
+                  (click)="requestEmailCode()"
+                >
+                  @if (isEmailCodeLoading) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    {{ t('auth.register.sendingEmailCode') }}
+                  } @else {
+                    {{ t('auth.register.sendEmailCode') }}
+                  }
+                </button>
+              </div>
+
+              @if (email.hasError('required') && email.touched) {
+                <div class="invalid-feedback d-block">
+                  {{ t('auth.validation.emailRequired') }}
+                </div>
+              }
+
+              @if (email.hasError('email') && email.touched) {
+                <div class="invalid-feedback d-block">
+                  {{ t('auth.validation.emailValid') }}
+                </div>
+              }
+
+              @if (emailCodeMessage) {
+                <div class="form-text register-success-message">{{ emailCodeMessage }}</div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="phone" class="form-label">{{ t('auth.register.phone') }}</label>
+              <div class="register-action-field">
+                <input
+                  id="phone"
+                  type="tel"
+                  class="form-control"
+                  formControlName="phone"
+                  autocomplete="tel"
+                  placeholder="+1 555 010 1004"
+                  [class.is-invalid]="isInvalid(phone)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-primary"
+                  [disabled]="phone.invalid || isPhoneCodeLoading"
+                  (click)="requestPhoneCode()"
+                >
+                  @if (isPhoneCodeLoading) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    {{ t('auth.register.sendingPhoneCode') }}
+                  } @else {
+                    {{ t('auth.register.sendPhoneCode') }}
+                  }
+                </button>
+              </div>
+
+              @if (phone.hasError('required') && phone.touched) {
+                <div class="invalid-feedback d-block">
+                  {{ t('auth.validation.phoneRequired') }}
+                </div>
+              }
+
+              @if (phone.hasError('pattern') && phone.touched) {
+                <div class="invalid-feedback d-block">
+                  {{ t('auth.validation.phoneValid') }}
+                </div>
+              }
+
+              @if (phoneCodeMessage) {
+                <div class="form-text register-success-message">{{ phoneCodeMessage }}</div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="password" class="form-label">{{ t('auth.login.password') }}</label>
+              <input
+                id="password"
+                type="password"
+                class="form-control"
+                formControlName="password"
+                autocomplete="new-password"
+                [class.is-invalid]="isInvalid(password)"
+              />
+
+              @if (password.hasError('required') && password.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.passwordRequired') }}
+                </div>
+              }
+
+              @if (password.hasError('minlength') && password.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.passwordMinLength') }}
+                </div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="confirmPassword" class="form-label">
+                {{ t('auth.register.confirmPassword') }}
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                class="form-control"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                [class.is-invalid]="isInvalid(confirmPassword) || passwordsMismatch"
+              />
+
+              @if (confirmPassword.hasError('required') && confirmPassword.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.confirmPasswordRequired') }}
+                </div>
+              }
+
+              @if (passwordsMismatch) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.passwordMatch') }}
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="register-section">
+          <h2>{{ t('auth.register.verification') }}</h2>
+          <p class="register-note mb-3">{{ t('auth.register.mockCodesNote') }}</p>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="emailCode" class="form-label">{{ t('auth.register.emailCode') }}</label>
+              <input
+                id="emailCode"
+                type="text"
+                inputmode="numeric"
+                class="form-control"
+                formControlName="emailCode"
+                autocomplete="one-time-code"
+                [class.is-invalid]="isInvalid(emailCode)"
+              />
+
+              @if (emailCode.hasError('required') && emailCode.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.emailCodeRequired') }}
+                </div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="phoneCode" class="form-label">{{ t('auth.register.phoneCode') }}</label>
+              <input
+                id="phoneCode"
+                type="text"
+                inputmode="numeric"
+                class="form-control"
+                formControlName="phoneCode"
+                autocomplete="one-time-code"
+                [class.is-invalid]="isInvalid(phoneCode)"
+              />
+
+              @if (phoneCode.hasError('required') && phoneCode.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.phoneCodeRequired') }}
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="register-section">
+          <h2>{{ t('auth.register.requestedRole') }}</h2>
+
+          <label for="requestedRole" class="form-label">{{ t('auth.register.roleLabel') }}</label>
+          <select
+            id="requestedRole"
+            class="form-select"
+            formControlName="requestedRole"
+            [class.is-invalid]="isInvalid(requestedRole)"
+          >
+            @for (role of requestedRoles; track role) {
+              <option [value]="role">{{ t(roleLabelKey(role)) }}</option>
+            }
+          </select>
+
+          @if (requestedRole.hasError('required') && requestedRole.touched) {
+            <div class="invalid-feedback">
+              {{ t('auth.validation.requestedRoleRequired') }}
+            </div>
+          }
+        </section>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          [disabled]="registerForm.invalid || isSubmitting"
+        >
+          @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            {{ t('auth.register.registering') }}
+          } @else {
+            {{ t('auth.register.registerAccount') }}
+          }
+        </button>
+      </form>
+
+      <div class="register-login-link mt-4 text-center">
+        <span class="text-muted">{{ t('auth.register.haveAccount') }}</span>
+        <a routerLink="/login" class="fw-semibold ms-1">{{ t('auth.register.signIn') }}</a>
+      </div>
+    </div>
+  </div>
+}

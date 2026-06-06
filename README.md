@@ -13,6 +13,7 @@ This repository represents the Front-End layer of the TransitOps Platform portfo
 The goal of this project is to present a realistic Front-End administrative system rather than a static dashboard. The application includes operational workflows that are common in internal business platforms:
 
 - Authentication and session handling
+- Public registration with simulated email and phone verification
 - Protected routes
 - Role-based navigation and actions
 - REST API integration through typed services
@@ -51,6 +52,9 @@ The project can be used in interview scenarios as a Front-End Angular project, o
 ### Authentication
 
 - Login screen
+- Public registration screen
+- Simulated email and phone verification codes for development
+- Requested role selection for `VIEWER`, `OPERATOR` or `SUPERVISOR`
 - JWT-like token storage
 - Current user session persistence
 - Logout flow
@@ -214,6 +218,9 @@ Main rules represented in the UI and mock API:
 - Only active routes can be assigned to trips.
 - Viewer users can consult data only.
 - Administrative actions are restricted by role.
+- Public registration cannot request the `ADMIN` role.
+- New public registrations can request only `VIEWER`, `OPERATOR` or `SUPERVISOR`.
+- Verification codes are simulated by the mock API for development only.
 - Trip status transitions depend on the current trip status.
 
 ---
@@ -223,6 +230,7 @@ Main rules represented in the UI and mock API:
 | Route            | Description                | Access                            |
 | ---------------- | -------------------------- | --------------------------------- |
 | `/login`         | Login screen               | Public                            |
+| `/register`      | Registration screen        | Public                            |
 | `/dashboard`     | Operational dashboard      | Authenticated users               |
 | `/vehicles`      | Vehicle management         | Authenticated users               |
 | `/vehicles/new`  | Create vehicle             | `ADMIN`                           |
@@ -277,19 +285,19 @@ src/
 
 The `core` layer contains application-wide logic.
 
-| File                   | Purpose                                      |
-| ---------------------- | -------------------------------------------- |
-| `auth.guard.ts`        | Protects private routes                      |
-| `role.guard.ts`        | Restricts routes by user role                |
-| `auth.interceptor.ts`  | Adds the token to API requests               |
-| `error.interceptor.ts` | Handles unauthorized and forbidden responses |
-| `auth.service.ts`      | Handles login, logout and user session       |
-| `theme.service.ts`     | Handles light/dark theme persistence         |
-| `language.service.ts`  | Handles English/Spanish language persistence |
-| `vehicles.service.ts`  | Vehicle API operations                       |
-| `drivers.service.ts`   | Driver API operations                        |
-| `routes.service.ts`    | Route API operations                         |
-| `trips.service.ts`     | Trip API operations                          |
+| File                   | Purpose                                              |
+| ---------------------- | ---------------------------------------------------- |
+| `auth.guard.ts`        | Protects private routes                              |
+| `role.guard.ts`        | Restricts routes by user role                        |
+| `auth.interceptor.ts`  | Adds the token to API requests                       |
+| `error.interceptor.ts` | Handles unauthorized and forbidden responses         |
+| `auth.service.ts`      | Handles login, registration, logout and user session |
+| `theme.service.ts`     | Handles light/dark theme persistence                 |
+| `language.service.ts`  | Handles English/Spanish language persistence         |
+| `vehicles.service.ts`  | Vehicle API operations                               |
+| `drivers.service.ts`   | Driver API operations                                |
+| `routes.service.ts`    | Route API operations                                 |
+| `trips.service.ts`     | Trip API operations                                  |
 
 The application uses TypeScript interfaces and union types to define API contracts and valid status values.
 
@@ -372,7 +380,16 @@ Health check:
 GET http://localhost:4000/api/health
 ```
 
-The mock API includes sample data, authentication, authorization checks, entity CRUD operations and trip business rules.
+The mock API includes sample data, authentication, public registration, authorization checks, entity CRUD operations and trip business rules.
+
+Registration verification is simulated for local development and portfolio testing only:
+
+```txt
+Email code: 123456
+Phone code: 654321
+```
+
+The mock API rejects duplicate email addresses, duplicate phone numbers, invalid verification codes, invalid requested roles and any public request for `ADMIN`.
 
 ---
 
@@ -382,6 +399,9 @@ The mock API includes sample data, authentication, authorization checks, entity 
 
 ```txt
 POST /api/auth/login
+POST /api/auth/request-email-code
+POST /api/auth/request-phone-code
+POST /api/auth/register
 GET  /api/auth/profile
 ```
 
@@ -545,6 +565,7 @@ Business-focused explanation:
 Implemented:
 
 - Authentication UI
+- Registration UI with simulated email and phone verification
 - Protected admin layout
 - Responsive sidebar and navbar
 - Dashboard with calculated metrics
@@ -563,6 +584,7 @@ Implemented:
 
 Possible future improvements:
 
+- Admin approval workflow for requested registration roles
 - Edit forms
 - Detail pages
 - Server-side pagination

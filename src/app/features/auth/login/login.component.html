@@ -65,6 +65,11 @@
       </button>
     </form>
 
+    <div class="login-register mt-3 text-center">
+      <span class="text-muted">{{ t('auth.login.noAccount') }}</span>
+      <a routerLink="/register" class="fw-semibold ms-1">{{ t('auth.login.createAccount') }}</a>
+    </div>
+
     <div class="login-help mt-4">
       <p class="mb-1 fw-semibold">{{ t('auth.login.demoUsers') }}</p>
       <p class="mb-0 text-muted">admin@transitops.com</p>
