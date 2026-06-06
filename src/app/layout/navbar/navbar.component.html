@@ -2,7 +2,7 @@
   <button
     type="button"
     class="mobile-sidebar-toggle"
-    aria-label="Open sidebar"
+    [attr.aria-label]="t('navbar.openSidebar')"
     [class.hidden]="isSidebarOpen"
     (click)="openMenu()"
   >
@@ -11,8 +11,8 @@
 
   <div class="navbar-left">
     <div>
-      <h2>TransitOps Control Panel</h2>
-      <p>Administrative transportation operations dashboard</p>
+      <h2>{{ t('navbar.title') }}</h2>
+      <p>{{ t('navbar.subtitle') }}</p>
     </div>
   </div>
 
@@ -22,7 +22,7 @@
       <span class="user-name">{{ user.name }}</span>
 
       <button type="button" class="btn btn-sm btn-outline-secondary" (click)="logout()">
-        Logout
+        {{ t('navbar.logout') }}
       </button>
     </div>
   }

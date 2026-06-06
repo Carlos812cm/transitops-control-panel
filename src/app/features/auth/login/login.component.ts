@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-login',
@@ -14,9 +16,14 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly languageService = inject(LanguageService);
 
   isLoading = false;
   errorMessage = '';
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -55,8 +62,13 @@ export class LoginComponent {
       error: (error) => {
         this.isLoading = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to sign in. Please try again.';
+        this.errorMessage = error?.error?.message || this.t('auth.login.error');
       },
     });
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

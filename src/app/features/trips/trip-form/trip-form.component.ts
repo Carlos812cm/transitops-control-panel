@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -7,6 +8,7 @@ import { TripsService } from '../../../core/services/trips.service';
 import { VehiclesService } from '../../../core/services/vehicles.service';
 import { DriversService } from '../../../core/services/drivers.service';
 import { RoutesService } from '../../../core/services/routes.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 
 import { CreateTripRequest } from '../../../core/models/trip.model';
 import { Vehicle } from '../../../core/models/vehicle.model';
@@ -37,6 +39,7 @@ export class TripFormComponent implements OnInit {
   private readonly vehiclesService = inject(VehiclesService);
   private readonly driversService = inject(DriversService);
   private readonly routesService = inject(RoutesService);
+  private readonly languageService = inject(LanguageService);
 
   availableVehicles: Vehicle[] = [];
   activeDrivers: Driver[] = [];
@@ -45,6 +48,10 @@ export class TripFormComponent implements OnInit {
   isLoadingData = false;
   isSubmitting = false;
   errorMessage = '';
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   tripForm = this.fb.nonNullable.group({
     vehicleId: ['', [Validators.required]],
@@ -116,7 +123,7 @@ export class TripFormComponent implements OnInit {
       error: (error) => {
         this.isLoadingData = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to load trip form data.';
+        this.errorMessage = error?.error?.message || this.t('trips.error.loadForm');
       },
     });
   }
@@ -155,12 +162,17 @@ export class TripFormComponent implements OnInit {
       error: (error) => {
         this.isSubmitting = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to create trip.';
+        this.errorMessage = error?.error?.message || this.t('trips.error.create');
       },
     });
   }
 
   private isVehicleSelectable(vehicle: Vehicle): boolean {
     return vehicle.status === 'AVAILABLE';
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

@@ -1,7 +1,7 @@
 <app-page-header
-  title="Trips"
-  subtitle="Schedule, monitor and update transportation trips."
-  actionLabel="New Trip"
+  [title]="t('trips.title')"
+  [subtitle]="t('trips.subtitle')"
+  [actionLabel]="t('trips.create')"
   actionLink="/trips/new"
   [actionRoles]="['ADMIN', 'OPERATOR', 'SUPERVISOR']"
 />
@@ -15,53 +15,56 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">Search trips</label>
+      <label class="form-label">{{ t('trips.search.label') }}</label>
       <input
         type="text"
         class="form-control"
-        placeholder="Search by vehicle, driver, route or notes"
+        [placeholder]="t('trips.search.placeholder')"
         [(ngModel)]="searchTerm"
         (ngModelChange)="applyFilters()"
       />
     </div>
 
     <div class="col-md-4">
-      <label class="form-label">Status</label>
+      <label class="form-label">{{ t('common.status') }}</label>
       <select
         class="form-select"
-        title="Filter trips by status"
+        [attr.title]="t('common.status')"
         [(ngModel)]="statusFilter"
         (ngModelChange)="applyFilters()"
       >
-        <option value="">All statuses</option>
-        <option value="SCHEDULED">Scheduled</option>
-        <option value="IN_PROGRESS">In progress</option>
-        <option value="COMPLETED">Completed</option>
-        <option value="CANCELLED">Cancelled</option>
+        <option value="">{{ t('common.allStatuses') }}</option>
+        <option value="SCHEDULED">{{ t('status.scheduled') }}</option>
+        <option value="IN_PROGRESS">{{ t('status.inProgress') }}</option>
+        <option value="COMPLETED">{{ t('status.completed') }}</option>
+        <option value="CANCELLED">{{ t('status.cancelled') }}</option>
       </select>
     </div>
 
     <div class="col-md-2">
       <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-        Clear
+        {{ t('common.clear') }}
       </button>
     </div>
   </div>
 
-  <p class="filters-summary">Showing {{ trips.length }} of {{ allTrips.length }} trips.</p>
+  <p class="filters-summary">
+    {{ t('common.showing') }} {{ trips.length }} {{ t('common.of') }} {{ allTrips.length }}
+    {{ t('trips.summary.label') }}.
+  </p>
 </div>
 
 @if (isLoading) {
-  <app-loading-spinner text="Loading trips..." />
+  <app-loading-spinner [text]="t('trips.loading')" />
 } @else if (errorMessage) {
   <div class="alert alert-danger" role="alert">
     {{ errorMessage }}
   </div>
 } @else if (trips.length === 0) {
   <app-empty-state
-    title="No trips found"
-    message="There are no trips scheduled yet."
-    actionLabel="Create trip"
+    [title]="t('trips.empty.title')"
+    [message]="t('trips.empty.message')"
+    [actionLabel]="t('trips.create')"
     actionLink="/trips/new"
   />
 } @else {
@@ -71,13 +74,13 @@
         <table class="table align-middle mb-0">
           <thead>
             <tr>
-              <th>Vehicle</th>
-              <th>Driver</th>
-              <th>Route</th>
-              <th>Scheduled Departure</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th class="text-end">Actions</th>
+              <th>{{ t('common.vehicle') }}</th>
+              <th>{{ t('common.driver') }}</th>
+              <th>{{ t('common.route') }}</th>
+              <th>{{ t('trips.table.scheduledDeparture') }}</th>
+              <th>{{ t('common.status') }}</th>
+              <th>{{ t('common.notes') }}</th>
+              <th class="text-end">{{ t('common.actions') }}</th>
             </tr>
           </thead>
 
@@ -105,7 +108,7 @@
                 </td>
 
                 <td>
-                  {{ trip.notes || '—' }}
+                  {{ trip.notes || '-' }}
                 </td>
 
                 <td class="text-end">
@@ -119,9 +122,9 @@
                           (click)="updateTripStatus(trip, 'IN_PROGRESS')"
                         >
                           @if (isUpdating(trip)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Start
+                            {{ t('trips.action.start') }}
                           }
                         </button>
                       }
@@ -134,9 +137,9 @@
                           (click)="updateTripStatus(trip, 'COMPLETED')"
                         >
                           @if (isUpdating(trip)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Complete
+                            {{ t('trips.action.complete') }}
                           }
                         </button>
                       }
@@ -149,21 +152,21 @@
                           (click)="updateTripStatus(trip, 'CANCELLED')"
                         >
                           @if (isUpdating(trip)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Cancel
+                            {{ t('trips.action.cancel') }}
                           }
                         </button>
                       }
 
                       @if (!canStart(trip) && !canComplete(trip) && !canCancel(trip)) {
-                        <span class="text-muted small"> No actions </span>
+                        <span class="text-muted small"> {{ t('common.noActions') }} </span>
                       }
                     </div>
                   </ng-container>
 
                   <ng-container *appHasRole="['VIEWER']">
-                    <span class="text-muted small"> View only </span>
+                    <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
                   </ng-container>
                 </td>
               </tr>

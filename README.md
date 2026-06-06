@@ -22,7 +22,7 @@ The goal of this project is to present a realistic Front-End administrative syst
 - Loading, empty and error states
 - Responsive admin layout
 - Light and dark theme support with local persistence
-- Settings page with English and Spanish language selection
+- Settings page with expanded English/Spanish UI language coverage
 - Local mock API for independent Front-End testing
 
 The project can be used in interview scenarios as a Front-End Angular project, or as the UI layer of a wider Full-Stack TransitOps Platform.
@@ -198,7 +198,7 @@ The selected theme is persisted using `localStorage`, allowing the user preferen
 
 The Settings section is available to authenticated users from the lower area of the sidebar.
 
-Users can switch the interface language between English and Spanish. The selected language is persisted using `localStorage` through a global `LanguageService`, and supported sidebar and Settings labels update immediately after selection.
+Users can switch the interface language between English and Spanish. The selected language is persisted using `localStorage` through a global `LanguageService`, and supported layout, dashboard, admin, auth, shared state, table, filter and form labels update immediately after selection.
 
 ---
 
@@ -519,7 +519,7 @@ This project demonstrates:
 - Status transitions from administrative tables
 - Responsive layout with mobile sidebar
 - Light/dark theme system with CSS variables
-- English/Spanish language preference with local persistence
+- Expanded English/Spanish UI language preference with local persistence
 - Local mock API for independent testing
 
 ---
@@ -532,7 +532,7 @@ A concise explanation for interviews:
 
 A more technical explanation:
 
-> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, a reusable structural directive to hide UI elements based on the current user role, a ThemeService to manage light/dark UI preferences and a LanguageService for English/Spanish UI preferences with local persistence.
+> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, a reusable structural directive to hide UI elements based on the current user role, a ThemeService to manage light/dark UI preferences and a LanguageService for expanded English/Spanish UI preferences with local persistence.
 
 Business-focused explanation:
 
@@ -558,6 +558,7 @@ Implemented:
 - Loading, error and empty states
 - Light and dark theme support
 - Settings section with English/Spanish language selector
+- Expanded English/Spanish coverage for visible static UI text
 - Local mock API with tests
 
 Possible future improvements:

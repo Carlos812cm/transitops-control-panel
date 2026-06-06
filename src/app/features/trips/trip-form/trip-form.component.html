@@ -1,10 +1,7 @@
-<app-page-header
-  title="New Trip"
-  subtitle="Schedule a new trip using an available vehicle, active driver and active route."
-/>
+<app-page-header [title]="t('trips.form.title')" [subtitle]="t('trips.form.subtitle')" />
 
 @if (isLoadingData) {
-  <app-loading-spinner text="Loading available resources..." />
+  <app-loading-spinner [text]="t('trips.form.loadingResources')" />
 } @else if (errorMessage) {
   <div class="alert alert-danger" role="alert">
     {{ errorMessage }}
@@ -13,23 +10,23 @@
   availableVehicles.length === 0 || activeDrivers.length === 0 || activeRoutes.length === 0
 ) {
   <app-empty-state
-    title="Not enough available resources"
-    message="You need at least one available vehicle, one active driver and one active route to schedule a trip."
+    [title]="t('trips.form.notEnough.title')"
+    [message]="t('trips.form.notEnough.message')"
   />
 
   <div class="resource-summary mt-3">
     <div class="resource-item">
-      <span>Available vehicles</span>
+      <span>{{ t('trips.form.availableVehicles') }}</span>
       <strong>{{ availableVehicles.length }}</strong>
     </div>
 
     <div class="resource-item">
-      <span>Active drivers</span>
+      <span>{{ t('trips.form.activeDrivers') }}</span>
       <strong>{{ activeDrivers.length }}</strong>
     </div>
 
     <div class="resource-item">
-      <span>Active routes</span>
+      <span>{{ t('trips.form.activeRoutes') }}</span>
       <strong>{{ activeRoutes.length }}</strong>
     </div>
   </div>
@@ -39,7 +36,7 @@
       <form [formGroup]="tripForm" (ngSubmit)="onSubmit()">
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="vehicleId" class="form-label">Vehicle</label>
+            <label for="vehicleId" class="form-label">{{ t('common.vehicle') }}</label>
 
             <select
               id="vehicleId"
@@ -47,7 +44,7 @@
               formControlName="vehicleId"
               [class.is-invalid]="vehicleId.invalid && vehicleId.touched"
             >
-              <option value="">Select vehicle</option>
+              <option value="">{{ t('trips.form.selectVehicle') }}</option>
 
               @for (vehicle of availableVehicles; track vehicle.id) {
                 <option [value]="vehicle.id">
@@ -57,12 +54,12 @@
             </select>
 
             @if (vehicleId.hasError('required') && vehicleId.touched) {
-              <div class="invalid-feedback">Vehicle is required.</div>
+              <div class="invalid-feedback">{{ t('trips.validation.vehicleRequired') }}</div>
             }
           </div>
 
           <div class="col-md-6">
-            <label for="driverId" class="form-label">Driver</label>
+            <label for="driverId" class="form-label">{{ t('common.driver') }}</label>
 
             <select
               id="driverId"
@@ -70,7 +67,7 @@
               formControlName="driverId"
               [class.is-invalid]="driverId.invalid && driverId.touched"
             >
-              <option value="">Select driver</option>
+              <option value="">{{ t('trips.form.selectDriver') }}</option>
 
               @for (driver of activeDrivers; track driver.id) {
                 <option [value]="driver.id">
@@ -80,12 +77,12 @@
             </select>
 
             @if (driverId.hasError('required') && driverId.touched) {
-              <div class="invalid-feedback">Driver is required.</div>
+              <div class="invalid-feedback">{{ t('trips.validation.driverRequired') }}</div>
             }
           </div>
 
           <div class="col-md-8">
-            <label for="routeId" class="form-label">Route</label>
+            <label for="routeId" class="form-label">{{ t('common.route') }}</label>
 
             <select
               id="routeId"
@@ -93,22 +90,24 @@
               formControlName="routeId"
               [class.is-invalid]="routeId.invalid && routeId.touched"
             >
-              <option value="">Select route</option>
+              <option value="">{{ t('trips.form.selectRoute') }}</option>
 
               @for (route of activeRoutes; track route.id) {
                 <option [value]="route.id">
-                  {{ route.name }}: {{ route.origin }} → {{ route.destination }}
+                  {{ route.name }}: {{ route.origin }} -> {{ route.destination }}
                 </option>
               }
             </select>
 
             @if (routeId.hasError('required') && routeId.touched) {
-              <div class="invalid-feedback">Route is required.</div>
+              <div class="invalid-feedback">{{ t('trips.validation.routeRequired') }}</div>
             }
           </div>
 
           <div class="col-md-4">
-            <label for="scheduledDeparture" class="form-label"> Scheduled departure </label>
+            <label for="scheduledDeparture" class="form-label">
+              {{ t('trips.form.scheduledDeparture') }}
+            </label>
 
             <input
               id="scheduledDeparture"
@@ -119,36 +118,36 @@
             />
 
             @if (scheduledDeparture.hasError('required') && scheduledDeparture.touched) {
-              <div class="invalid-feedback">Scheduled departure is required.</div>
+              <div class="invalid-feedback">{{ t('trips.validation.departureRequired') }}</div>
             }
           </div>
 
           <div class="col-12">
-            <label for="notes" class="form-label">Notes</label>
+            <label for="notes" class="form-label">{{ t('common.notes') }}</label>
 
             <textarea
               id="notes"
               class="form-control"
               rows="4"
               formControlName="notes"
-              placeholder="Optional trip notes..."
+              [placeholder]="t('trips.form.notesPlaceholder')"
             ></textarea>
           </div>
         </div>
 
         <div class="business-rules-box">
-          <h2>Business rules applied</h2>
+          <h2>{{ t('trips.form.businessRules.title') }}</h2>
 
           <ul>
-            <li>Only available vehicles can be selected.</li>
-            <li>Only active drivers can be selected.</li>
-            <li>Only active routes can be selected.</li>
-            <li>The Back-End validates the final operation before creating the trip.</li>
+            <li>{{ t('trips.form.businessRules.vehicle') }}</li>
+            <li>{{ t('trips.form.businessRules.driver') }}</li>
+            <li>{{ t('trips.form.businessRules.route') }}</li>
+            <li>{{ t('trips.form.businessRules.backend') }}</li>
           </ul>
         </div>
 
         <div class="form-actions">
-          <a routerLink="/trips" class="btn btn-outline-secondary"> Cancel </a>
+          <a routerLink="/trips" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
           <button
             type="submit"
@@ -157,9 +156,9 @@
           >
             @if (isSubmitting) {
               <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-              Scheduling...
+              {{ t('trips.form.scheduling') }}
             } @else {
-              Schedule Trip
+              {{ t('trips.form.schedule') }}
             }
           </button>
         </div>

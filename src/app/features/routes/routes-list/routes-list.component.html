@@ -1,7 +1,7 @@
 <app-page-header
-  title="Routes"
-  subtitle="Manage available operational routes."
-  actionLabel="New Route"
+  [title]="t('routes.title')"
+  [subtitle]="t('routes.subtitle')"
+  [actionLabel]="t('routes.create')"
   actionLink="/routes/new"
   [actionRoles]="['ADMIN']"
 />
@@ -15,51 +15,54 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">Search routes</label>
+      <label class="form-label">{{ t('routes.search.label') }}</label>
       <input
         type="text"
         class="form-control"
-        placeholder="Search by name, origin or destination"
+        [placeholder]="t('routes.search.placeholder')"
         [(ngModel)]="searchTerm"
         (ngModelChange)="applyFilters()"
       />
     </div>
 
     <div class="col-md-4">
-      <label class="form-label">Status</label>
+      <label class="form-label">{{ t('common.status') }}</label>
       <select
         class="form-select"
-        title="Status filter"
+        [attr.title]="t('routes.filter.statusTitle')"
         [(ngModel)]="statusFilter"
         (ngModelChange)="applyFilters()"
       >
-        <option value="">All statuses</option>
-        <option value="ACTIVE">Active</option>
-        <option value="INACTIVE">Inactive</option>
+        <option value="">{{ t('common.allStatuses') }}</option>
+        <option value="ACTIVE">{{ t('status.active') }}</option>
+        <option value="INACTIVE">{{ t('status.inactive') }}</option>
       </select>
     </div>
 
     <div class="col-md-2">
       <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-        Clear
+        {{ t('common.clear') }}
       </button>
     </div>
   </div>
 
-  <p class="filters-summary">Showing {{ routes.length }} of {{ allRoutes.length }} routes.</p>
+  <p class="filters-summary">
+    {{ t('common.showing') }} {{ routes.length }} {{ t('common.of') }} {{ allRoutes.length }}
+    {{ t('routes.summary.label') }}.
+  </p>
 </div>
 
 @if (isLoading) {
-  <app-loading-spinner text="Loading routes..." />
+  <app-loading-spinner [text]="t('routes.loading')" />
 } @else if (errorMessage) {
   <div class="alert alert-danger" role="alert">
     {{ errorMessage }}
   </div>
 } @else if (routes.length === 0) {
   <app-empty-state
-    title="No routes found"
-    message="There are no routes registered yet."
-    actionLabel="Create route"
+    [title]="t('routes.empty.title')"
+    [message]="t('routes.empty.message')"
+    [actionLabel]="t('routes.create')"
     actionLink="/routes/new"
     [actionRoles]="['ADMIN']"
   />
@@ -70,13 +73,13 @@
         <table class="table align-middle mb-0">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Origin</th>
-              <th>Destination</th>
-              <th>Distance</th>
-              <th>Estimated Duration</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
+              <th>{{ t('common.name') }}</th>
+              <th>{{ t('common.origin') }}</th>
+              <th>{{ t('common.destination') }}</th>
+              <th>{{ t('common.distance') }}</th>
+              <th>{{ t('common.estimatedDuration') }}</th>
+              <th>{{ t('common.status') }}</th>
+              <th class="text-end">{{ t('common.actions') }}</th>
             </tr>
           </thead>
 
@@ -103,9 +106,9 @@
                           (click)="updateRouteStatus(route, 'ACTIVE')"
                         >
                           @if (isUpdating(route)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Activate
+                            {{ t('routes.action.activate') }}
                           }
                         </button>
                       }
@@ -118,9 +121,9 @@
                           (click)="updateRouteStatus(route, 'INACTIVE')"
                         >
                           @if (isUpdating(route)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Deactivate
+                            {{ t('routes.action.deactivate') }}
                           }
                         </button>
                       }
@@ -128,7 +131,7 @@
                   </ng-container>
 
                   <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
-                    <span class="text-muted small"> View only </span>
+                    <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
                   </ng-container>
                 </td>
               </tr>

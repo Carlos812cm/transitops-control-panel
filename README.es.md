@@ -22,7 +22,7 @@ El objetivo de este proyecto es presentar un sistema administrativo realista, no
 - Estados de carga, error y datos vacíos.
 - Layout administrativo responsive.
 - Tema claro y tema oscuro con persistencia local.
-- Página de configuración con selector de idioma inglés/español.
+- Página de configuración con cobertura ampliada de idioma inglés/español en la UI.
 - Mock API local para probar el Front-End de forma independiente.
 
 El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angular**, o como la capa visual de una plataforma **Full-Stack** más amplia llamada TransitOps Platform.
@@ -190,7 +190,7 @@ El tema seleccionado se guarda en `localStorage`, por lo que la preferencia del 
 
 La sección de configuración está disponible para usuarios autenticados desde la zona inferior del sidebar.
 
-Los usuarios pueden cambiar el idioma de la interfaz entre inglés y español. El idioma seleccionado se guarda en `localStorage` mediante un `LanguageService` global, y las etiquetas soportadas del sidebar y de Configuración se actualizan inmediatamente después de la selección.
+Los usuarios pueden cambiar el idioma de la interfaz entre inglés y español. El idioma seleccionado se guarda en `localStorage` mediante un `LanguageService` global, y las etiquetas soportadas del layout, dashboard, administración, autenticación, estados compartidos, tablas, filtros y formularios se actualizan inmediatamente después de la selección.
 
 ---
 
@@ -511,7 +511,7 @@ Este proyecto demuestra:
 - Transiciones de estado desde tablas administrativas.
 - Layout responsive con sidebar móvil.
 - Sistema de tema claro/oscuro con variables CSS.
-- Preferencia de idioma inglés/español con persistencia local.
+- Preferencia de idioma inglés/español con persistencia local y cobertura ampliada de UI.
 - Mock API local para pruebas independientes.
 
 ---
@@ -524,7 +524,7 @@ Explicación breve:
 
 Explicación técnica:
 
-> La aplicación usa Angular standalone components, Angular Router, HttpClient y RxJS. La comunicación por dominio está separada en servicios como VehiclesService, DriversService, RoutesService y TripsService. La autenticación se maneja mediante AuthService, con un token local adjuntado automáticamente por un interceptor HTTP. También implementé guards de autenticación y validación de roles, una directiva estructural reutilizable para ocultar elementos según el rol actual, un ThemeService para manejar tema claro/oscuro y un LanguageService para preferencias de idioma inglés/español con persistencia local.
+> La aplicación usa Angular standalone components, Angular Router, HttpClient y RxJS. La comunicación por dominio está separada en servicios como VehiclesService, DriversService, RoutesService y TripsService. La autenticación se maneja mediante AuthService, con un token local adjuntado automáticamente por un interceptor HTTP. También implementé guards de autenticación y validación de roles, una directiva estructural reutilizable para ocultar elementos según el rol actual, un ThemeService para manejar tema claro/oscuro y un LanguageService para preferencias ampliadas de UI en inglés/español con persistencia local.
 
 Explicación de negocio:
 
@@ -550,6 +550,7 @@ Implementado:
 - Estados de carga, error y datos vacíos.
 - Tema claro y tema oscuro.
 - Sección de configuración con selector de idioma inglés/español.
+- Cobertura ampliada inglés/español para texto estático visible de la UI.
 - Mock API local con pruebas.
 
 Mejoras futuras posibles:

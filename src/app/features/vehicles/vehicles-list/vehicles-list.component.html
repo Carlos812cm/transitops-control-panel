@@ -1,7 +1,7 @@
 <app-page-header
-  title="Vehicles"
-  subtitle="Manage fleet availability and operational status."
-  actionLabel="Create vehicle"
+  [title]="t('vehicles.title')"
+  [subtitle]="t('vehicles.subtitle')"
+  [actionLabel]="t('vehicles.create')"
   actionLink="/vehicles/new"
   [actionRoles]="['ADMIN']"
 ></app-page-header>
@@ -15,52 +15,55 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">Search vehicles</label>
+      <label class="form-label">{{ t('vehicles.search.label') }}</label>
       <input
         type="text"
         class="form-control"
-        placeholder="Search by unit number, brand or model"
+        [placeholder]="t('vehicles.search.placeholder')"
         [(ngModel)]="searchTerm"
         (ngModelChange)="applyFilters()"
       />
     </div>
 
     <div class="col-md-4">
-      <label class="form-label">Status</label>
+      <label class="form-label">{{ t('common.status') }}</label>
       <select
         class="form-select"
-        title="Filter vehicles by status"
+        [attr.title]="t('common.status')"
         [(ngModel)]="statusFilter"
         (ngModelChange)="applyFilters()"
       >
-        <option value="">All statuses</option>
-        <option value="AVAILABLE">Available</option>
-        <option value="MAINTENANCE">Maintenance</option>
-        <option value="INACTIVE">Inactive</option>
+        <option value="">{{ t('common.allStatuses') }}</option>
+        <option value="AVAILABLE">{{ t('status.available') }}</option>
+        <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
+        <option value="INACTIVE">{{ t('status.inactive') }}</option>
       </select>
     </div>
 
     <div class="col-md-2">
       <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-        Clear
+        {{ t('common.clear') }}
       </button>
     </div>
   </div>
 
-  <p class="filters-summary">Showing {{ vehicles.length }} of {{ allVehicles.length }} vehicles.</p>
+  <p class="filters-summary">
+    {{ t('common.showing') }} {{ vehicles.length }} {{ t('common.of') }} {{ allVehicles.length }}
+    {{ t('vehicles.summary.label') }}.
+  </p>
 </div>
 
 @if (isLoading) {
-  <app-loading-spinner text="Loading vehicles..." />
+  <app-loading-spinner [text]="t('vehicles.loading')" />
 } @else if (errorMessage) {
   <div class="alert alert-danger" role="alert">
     {{ errorMessage }}
   </div>
 } @else if (vehicles.length === 0) {
   <app-empty-state
-    title="No vehicles found"
-    message="There are no vehicles registered yet."
-    actionLabel="Create vehicle"
+    [title]="t('vehicles.empty.title')"
+    [message]="t('vehicles.empty.message')"
+    [actionLabel]="t('vehicles.create')"
     actionLink="/vehicles/new"
     [actionRoles]="['ADMIN']"
   />
@@ -71,13 +74,13 @@
         <table class="table align-middle mb-0">
           <thead>
             <tr>
-              <th>Unit Number</th>
-              <th>Brand</th>
-              <th>Model</th>
-              <th>Year</th>
-              <th>Capacity</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
+              <th>{{ t('vehicles.form.unitNumber') }}</th>
+              <th>{{ t('vehicles.form.brand') }}</th>
+              <th>{{ t('vehicles.form.model') }}</th>
+              <th>{{ t('vehicles.form.year') }}</th>
+              <th>{{ t('vehicles.form.capacity') }}</th>
+              <th>{{ t('common.status') }}</th>
+              <th class="text-end">{{ t('common.actions') }}</th>
             </tr>
           </thead>
 
@@ -104,9 +107,9 @@
                           (click)="updateVehicleStatus(vehicle, 'AVAILABLE')"
                         >
                           @if (isUpdating(vehicle)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Available
+                            {{ t('status.available') }}
                           }
                         </button>
                       }
@@ -119,9 +122,9 @@
                           (click)="updateVehicleStatus(vehicle, 'MAINTENANCE')"
                         >
                           @if (isUpdating(vehicle)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Maintenance
+                            {{ t('status.maintenance') }}
                           }
                         </button>
                       }
@@ -134,9 +137,9 @@
                           (click)="updateVehicleStatus(vehicle, 'INACTIVE')"
                         >
                           @if (isUpdating(vehicle)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Inactive
+                            {{ t('status.inactive') }}
                           }
                         </button>
                       }
@@ -144,7 +147,7 @@
                   </ng-container>
 
                   <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
-                    <span class="text-muted small"> View only </span>
+                    <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
                   </ng-container>
                 </td>
               </tr>

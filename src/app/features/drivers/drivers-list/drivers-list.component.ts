@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { DriversService } from '../../../core/services/drivers.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { Driver, DriverStatus } from '../../../core/models/driver.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -24,6 +26,7 @@ import { HasRoleDirective } from '../../../shared/directives/has-role.directive'
 })
 export class DriversListComponent implements OnInit {
   private readonly driversService = inject(DriversService);
+  private readonly languageService = inject(LanguageService);
 
   drivers: Driver[] = [];
   isLoading = false;
@@ -35,6 +38,10 @@ export class DriversListComponent implements OnInit {
   statusFilter = '';
 
   updatingDriverId: string | null = null;
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   ngOnInit(): void {
     this.loadDrivers();
@@ -59,7 +66,7 @@ export class DriversListComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error?.error?.message || 'Unable to load drivers.';
+        this.errorMessage = error?.error?.message || this.t('drivers.error.load');
       },
     });
   }
@@ -116,17 +123,22 @@ export class DriversListComponent implements OnInit {
 
         this.applyFilters();
 
-        this.successMessage = response.message || 'Driver status updated successfully.';
+        this.successMessage = response.message || this.t('drivers.success.update');
       },
       error: (error) => {
         this.updatingDriverId = null;
 
-        this.errorMessage = error?.error?.message || 'Unable to update driver status.';
+        this.errorMessage = error?.error?.message || this.t('drivers.error.update');
       },
     });
   }
 
   isUpdating(driver: Driver): boolean {
     return this.updatingDriverId === driver.id;
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

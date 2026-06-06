@@ -1,7 +1,4 @@
-<app-page-header
-  title="New Driver"
-  subtitle="Register a new driver and define operational status."
-/>
+<app-page-header [title]="t('drivers.form.title')" [subtitle]="t('drivers.form.subtitle')" />
 
 <div class="card border-0 shadow-sm driver-form-card">
   <div class="card-body p-4">
@@ -14,7 +11,7 @@
     <form [formGroup]="driverForm" (ngSubmit)="onSubmit()">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="firstName" class="form-label">First name</label>
+          <label for="firstName" class="form-label">{{ t('drivers.form.firstName') }}</label>
 
           <input
             id="firstName"
@@ -26,20 +23,20 @@
           />
 
           @if (firstName.hasError('required') && firstName.touched) {
-            <div class="invalid-feedback">First name is required.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.firstNameRequired') }}</div>
           }
 
           @if (firstName.hasError('minlength') && firstName.touched) {
-            <div class="invalid-feedback">First name must have at least 2 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.firstNameMin') }}</div>
           }
 
           @if (firstName.hasError('maxlength') && firstName.touched) {
-            <div class="invalid-feedback">First name cannot exceed 60 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.firstNameMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="lastName" class="form-label">Last name</label>
+          <label for="lastName" class="form-label">{{ t('drivers.form.lastName') }}</label>
 
           <input
             id="lastName"
@@ -51,20 +48,22 @@
           />
 
           @if (lastName.hasError('required') && lastName.touched) {
-            <div class="invalid-feedback">Last name is required.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.lastNameRequired') }}</div>
           }
 
           @if (lastName.hasError('minlength') && lastName.touched) {
-            <div class="invalid-feedback">Last name must have at least 2 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.lastNameMin') }}</div>
           }
 
           @if (lastName.hasError('maxlength') && lastName.touched) {
-            <div class="invalid-feedback">Last name cannot exceed 60 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.lastNameMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="licenseNumber" class="form-label">License number</label>
+          <label for="licenseNumber" class="form-label">
+            {{ t('drivers.form.licenseNumber') }}
+          </label>
 
           <input
             id="licenseNumber"
@@ -76,20 +75,20 @@
           />
 
           @if (licenseNumber.hasError('required') && licenseNumber.touched) {
-            <div class="invalid-feedback">License number is required.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.licenseRequired') }}</div>
           }
 
           @if (licenseNumber.hasError('minlength') && licenseNumber.touched) {
-            <div class="invalid-feedback">License number must have at least 4 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.licenseMin') }}</div>
           }
 
           @if (licenseNumber.hasError('maxlength') && licenseNumber.touched) {
-            <div class="invalid-feedback">License number cannot exceed 30 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.licenseMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="phone" class="form-label">Phone</label>
+          <label for="phone" class="form-label">{{ t('common.phone') }}</label>
 
           <input
             id="phone"
@@ -101,16 +100,16 @@
           />
 
           @if (phone.hasError('required') && phone.touched) {
-            <div class="invalid-feedback">Phone is required.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.phoneRequired') }}</div>
           }
 
           @if ((phone.hasError('minlength') || phone.hasError('maxlength')) && phone.touched) {
-            <div class="invalid-feedback">Enter a valid phone number.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.phoneValid') }}</div>
           }
         </div>
 
         <div class="col-md-8">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">{{ t('common.email') }}</label>
 
           <input
             id="email"
@@ -122,20 +121,20 @@
           />
 
           @if (email.hasError('required') && email.touched) {
-            <div class="invalid-feedback">Email is required.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.emailRequired') }}</div>
           }
 
           @if (email.hasError('email') && email.touched) {
-            <div class="invalid-feedback">Enter a valid email address.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.emailValid') }}</div>
           }
 
           @if (email.hasError('maxlength') && email.touched) {
-            <div class="invalid-feedback">Email cannot exceed 100 characters.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.emailMax') }}</div>
           }
         </div>
 
         <div class="col-md-4">
-          <label for="status" class="form-label">Status</label>
+          <label for="status" class="form-label">{{ t('common.status') }}</label>
 
           <select
             id="status"
@@ -143,19 +142,19 @@
             formControlName="status"
             [class.is-invalid]="status.invalid && status.touched"
           >
-            <option value="ACTIVE">Active</option>
-            <option value="SUSPENDED">Suspended</option>
-            <option value="INACTIVE">Inactive</option>
+            <option value="ACTIVE">{{ t('status.active') }}</option>
+            <option value="SUSPENDED">{{ t('status.suspended') }}</option>
+            <option value="INACTIVE">{{ t('status.inactive') }}</option>
           </select>
 
           @if (status.hasError('required') && status.touched) {
-            <div class="invalid-feedback">Status is required.</div>
+            <div class="invalid-feedback">{{ t('drivers.validation.statusRequired') }}</div>
           }
         </div>
       </div>
 
       <div class="form-actions">
-        <a routerLink="/drivers" class="btn btn-outline-secondary"> Cancel </a>
+        <a routerLink="/drivers" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
         <button
           type="submit"
@@ -164,9 +163,9 @@
         >
           @if (isSubmitting) {
             <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-            Saving...
+            {{ t('common.saving') }}
           } @else {
-            Save Driver
+            {{ t('drivers.form.save') }}
           }
         </button>
       </div>

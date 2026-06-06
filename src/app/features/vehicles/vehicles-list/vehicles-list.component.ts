@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { VehiclesService } from '../../../core/services/vehicles.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { Vehicle, VehicleStatus } from '../../../core/models/vehicle.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -25,6 +27,7 @@ import { HasRoleDirective } from '../../../shared/directives/has-role.directive'
 })
 export class VehiclesListComponent implements OnInit {
   private readonly vehiclesService = inject(VehiclesService);
+  private readonly languageService = inject(LanguageService);
 
   vehicles: Vehicle[] = [];
   isLoading = false;
@@ -36,6 +39,10 @@ export class VehiclesListComponent implements OnInit {
   statusFilter = '';
 
   updatingVehicleId: string | null = null;
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   ngOnInit(): void {
     this.loadVehicles();
@@ -84,7 +91,7 @@ export class VehiclesListComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error?.error?.message || 'Unable to load vehicles.';
+        this.errorMessage = error?.error?.message || this.t('vehicles.error.load');
       },
     });
   }
@@ -114,17 +121,22 @@ export class VehiclesListComponent implements OnInit {
 
         this.applyFilters();
 
-        this.successMessage = response.message || 'Vehicle status updated successfully.';
+        this.successMessage = response.message || this.t('vehicles.success.update');
       },
       error: (error) => {
         this.updatingVehicleId = null;
 
-        this.errorMessage = error?.error?.message || 'Unable to update vehicle status.';
+        this.errorMessage = error?.error?.message || this.t('vehicles.error.update');
       },
     });
   }
 
   isUpdating(vehicle: Vehicle): boolean {
     return this.updatingVehicleId === vehicle.id;
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

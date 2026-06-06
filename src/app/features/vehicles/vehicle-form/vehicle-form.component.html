@@ -1,4 +1,4 @@
-<app-page-header title="New Vehicle" subtitle="Register a new vehicle for TransitOps Platform." />
+<app-page-header [title]="t('vehicles.form.title')" [subtitle]="t('vehicles.form.subtitle')" />
 
 <div class="card border-0 shadow-sm vehicle-form-card">
   <div class="card-body p-4">
@@ -11,7 +11,7 @@
     <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="unitNumber" class="form-label">Unit Number</label>
+          <label for="unitNumber" class="form-label">{{ t('vehicles.form.unitNumber') }}</label>
 
           <input
             id="unitNumber"
@@ -23,20 +23,20 @@
           />
 
           @if (unitNumber.hasError('required') && unitNumber.touched) {
-            <div class="invalid-feedback">Unit number is required.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberRequired') }}</div>
           }
 
           @if (unitNumber.hasError('minlength') && unitNumber.touched) {
-            <div class="invalid-feedback">Unit number must have at least 3 characters.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberMin') }}</div>
           }
 
           @if (unitNumber.hasError('maxlength') && unitNumber.touched) {
-            <div class="invalid-feedback">Unit number cannot exceed 20 characters.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="brand" class="form-label">Brand</label>
+          <label for="brand" class="form-label">{{ t('vehicles.form.brand') }}</label>
 
           <input
             id="brand"
@@ -48,16 +48,16 @@
           />
 
           @if (brand.hasError('required') && brand.touched) {
-            <div class="invalid-feedback">Brand is required.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.brandRequired') }}</div>
           }
 
           @if (brand.hasError('maxlength') && brand.touched) {
-            <div class="invalid-feedback">Brand cannot exceed 60 characters.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.brandMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="model" class="form-label">Model</label>
+          <label for="model" class="form-label">{{ t('vehicles.form.model') }}</label>
 
           <input
             id="model"
@@ -69,16 +69,16 @@
           />
 
           @if (model.hasError('required') && model.touched) {
-            <div class="invalid-feedback">Model is required.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.modelRequired') }}</div>
           }
 
           @if (model.hasError('maxlength') && model.touched) {
-            <div class="invalid-feedback">Model cannot exceed 60 characters.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.modelMax') }}</div>
           }
         </div>
 
         <div class="col-md-3">
-          <label for="year" class="form-label">Year</label>
+          <label for="year" class="form-label">{{ t('vehicles.form.year') }}</label>
 
           <input
             id="year"
@@ -89,16 +89,16 @@
           />
 
           @if (year.hasError('required') && year.touched) {
-            <div class="invalid-feedback">Year is required.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.yearRequired') }}</div>
           }
 
           @if ((year.hasError('min') || year.hasError('max')) && year.touched) {
-            <div class="invalid-feedback">Enter a valid vehicle year.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.yearValid') }}</div>
           }
         </div>
 
         <div class="col-md-3">
-          <label for="capacity" class="form-label">Capacity</label>
+          <label for="capacity" class="form-label">{{ t('vehicles.form.capacity') }}</label>
 
           <input
             id="capacity"
@@ -109,16 +109,16 @@
           />
 
           @if (capacity.hasError('required') && capacity.touched) {
-            <div class="invalid-feedback">Capacity is required.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.capacityRequired') }}</div>
           }
 
           @if ((capacity.hasError('min') || capacity.hasError('max')) && capacity.touched) {
-            <div class="invalid-feedback">Capacity must be between 1 and 120.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.capacityRange') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="status" class="form-label">Status</label>
+          <label for="status" class="form-label">{{ t('common.status') }}</label>
 
           <select
             id="status"
@@ -126,18 +126,20 @@
             formControlName="status"
             [class.is-invalid]="status.invalid && status.touched"
           >
-            <option value="AVAILABLE">Available</option>
-            <option value="MAINTENANCE">Maintenance</option>
-            <option value="INACTIVE">Inactive</option>
+            <option value="AVAILABLE">{{ t('status.available') }}</option>
+            <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
+            <option value="INACTIVE">{{ t('status.inactive') }}</option>
           </select>
 
           @if (status.hasError('required') && status.touched) {
-            <div class="invalid-feedback">Status is required.</div>
+            <div class="invalid-feedback">{{ t('vehicles.validation.statusRequired') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="lastMaintenanceDate" class="form-label"> Last maintenance date </label>
+          <label for="lastMaintenanceDate" class="form-label">
+            {{ t('vehicles.form.lastMaintenanceDate') }}
+          </label>
 
           <input
             id="lastMaintenanceDate"
@@ -149,7 +151,7 @@
       </div>
 
       <div class="form-actions">
-        <a routerLink="/vehicles" class="btn btn-outline-secondary"> Cancel </a>
+        <a routerLink="/vehicles" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
         <button
           type="submit"
@@ -158,9 +160,9 @@
         >
           @if (isSubmitting) {
             <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-            Saving...
+            {{ t('common.saving') }}
           } @else {
-            Save Vehicle
+            {{ t('vehicles.form.save') }}
           }
         </button>
       </div>

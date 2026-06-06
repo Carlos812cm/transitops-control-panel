@@ -1,7 +1,7 @@
 <app-page-header
-  title="Drivers"
-  subtitle="Manage drivers, licenses and operational status."
-  actionLabel="New Driver"
+  [title]="t('drivers.title')"
+  [subtitle]="t('drivers.subtitle')"
+  [actionLabel]="t('drivers.create')"
   actionLink="/drivers/new"
   [actionRoles]="['ADMIN']"
 />
@@ -15,52 +15,55 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">Search drivers</label>
+      <label class="form-label">{{ t('drivers.search.label') }}</label>
       <input
         type="text"
         class="form-control"
-        placeholder="Search by name, license, email or phone"
+        [placeholder]="t('drivers.search.placeholder')"
         [(ngModel)]="searchTerm"
         (ngModelChange)="applyFilters()"
       />
     </div>
 
     <div class="col-md-4">
-      <label class="form-label" for="statusFilter">Status</label>
+      <label class="form-label" for="statusFilter">{{ t('common.status') }}</label>
       <select
         id="statusFilter"
         class="form-select"
         [(ngModel)]="statusFilter"
         (ngModelChange)="applyFilters()"
       >
-        <option value="">All statuses</option>
-        <option value="ACTIVE">Active</option>
-        <option value="SUSPENDED">Suspended</option>
-        <option value="INACTIVE">Inactive</option>
+        <option value="">{{ t('common.allStatuses') }}</option>
+        <option value="ACTIVE">{{ t('status.active') }}</option>
+        <option value="SUSPENDED">{{ t('status.suspended') }}</option>
+        <option value="INACTIVE">{{ t('status.inactive') }}</option>
       </select>
     </div>
 
     <div class="col-md-2">
       <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-        Clear
+        {{ t('common.clear') }}
       </button>
     </div>
   </div>
 
-  <p class="filters-summary">Showing {{ drivers.length }} of {{ allDrivers.length }} drivers.</p>
+  <p class="filters-summary">
+    {{ t('common.showing') }} {{ drivers.length }} {{ t('common.of') }} {{ allDrivers.length }}
+    {{ t('drivers.summary.label') }}.
+  </p>
 </div>
 
 @if (isLoading) {
-  <app-loading-spinner text="Loading drivers..." />
+  <app-loading-spinner [text]="t('drivers.loading')" />
 } @else if (errorMessage) {
   <div class="alert alert-danger" role="alert">
     {{ errorMessage }}
   </div>
 } @else if (drivers.length === 0) {
   <app-empty-state
-    title="No drivers found"
-    message="There are no drivers registered yet."
-    actionLabel="Create driver"
+    [title]="t('drivers.empty.title')"
+    [message]="t('drivers.empty.message')"
+    [actionLabel]="t('drivers.create')"
     actionLink="/drivers/new"
     [actionRoles]="['ADMIN']"
   />
@@ -71,12 +74,12 @@
         <table class="table align-middle mb-0">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>License</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
+              <th>{{ t('common.name') }}</th>
+              <th>{{ t('drivers.form.licenseNumber') }}</th>
+              <th>{{ t('common.email') }}</th>
+              <th>{{ t('common.phone') }}</th>
+              <th>{{ t('common.status') }}</th>
+              <th class="text-end">{{ t('common.actions') }}</th>
             </tr>
           </thead>
 
@@ -102,9 +105,9 @@
                           (click)="updateDriverStatus(driver, 'ACTIVE')"
                         >
                           @if (isUpdating(driver)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Active
+                            {{ t('status.active') }}
                           }
                         </button>
                       }
@@ -117,9 +120,9 @@
                           (click)="updateDriverStatus(driver, 'SUSPENDED')"
                         >
                           @if (isUpdating(driver)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Suspend
+                            {{ t('drivers.action.suspend') }}
                           }
                         </button>
                       }
@@ -132,9 +135,9 @@
                           (click)="updateDriverStatus(driver, 'INACTIVE')"
                         >
                           @if (isUpdating(driver)) {
-                            ...
+                            {{ t('common.loading') }}
                           } @else {
-                            Inactive
+                            {{ t('status.inactive') }}
                           }
                         </button>
                       }
@@ -142,7 +145,7 @@
                   </ng-container>
 
                   <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
-                    <span class="text-muted small"> View only </span>
+                    <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
                   </ng-container>
                 </td>
               </tr>
