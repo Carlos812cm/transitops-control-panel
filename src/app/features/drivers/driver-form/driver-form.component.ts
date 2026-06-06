@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { DriversService } from '../../../core/services/drivers.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { CreateDriverRequest, DriverStatus } from '../../../core/models/driver.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
@@ -16,9 +18,14 @@ export class DriverFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly driversService = inject(DriversService);
+  private readonly languageService = inject(LanguageService);
 
   isSubmitting = false;
   errorMessage = '';
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   driverForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60)]],
@@ -88,8 +95,13 @@ export class DriverFormComponent {
       error: (error) => {
         this.isSubmitting = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to create driver.';
+        this.errorMessage = error?.error?.message || this.t('drivers.error.create');
       },
     });
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

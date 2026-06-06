@@ -1,9 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { finalize, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 import { TripsService } from '../../../core/services/trips.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { Trip, TripStatus } from '../../../core/models/trip.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -28,6 +30,7 @@ import { HasRoleDirective } from '../../../shared/directives/has-role.directive'
 })
 export class TripsListComponent implements OnInit {
   private readonly tripsService = inject(TripsService);
+  private readonly languageService = inject(LanguageService);
 
   trips: Trip[] = [];
   isLoading = false;
@@ -39,6 +42,10 @@ export class TripsListComponent implements OnInit {
   statusFilter = '';
 
   updatingTripId: string | null = null;
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   ngOnInit(): void {
     this.loadTrips();
@@ -68,7 +75,7 @@ export class TripsListComponent implements OnInit {
           this.applyFilters();
         },
         error: (error) => {
-          this.errorMessage = error?.error?.message || 'Unable to load trips.';
+          this.errorMessage = error?.error?.message || this.t('trips.error.load');
         },
       });
   }
@@ -134,11 +141,11 @@ export class TripsListComponent implements OnInit {
 
           this.applyFilters();
 
-          this.successMessage = response.message || 'Trip status updated successfully.';
+          this.successMessage = response.message || this.t('trips.success.update');
           this.refreshTripsSilently();
         },
         error: (error) => {
-          this.errorMessage = error?.error?.message || 'Unable to update trip status.';
+          this.errorMessage = error?.error?.message || this.t('trips.error.update');
         },
       });
   }
@@ -195,5 +202,9 @@ export class TripsListComponent implements OnInit {
     }
 
     return `${trip.route.name}: ${trip.route.origin} → ${trip.route.destination}`;
+  }
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

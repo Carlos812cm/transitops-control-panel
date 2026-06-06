@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { VehiclesService } from '../../../core/services/vehicles.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { CreateVehicleRequest, VehicleStatus } from '../../../core/models/vehicle.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
@@ -16,11 +18,16 @@ export class VehicleFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly vehiclesService = inject(VehiclesService);
+  private readonly languageService = inject(LanguageService);
 
   readonly currentYear = new Date().getFullYear();
 
   isSubmitting = false;
   errorMessage = '';
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   vehicleForm = this.fb.nonNullable.group({
     unitNumber: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
@@ -97,8 +104,13 @@ export class VehicleFormComponent {
       error: (error) => {
         this.isSubmitting = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to create vehicle.';
+        this.errorMessage = error?.error?.message || this.t('vehicles.error.create');
       },
     });
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

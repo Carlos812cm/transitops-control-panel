@@ -1,7 +1,4 @@
-<app-page-header
-  title="New Route"
-  subtitle="Create an operational route available for trip scheduling."
-/>
+<app-page-header [title]="t('routes.form.title')" [subtitle]="t('routes.form.subtitle')" />
 
 <div class="card border-0 shadow-sm route-form-card">
   <div class="card-body p-4">
@@ -14,7 +11,7 @@
     <form [formGroup]="routeForm" (ngSubmit)="onSubmit()">
       <div class="row g-3">
         <div class="col-md-8">
-          <label for="name" class="form-label">Route name</label>
+          <label for="name" class="form-label">{{ t('routes.form.name') }}</label>
 
           <input
             id="name"
@@ -26,20 +23,20 @@
           />
 
           @if (name.hasError('required') && name.touched) {
-            <div class="invalid-feedback">Route name is required.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.nameRequired') }}</div>
           }
 
           @if (name.hasError('minlength') && name.touched) {
-            <div class="invalid-feedback">Route name must have at least 3 characters.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.nameMin') }}</div>
           }
 
           @if (name.hasError('maxlength') && name.touched) {
-            <div class="invalid-feedback">Route name cannot exceed 80 characters.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.nameMax') }}</div>
           }
         </div>
 
         <div class="col-md-4">
-          <label for="status" class="form-label">Status</label>
+          <label for="status" class="form-label">{{ t('common.status') }}</label>
 
           <select
             id="status"
@@ -47,17 +44,17 @@
             formControlName="status"
             [class.is-invalid]="status.invalid && status.touched"
           >
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
+            <option value="ACTIVE">{{ t('status.active') }}</option>
+            <option value="INACTIVE">{{ t('status.inactive') }}</option>
           </select>
 
           @if (status.hasError('required') && status.touched) {
-            <div class="invalid-feedback">Status is required.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.statusRequired') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="origin" class="form-label">Origin</label>
+          <label for="origin" class="form-label">{{ t('common.origin') }}</label>
 
           <input
             id="origin"
@@ -69,20 +66,20 @@
           />
 
           @if (origin.hasError('required') && origin.touched) {
-            <div class="invalid-feedback">Origin is required.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.originRequired') }}</div>
           }
 
           @if (origin.hasError('minlength') && origin.touched) {
-            <div class="invalid-feedback">Origin must have at least 3 characters.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.originMin') }}</div>
           }
 
           @if (origin.hasError('maxlength') && origin.touched) {
-            <div class="invalid-feedback">Origin cannot exceed 100 characters.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.originMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="destination" class="form-label">Destination</label>
+          <label for="destination" class="form-label">{{ t('common.destination') }}</label>
 
           <input
             id="destination"
@@ -94,20 +91,20 @@
           />
 
           @if (destination.hasError('required') && destination.touched) {
-            <div class="invalid-feedback">Destination is required.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.destinationRequired') }}</div>
           }
 
           @if (destination.hasError('minlength') && destination.touched) {
-            <div class="invalid-feedback">Destination must have at least 3 characters.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.destinationMin') }}</div>
           }
 
           @if (destination.hasError('maxlength') && destination.touched) {
-            <div class="invalid-feedback">Destination cannot exceed 100 characters.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.destinationMax') }}</div>
           }
         </div>
 
         <div class="col-md-6">
-          <label for="distanceKm" class="form-label">Distance Km</label>
+          <label for="distanceKm" class="form-label">{{ t('routes.form.distanceKm') }}</label>
 
           <input
             id="distanceKm"
@@ -118,17 +115,17 @@
           />
 
           @if (distanceKm.hasError('required') && distanceKm.touched) {
-            <div class="invalid-feedback">Distance is required.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.distanceRequired') }}</div>
           }
 
           @if ((distanceKm.hasError('min') || distanceKm.hasError('max')) && distanceKm.touched) {
-            <div class="invalid-feedback">Distance must be between 1 and 5000 km.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.distanceRange') }}</div>
           }
         </div>
 
         <div class="col-md-6">
           <label for="estimatedDurationMinutes" class="form-label">
-            Estimated duration minutes
+            {{ t('routes.form.estimatedDurationMinutes') }}
           </label>
 
           <input
@@ -142,7 +139,7 @@
           />
 
           @if (estimatedDurationMinutes.hasError('required') && estimatedDurationMinutes.touched) {
-            <div class="invalid-feedback">Estimated duration is required.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.durationRequired') }}</div>
           }
 
           @if (
@@ -150,13 +147,13 @@
               estimatedDurationMinutes.hasError('max')) &&
             estimatedDurationMinutes.touched
           ) {
-            <div class="invalid-feedback">Duration must be between 1 and 1440 minutes.</div>
+            <div class="invalid-feedback">{{ t('routes.validation.durationRange') }}</div>
           }
         </div>
       </div>
 
       <div class="form-actions">
-        <a routerLink="/routes" class="btn btn-outline-secondary"> Cancel </a>
+        <a routerLink="/routes" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
         <button
           type="submit"
@@ -165,9 +162,9 @@
         >
           @if (isSubmitting) {
             <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-            Saving...
+            {{ t('common.saving') }}
           } @else {
-            Save Route
+            {{ t('routes.form.save') }}
           }
         </button>
       </div>

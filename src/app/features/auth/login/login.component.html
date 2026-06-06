@@ -2,8 +2,8 @@
   <div class="card-body p-4">
     <div class="mb-4">
       <span class="login-brand">TransitOps</span>
-      <h1 class="h4 fw-bold mb-1">Welcome back</h1>
-      <p class="text-muted mb-0">Sign in to TransitOps Control Panel.</p>
+      <h1 class="h4 fw-bold mb-1">{{ t('auth.login.welcome') }}</h1>
+      <p class="text-muted mb-0">{{ t('auth.login.subtitle') }}</p>
     </div>
 
     @if (errorMessage) {
@@ -14,7 +14,7 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
+        <label for="email" class="form-label">{{ t('auth.login.email') }}</label>
 
         <input
           id="email"
@@ -26,16 +26,16 @@
         />
 
         @if (email.hasError('required') && email.touched) {
-          <div class="invalid-feedback">Email is required.</div>
+          <div class="invalid-feedback">{{ t('auth.validation.emailRequired') }}</div>
         }
 
         @if (email.hasError('email') && email.touched) {
-          <div class="invalid-feedback">Enter a valid email address.</div>
+          <div class="invalid-feedback">{{ t('auth.validation.emailValid') }}</div>
         }
       </div>
 
       <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
+        <label for="password" class="form-label">{{ t('auth.login.password') }}</label>
 
         <input
           id="password"
@@ -47,7 +47,7 @@
         />
 
         @if (password.hasError('required') && password.touched) {
-          <div class="invalid-feedback">Password is required.</div>
+          <div class="invalid-feedback">{{ t('auth.validation.passwordRequired') }}</div>
         }
       </div>
 
@@ -58,15 +58,15 @@
       >
         @if (isLoading) {
           <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-          Signing in...
+          {{ t('auth.login.signingIn') }}
         } @else {
-          Sign in
+          {{ t('auth.login.signIn') }}
         }
       </button>
     </form>
 
     <div class="login-help mt-4">
-      <p class="mb-1 fw-semibold">Demo users</p>
+      <p class="mb-1 fw-semibold">{{ t('auth.login.demoUsers') }}</p>
       <p class="mb-0 text-muted">admin@transitops.com</p>
       <p class="mb-0 text-muted">supervisor@transitops.com</p>
       <p class="mb-0 text-muted">viewer@transitops.com</p>

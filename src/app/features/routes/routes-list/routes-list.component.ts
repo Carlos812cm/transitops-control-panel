@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { RoutesService } from '../../../core/services/routes.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { RouteStatus, TransitRoute } from '../../../core/models/route.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -24,6 +26,7 @@ import { HasRoleDirective } from '../../../shared/directives/has-role.directive'
 })
 export class RoutesListComponent implements OnInit {
   private readonly routesService = inject(RoutesService);
+  private readonly languageService = inject(LanguageService);
 
   routes: TransitRoute[] = [];
   isLoading = false;
@@ -35,6 +38,10 @@ export class RoutesListComponent implements OnInit {
   statusFilter = '';
 
   updatingRouteId: string | null = null;
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   ngOnInit(): void {
     this.loadRoutes();
@@ -59,7 +66,7 @@ export class RoutesListComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error?.error?.message || 'Unable to load routes.';
+        this.errorMessage = error?.error?.message || this.t('routes.error.load');
       },
     });
   }
@@ -111,17 +118,22 @@ export class RoutesListComponent implements OnInit {
 
         this.applyFilters();
 
-        this.successMessage = response.message || 'Route status updated successfully.';
+        this.successMessage = response.message || this.t('routes.success.update');
       },
       error: (error) => {
         this.updatingRouteId = null;
 
-        this.errorMessage = error?.error?.message || 'Unable to update route status.';
+        this.errorMessage = error?.error?.message || this.t('routes.error.update');
       },
     });
   }
 
   isUpdating(route: TransitRoute): boolean {
     return this.updatingRouteId === route.id;
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

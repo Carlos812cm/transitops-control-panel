@@ -3,11 +3,11 @@
     <div class="card-body p-4 text-center">
       <div class="access-icon">!</div>
 
-      <h1 class="h4 fw-bold mb-2">Access denied</h1>
+      <h1 class="h4 fw-bold mb-2">{{ t('auth.accessDenied.title') }}</h1>
 
-      <p class="text-muted mb-4">You do not have permission to access this resource.</p>
+      <p class="text-muted mb-4">{{ t('auth.accessDenied.message') }}</p>
 
-      <a routerLink="/dashboard" class="btn btn-primary"> Back to dashboard </a>
+      <a routerLink="/dashboard" class="btn btn-primary"> {{ t('common.backToDashboard') }} </a>
     </div>
   </div>
 </div>

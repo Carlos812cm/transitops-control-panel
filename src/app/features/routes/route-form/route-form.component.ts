@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { RoutesService } from '../../../core/services/routes.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { CreateRouteRequest, RouteStatus } from '../../../core/models/route.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
@@ -16,9 +18,14 @@ export class RouteFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly routesService = inject(RoutesService);
+  private readonly languageService = inject(LanguageService);
 
   isSubmitting = false;
   errorMessage = '';
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   routeForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
@@ -88,8 +95,13 @@ export class RouteFormComponent {
       error: (error) => {
         this.isSubmitting = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to create route.';
+        this.errorMessage = error?.error?.message || this.t('routes.error.create');
       },
     });
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }

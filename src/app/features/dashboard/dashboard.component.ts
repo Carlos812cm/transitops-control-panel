@@ -1,8 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
 import { DashboardService } from '../../core/services/dashboard.service';
+import { LanguageService, TranslationKey } from '../../core/services/language.service';
 
 import { Trip } from '../../core/models/trip.model';
 
@@ -48,11 +50,16 @@ interface DashboardViewStats {
 })
 export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
+  private readonly languageService = inject(LanguageService);
 
   isLoading = false;
   errorMessage = '';
 
   latestTrips: Trip[] = [];
+
+  currentLanguage = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
 
   stats: DashboardViewStats = {
     totalVehicles: 0,
@@ -89,7 +96,7 @@ export class DashboardComponent implements OnInit {
         this.isLoading = false;
 
         if (!response.success || !response.data) {
-          this.errorMessage = response.message || 'Unable to load dashboard data.';
+          this.errorMessage = response.message || this.t('dashboard.error.load');
           return;
         }
 
@@ -136,7 +143,7 @@ export class DashboardComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
 
-        this.errorMessage = error?.error?.message || 'Unable to load dashboard data.';
+        this.errorMessage = error?.error?.message || this.t('dashboard.error.load');
       },
     });
   }
@@ -162,6 +169,11 @@ export class DashboardComponent implements OnInit {
       return trip.routeId;
     }
 
-    return `${trip.route.name}: ${trip.route.origin} → ${trip.route.destination}`;
+    return `${trip.route.name}: ${trip.route.origin} \u2192 ${trip.route.destination}`;
+  }
+
+  t(key: TranslationKey): string {
+    this.currentLanguage();
+    return this.languageService.translate(key);
   }
 }
