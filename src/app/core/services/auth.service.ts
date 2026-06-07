@@ -5,7 +5,17 @@ import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { LoginRequest, LoginResponse, User, UserRole } from '../models/user.model';
+import {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponseData,
+  RequestEmailCodeRequest,
+  RequestPhoneCodeRequest,
+  User,
+  UserRole,
+  VerificationCodeResponseData,
+} from '../models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +41,28 @@ export class AuthService {
         }
       }),
     );
+  }
+
+  requestEmailCode(
+    payload: RequestEmailCodeRequest,
+  ): Observable<ApiResponse<VerificationCodeResponseData>> {
+    return this.http.post<ApiResponse<VerificationCodeResponseData>>(
+      `${this.apiUrl}/request-email-code`,
+      payload,
+    );
+  }
+
+  requestPhoneCode(
+    payload: RequestPhoneCodeRequest,
+  ): Observable<ApiResponse<VerificationCodeResponseData>> {
+    return this.http.post<ApiResponse<VerificationCodeResponseData>>(
+      `${this.apiUrl}/request-phone-code`,
+      payload,
+    );
+  }
+
+  register(payload: RegisterRequest): Observable<ApiResponse<RegisterResponseData>> {
+    return this.http.post<ApiResponse<RegisterResponseData>>(`${this.apiUrl}/register`, payload);
   }
 
   logout(): void {

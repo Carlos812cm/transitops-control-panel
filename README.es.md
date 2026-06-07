@@ -13,6 +13,7 @@ Este repositorio representa la capa **Front-End** del proyecto de portafolio **T
 El objetivo de este proyecto es presentar un sistema administrativo realista, no solo un dashboard estático. La aplicación incluye flujos comunes en plataformas internas de negocio:
 
 - Autenticación y manejo de sesión.
+- Registro público con verificación simulada por correo y teléfono.
 - Rutas protegidas.
 - Navegación y acciones basadas en roles.
 - Integración con API REST mediante servicios tipados.
@@ -31,18 +32,18 @@ El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angula
 
 ## Stack tecnológico
 
-| Tecnología | Propósito |
-| ---------- | --------- |
-| Angular 21 | Framework principal de Front-End |
-| TypeScript | Lógica de aplicación fuertemente tipada |
-| Bootstrap 5 | Layout y componentes visuales |
-| SCSS | Estilos personalizados |
-| Angular Router | Enrutamiento del lado del cliente |
-| Angular HttpClient | Comunicación con API REST |
-| Reactive Forms | Manejo y validación de formularios |
-| RxJS | Manejo de datos asíncronos |
-| Express | Mock API local para desarrollo y pruebas |
-| Vitest | Pruebas de la mock API |
+| Tecnología         | Propósito                                |
+| ------------------ | ---------------------------------------- |
+| Angular 21         | Framework principal de Front-End         |
+| TypeScript         | Lógica de aplicación fuertemente tipada  |
+| Bootstrap 5        | Layout y componentes visuales            |
+| SCSS               | Estilos personalizados                   |
+| Angular Router     | Enrutamiento del lado del cliente        |
+| Angular HttpClient | Comunicación con API REST                |
+| Reactive Forms     | Manejo y validación de formularios       |
+| RxJS               | Manejo de datos asíncronos               |
+| Express            | Mock API local para desarrollo y pruebas |
+| Vitest             | Pruebas de la mock API                   |
 
 ---
 
@@ -51,6 +52,9 @@ El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angula
 ### Autenticación
 
 - Pantalla de login.
+- Pantalla de registro público.
+- Códigos simulados de verificación por correo y teléfono para desarrollo.
+- Selección de rol solicitado para `VIEWER`, `OPERATOR` o `SUPERVISOR`.
 - Almacenamiento de token tipo JWT.
 - Persistencia de sesión del usuario actual.
 - Flujo de cierre de sesión.
@@ -62,12 +66,12 @@ El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angula
 
 La aplicación soporta los siguientes roles:
 
-| Rol | Nivel de acceso |
-| --- | --------------- |
-| `ADMIN` | Acceso administrativo completo |
-| `OPERATOR` | Acceso operativo para gestión de viajes |
+| Rol          | Nivel de acceso                         |
+| ------------ | --------------------------------------- |
+| `ADMIN`      | Acceso administrativo completo          |
+| `OPERATOR`   | Acceso operativo para gestión de viajes |
 | `SUPERVISOR` | Acceso operativo para gestión de viajes |
-| `VIEWER` | Acceso solo lectura |
+| `VIEWER`     | Acceso solo lectura                     |
 
 El comportamiento basado en roles incluye:
 
@@ -206,27 +210,31 @@ Reglas principales representadas en la UI y en la mock API:
 - Solo rutas activas pueden asignarse a viajes.
 - Usuarios `VIEWER` solo pueden consultar información.
 - Las acciones administrativas están restringidas por rol.
+- El registro público no puede solicitar el rol `ADMIN`.
+- Los registros públicos solo pueden solicitar `VIEWER`, `OPERATOR` o `SUPERVISOR`.
+- Los códigos de verificación son simulados por la mock API solo para desarrollo.
 - Las transiciones de estado de viajes dependen del estado actual.
 
 ---
 
 ## Rutas de la aplicación
 
-| Ruta | Descripción | Acceso |
-| ---- | ----------- | ------ |
-| `/login` | Pantalla de login | Pública |
-| `/dashboard` | Dashboard operativo | Usuarios autenticados |
-| `/vehicles` | Gestión de vehículos | Usuarios autenticados |
-| `/vehicles/new` | Crear vehículo | `ADMIN` |
-| `/drivers` | Gestión de conductores | Usuarios autenticados |
-| `/drivers/new` | Crear conductor | `ADMIN` |
-| `/routes` | Gestión de rutas | Usuarios autenticados |
-| `/routes/new` | Crear ruta | `ADMIN` |
-| `/trips` | Gestión de viajes | Usuarios autenticados |
-| `/trips/new` | Crear viaje | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
-| `/admin` | Área demo solo admin | `ADMIN` |
-| `/settings` | Configuración de usuario e idioma | Usuarios autenticados |
-| `/access-denied` | Pantalla de acceso no autorizado | Usuarios autenticados |
+| Ruta             | Descripción                       | Acceso                            |
+| ---------------- | --------------------------------- | --------------------------------- |
+| `/login`         | Pantalla de login                 | Pública                           |
+| `/register`      | Pantalla de registro              | Pública                           |
+| `/dashboard`     | Dashboard operativo               | Usuarios autenticados             |
+| `/vehicles`      | Gestión de vehículos              | Usuarios autenticados             |
+| `/vehicles/new`  | Crear vehículo                    | `ADMIN`                           |
+| `/drivers`       | Gestión de conductores            | Usuarios autenticados             |
+| `/drivers/new`   | Crear conductor                   | `ADMIN`                           |
+| `/routes`        | Gestión de rutas                  | Usuarios autenticados             |
+| `/routes/new`    | Crear ruta                        | `ADMIN`                           |
+| `/trips`         | Gestión de viajes                 | Usuarios autenticados             |
+| `/trips/new`     | Crear viaje                       | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
+| `/admin`         | Área demo solo admin              | `ADMIN`                           |
+| `/settings`      | Configuración de usuario e idioma | Usuarios autenticados             |
+| `/access-denied` | Pantalla de acceso no autorizado  | Usuarios autenticados             |
 
 ---
 
@@ -269,19 +277,19 @@ src/
 
 La capa `core` contiene lógica global de la aplicación.
 
-| Archivo | Propósito |
-| ------- | --------- |
-| `auth.guard.ts` | Protege rutas privadas |
-| `role.guard.ts` | Restringe rutas por rol de usuario |
-| `auth.interceptor.ts` | Agrega el token a las peticiones HTTP |
-| `error.interceptor.ts` | Maneja respuestas no autorizadas o prohibidas |
-| `auth.service.ts` | Maneja login, logout y sesión de usuario |
-| `theme.service.ts` | Maneja tema claro/oscuro y persistencia |
-| `language.service.ts` | Maneja persistencia de idioma inglés/español |
-| `vehicles.service.ts` | Operaciones API de vehículos |
-| `drivers.service.ts` | Operaciones API de conductores |
-| `routes.service.ts` | Operaciones API de rutas |
-| `trips.service.ts` | Operaciones API de viajes |
+| Archivo                | Propósito                                          |
+| ---------------------- | -------------------------------------------------- |
+| `auth.guard.ts`        | Protege rutas privadas                             |
+| `role.guard.ts`        | Restringe rutas por rol de usuario                 |
+| `auth.interceptor.ts`  | Agrega el token a las peticiones HTTP              |
+| `error.interceptor.ts` | Maneja respuestas no autorizadas o prohibidas      |
+| `auth.service.ts`      | Maneja login, registro, logout y sesión de usuario |
+| `theme.service.ts`     | Maneja tema claro/oscuro y persistencia            |
+| `language.service.ts`  | Maneja persistencia de idioma inglés/español       |
+| `vehicles.service.ts`  | Operaciones API de vehículos                       |
+| `drivers.service.ts`   | Operaciones API de conductores                     |
+| `routes.service.ts`    | Operaciones API de rutas                           |
+| `trips.service.ts`     | Operaciones API de viajes                          |
 
 La aplicación usa interfaces de TypeScript y union types para definir contratos de API y valores válidos de estado.
 
@@ -297,13 +305,13 @@ export type TripStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
 Los elementos reutilizables de UI viven en la capa `shared`.
 
-| Componente/Directiva | Propósito |
-| -------------------- | --------- |
-| `PageHeaderComponent` | Título estándar de página y botón de acción |
-| `StatusBadgeComponent` | Etiquetas visuales de estado |
-| `LoadingSpinnerComponent` | Estado de carga |
-| `EmptyStateComponent` | Estado sin datos |
-| `HasRoleDirective` | Muestra u oculta elementos por rol |
+| Componente/Directiva      | Propósito                                   |
+| ------------------------- | ------------------------------------------- |
+| `PageHeaderComponent`     | Título estándar de página y botón de acción |
+| `StatusBadgeComponent`    | Etiquetas visuales de estado                |
+| `LoadingSpinnerComponent` | Estado de carga                             |
+| `EmptyStateComponent`     | Estado sin datos                            |
+| `HasRoleDirective`        | Muestra u oculta elementos por rol          |
 
 ---
 
@@ -364,7 +372,16 @@ Health check:
 GET http://localhost:4000/api/health
 ```
 
-La mock API incluye datos de ejemplo, autenticación, validaciones de autorización, operaciones CRUD por entidad y reglas de negocio para viajes.
+La mock API incluye datos de ejemplo, autenticación, registro público, validaciones de autorización, operaciones CRUD por entidad y reglas de negocio para viajes.
+
+La verificación de registro se simula solo para desarrollo local y pruebas de portafolio:
+
+```txt
+Código de correo: 123456
+Código de teléfono: 654321
+```
+
+La mock API rechaza correos duplicados, teléfonos duplicados, códigos de verificación inválidos, roles solicitados inválidos y cualquier solicitud pública de `ADMIN`.
 
 ---
 
@@ -374,6 +391,9 @@ La mock API incluye datos de ejemplo, autenticación, validaciones de autorizaci
 
 ```txt
 POST /api/auth/login
+POST /api/auth/request-email-code
+POST /api/auth/request-phone-code
+POST /api/auth/register
 GET  /api/auth/profile
 ```
 
@@ -424,12 +444,12 @@ DELETE /api/trips/:id
 
 ## Usuarios demo
 
-| Rol | Email | Password |
-| --- | ----- | -------- |
-| `ADMIN` | `admin@transitops.com` | `admin123` |
-| `OPERATOR` | `operator@transitops.com` | `operator123` |
+| Rol          | Email                       | Password        |
+| ------------ | --------------------------- | --------------- |
+| `ADMIN`      | `admin@transitops.com`      | `admin123`      |
+| `OPERATOR`   | `operator@transitops.com`   | `operator123`   |
 | `SUPERVISOR` | `supervisor@transitops.com` | `supervisor123` |
-| `VIEWER` | `viewer@transitops.com` | `viewer123` |
+| `VIEWER`     | `viewer@transitops.com`     | `viewer123`     |
 
 ---
 
@@ -463,14 +483,14 @@ http://localhost:4200
 
 ## Scripts disponibles
 
-| Comando | Descripción |
-| ------- | ----------- |
-| `npm start` | Inicia Angular en el puerto 4200 |
-| `npm run api` | Inicia la mock API local en el puerto 4000 |
-| `npm run api:dev` | Inicia la mock API con watch mode |
-| `npm run build` | Compila la aplicación Angular |
-| `npm test` | Ejecuta pruebas Angular |
-| `npm run test:api` | Ejecuta pruebas de la mock API |
+| Comando            | Descripción                                |
+| ------------------ | ------------------------------------------ |
+| `npm start`        | Inicia Angular en el puerto 4200           |
+| `npm run api`      | Inicia la mock API local en el puerto 4000 |
+| `npm run api:dev`  | Inicia la mock API con watch mode          |
+| `npm run build`    | Compila la aplicación Angular              |
+| `npm test`         | Ejecuta pruebas Angular                    |
+| `npm run test:api` | Ejecuta pruebas de la mock API             |
 
 ---
 
@@ -537,6 +557,7 @@ Explicación de negocio:
 Implementado:
 
 - UI de autenticación.
+- UI de registro con verificación simulada por correo y teléfono.
 - Layout administrativo protegido.
 - Sidebar y navbar responsive.
 - Dashboard con métricas calculadas.
@@ -555,6 +576,7 @@ Implementado:
 
 Mejoras futuras posibles:
 
+- Flujo de aprobación administrativa para roles solicitados en registros
 - Formularios de edición.
 - Páginas de detalle.
 - Paginación server-side.

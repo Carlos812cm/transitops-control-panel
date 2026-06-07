@@ -38,6 +38,7 @@ const demoUsers = [
     id: 1,
     name: 'Admin Demo',
     email: 'admin@transitops.com',
+    phone: '+1 555 010 1000',
     password: 'admin123',
     role: 'ADMIN',
     status: 'ACTIVE',
@@ -46,6 +47,7 @@ const demoUsers = [
     id: 2,
     name: 'Operator Demo',
     email: 'operator@transitops.com',
+    phone: '+1 555 010 1001',
     password: 'operator123',
     role: 'OPERATOR',
     status: 'ACTIVE',
@@ -54,6 +56,7 @@ const demoUsers = [
     id: 3,
     name: 'Supervisor Demo',
     email: 'supervisor@transitops.com',
+    phone: '+1 555 010 1002',
     password: 'supervisor123',
     role: 'SUPERVISOR',
     status: 'ACTIVE',
@@ -62,6 +65,7 @@ const demoUsers = [
     id: 4,
     name: 'Viewer Demo',
     email: 'viewer@transitops.com',
+    phone: '+1 555 010 1003',
     password: 'viewer123',
     role: 'VIEWER',
     status: 'ACTIVE',
@@ -69,14 +73,27 @@ const demoUsers = [
 ];
 
 const issuedTokens = new Map();
+const pendingEmailCodes = new Map();
+const pendingPhoneCodes = new Map();
 
 const nowIso = () => new Date().toISOString();
 const CURRENT_YEAR = new Date().getFullYear();
+const EMAIL_CODE = '123456';
+const PHONE_CODE = '654321';
+const CODE_EXPIRATION_MINUTES = 10;
 
 const VEHICLE_STATUSES = new Set(['AVAILABLE', 'MAINTENANCE', 'INACTIVE']);
 const DRIVER_STATUSES = new Set(['ACTIVE', 'SUSPENDED', 'INACTIVE']);
 const ROUTE_STATUSES = new Set(['ACTIVE', 'INACTIVE']);
 const TRIP_STATUSES = new Set(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']);
+const PUBLIC_REGISTRATION_ROLES = new Set(['VIEWER', 'OPERATOR', 'SUPERVISOR']);
+const PUBLIC_API_PATHS = new Set([
+  '/api/health',
+  '/api/auth/login',
+  '/api/auth/request-email-code',
+  '/api/auth/request-phone-code',
+  '/api/auth/register',
+]);
 
 const TRIP_STATUS_TRANSITIONS = {
   SCHEDULED: new Set(['IN_PROGRESS', 'CANCELLED']),
@@ -93,6 +110,18 @@ function normalizeString(value) {
   return String(value ?? '').trim();
 }
 
+function normalizeEmail(value) {
+  return normalizeString(value).toLowerCase();
+}
+
+function normalizePhone(value) {
+  return normalizeString(value);
+}
+
+function canonicalPhone(value) {
+  return normalizePhone(value).replace(/[()\s-]/g, '');
+}
+
 function parseNumber(value) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
@@ -101,6 +130,52 @@ function parseNumber(value) {
 function parseStatus(value, allowedStatuses) {
   const normalized = normalizeString(value).toUpperCase();
   return allowedStatuses.has(normalized) ? normalized : null;
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidPhone(value) {
+  return /^\+?[0-9 ()-]{8,20}$/.test(value);
+}
+
+function findUserByEmail(email) {
+  return demoUsers.find((entry) => entry.email === email);
+}
+
+function findUserByPhone(phone) {
+  const normalizedPhone = canonicalPhone(phone);
+
+  return demoUsers.find((entry) => entry.phone && canonicalPhone(entry.phone) === normalizedPhone);
+}
+
+function issueVerificationCode(store, destination, code) {
+  store.set(destination, {
+    code,
+    expiresAt: Date.now() + CODE_EXPIRATION_MINUTES * 60 * 1000,
+  });
+
+  return {
+    destination,
+    code,
+    expiresInMinutes: CODE_EXPIRATION_MINUTES,
+  };
+}
+
+function isVerificationCodeValid(store, destination, code) {
+  const issuedCode = store.get(destination);
+
+  if (!issuedCode || issuedCode.code !== code) {
+    return false;
+  }
+
+  if (issuedCode.expiresAt < Date.now()) {
+    store.delete(destination);
+    return false;
+  }
+
+  return true;
 }
 
 const vehicles = [
@@ -220,7 +295,7 @@ function fail(res, status, message, errors) {
 }
 
 function authMiddleware(req, res, next) {
-  if (req.path === '/api/auth/login' || req.path === '/api/health') {
+  if (PUBLIC_API_PATHS.has(req.path)) {
     return next();
   }
 
@@ -249,9 +324,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.post('/api/auth/login', (req, res) => {
-  const email = String(req.body?.email || '')
-    .trim()
-    .toLowerCase();
+  const email = normalizeEmail(req.body?.email);
   const password = String(req.body?.password || '').trim();
 
   if (!email || !password) {
@@ -269,6 +342,7 @@ app.post('/api/auth/login', (req, res) => {
     id: user.id,
     name: user.name,
     email: user.email,
+    phone: user.phone,
     role: user.role,
     status: user.status,
     createdAt: nowIso(),
@@ -280,6 +354,141 @@ app.post('/api/auth/login', (req, res) => {
   return ok(res, 'Login successful.', {
     token,
     user: safeUser,
+  });
+});
+
+app.post('/api/auth/request-email-code', (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+
+  if (!email) {
+    return fail(res, 400, 'Email is required.');
+  }
+
+  if (!isValidEmail(email)) {
+    return fail(res, 400, 'Email must be valid.');
+  }
+
+  if (findUserByEmail(email)) {
+    return fail(res, 409, 'Email is already registered.');
+  }
+
+  return ok(
+    res,
+    'Email verification code generated. Use mock code 123456 for development only.',
+    issueVerificationCode(pendingEmailCodes, email, EMAIL_CODE),
+  );
+});
+
+app.post('/api/auth/request-phone-code', (req, res) => {
+  const phone = normalizePhone(req.body?.phone);
+
+  if (!phone) {
+    return fail(res, 400, 'Phone is required.');
+  }
+
+  if (!isValidPhone(phone)) {
+    return fail(res, 400, 'Phone must be valid.');
+  }
+
+  if (findUserByPhone(phone)) {
+    return fail(res, 409, 'Phone is already registered.');
+  }
+
+  return ok(
+    res,
+    'Phone verification code generated. Use mock code 654321 for development only.',
+    issueVerificationCode(pendingPhoneCodes, canonicalPhone(phone), PHONE_CODE),
+  );
+});
+
+app.post('/api/auth/register', (req, res) => {
+  const payload = req.body || {};
+  const firstName = normalizeString(payload.firstName);
+  const lastName = normalizeString(payload.lastName);
+  const phone = normalizePhone(payload.phone);
+  const phoneCode = normalizeString(payload.phoneCode);
+  const email = normalizeEmail(payload.email);
+  const emailCode = normalizeString(payload.emailCode);
+  const password = normalizeString(payload.password);
+  const confirmPassword = normalizeString(payload.confirmPassword);
+  const requestedRole = normalizeString(payload.requestedRole).toUpperCase();
+
+  if (
+    !firstName ||
+    !lastName ||
+    !phone ||
+    !phoneCode ||
+    !email ||
+    !emailCode ||
+    !password ||
+    !confirmPassword ||
+    !requestedRole
+  ) {
+    return fail(res, 400, 'All registration fields are required.');
+  }
+
+  if (!isValidEmail(email)) {
+    return fail(res, 400, 'Email must be valid.');
+  }
+
+  if (!isValidPhone(phone)) {
+    return fail(res, 400, 'Phone must be valid.');
+  }
+
+  if (password.length < 8) {
+    return fail(res, 400, 'Password must have at least 8 characters.');
+  }
+
+  if (password !== confirmPassword) {
+    return fail(res, 400, 'Password confirmation does not match.');
+  }
+
+  if (requestedRole === 'ADMIN') {
+    return fail(res, 400, 'ADMIN cannot be requested through public registration.');
+  }
+
+  if (!PUBLIC_REGISTRATION_ROLES.has(requestedRole)) {
+    return fail(res, 400, 'Requested role is invalid.');
+  }
+
+  if (findUserByEmail(email)) {
+    return fail(res, 409, 'Email is already registered.');
+  }
+
+  if (findUserByPhone(phone)) {
+    return fail(res, 409, 'Phone is already registered.');
+  }
+
+  if (!isVerificationCodeValid(pendingEmailCodes, email, emailCode)) {
+    return fail(res, 400, 'Email verification code is invalid.');
+  }
+
+  const phoneDestination = canonicalPhone(phone);
+
+  if (!isVerificationCodeValid(pendingPhoneCodes, phoneDestination, phoneCode)) {
+    return fail(res, 400, 'Phone verification code is invalid.');
+  }
+
+  const id = Math.max(...demoUsers.map((entry) => entry.id)) + 1;
+  const user = {
+    id,
+    name: `${firstName} ${lastName}`,
+    email,
+    phone,
+    password,
+    role: requestedRole,
+    status: 'ACTIVE',
+  };
+
+  demoUsers.push(user);
+  pendingEmailCodes.delete(email);
+  pendingPhoneCodes.delete(phoneDestination);
+
+  return ok(res, 'Registration successful.', {
+    id: user.id,
+    email: user.email,
+    phone: user.phone,
+    requestedRole: user.role,
   });
 });
 
