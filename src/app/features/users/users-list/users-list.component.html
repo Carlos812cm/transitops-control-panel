@@ -1,0 +1,213 @@
+<app-page-header [title]="t('users.title')" [subtitle]="t('users.subtitle')" />
+
+@if (successMessage) {
+  <div class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+}
+
+<section class="users-summary" [attr.aria-label]="t('users.summary.title')">
+  <div class="users-summary-card">
+    <span>{{ t('users.summary.total') }}</span>
+    <strong>{{ totalUsers }}</strong>
+  </div>
+
+  <div class="users-summary-card">
+    <span>{{ t('users.summary.active') }}</span>
+    <strong>{{ activeUsers }}</strong>
+  </div>
+
+  <div class="users-summary-card">
+    <span>{{ t('users.summary.pending') }}</span>
+    <strong>{{ pendingUsers }}</strong>
+  </div>
+
+  <div class="users-summary-card">
+    <span>{{ t('users.summary.restricted') }}</span>
+    <strong>{{ restrictedUsers }}</strong>
+  </div>
+</section>
+
+<div class="filters-card">
+  <div class="row g-3 align-items-end">
+    <div class="col-lg-5">
+      <label class="form-label" for="usersSearch">{{ t('users.search.label') }}</label>
+      <input
+        id="usersSearch"
+        type="text"
+        class="form-control"
+        [placeholder]="t('users.search.placeholder')"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+
+    <div class="col-md-4 col-lg-3">
+      <label class="form-label" for="usersStatusFilter">{{ t('common.status') }}</label>
+      <select
+        id="usersStatusFilter"
+        class="form-select"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="">{{ t('common.allStatuses') }}</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ statusLabel(status) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <label class="form-label" for="usersRoleFilter">{{ t('users.filters.role') }}</label>
+      <select
+        id="usersRoleFilter"
+        class="form-select"
+        [(ngModel)]="roleFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="">{{ t('users.filters.allRoles') }}</option>
+        @for (role of roles; track role) {
+          <option [value]="role">{{ roleLabel(role) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+        {{ t('common.clear') }}
+      </button>
+    </div>
+  </div>
+
+  <p class="filters-summary">
+    {{ t('common.showing') }} {{ users.length }} {{ t('common.of') }} {{ allUsers.length }}
+    {{ t('users.summary.label') }}.
+  </p>
+</div>
+
+@if (isLoading) {
+  <app-loading-spinner [text]="t('users.loading')" />
+} @else if (errorMessage && allUsers.length === 0) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+} @else {
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (users.length === 0) {
+    <app-empty-state [title]="t('users.empty.title')" [message]="t('users.empty.message')" />
+  } @else {
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>{{ t('common.name') }}</th>
+                <th>{{ t('common.email') }}</th>
+                <th>{{ t('common.phone') }}</th>
+                <th>{{ t('users.table.currentRole') }}</th>
+                <th>{{ t('users.table.requestedRole') }}</th>
+                <th>{{ t('common.status') }}</th>
+                <th>{{ t('users.table.createdAt') }}</th>
+                <th class="text-end">{{ t('common.actions') }}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (user of users; track user.id) {
+                <tr>
+                  <td class="fw-semibold">{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.phone || t('users.table.noPhone') }}</td>
+                  <td>{{ roleLabel(user.role) }}</td>
+                  <td>{{ roleLabel(user.requestedRole) }}</td>
+                  <td>
+                    <app-status-badge [status]="user.status" />
+                  </td>
+                  <td>
+                    @if (user.createdAt) {
+                      {{ user.createdAt | date: 'mediumDate' }}
+                    } @else {
+                      {{ t('users.table.noDate') }}
+                    }
+                  </td>
+                  <td class="text-end">
+                    @if (hasActions(user)) {
+                      <div class="btn-group btn-group-sm">
+                        @if (canApprove(user)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-success"
+                            [disabled]="isUpdating(user)"
+                            (click)="approveUser(user)"
+                          >
+                            {{ isUpdating(user) ? t('common.loading') : t('users.actions.approve') }}
+                          </button>
+                        }
+
+                        @if (canReject(user)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            [disabled]="isUpdating(user)"
+                            (click)="rejectUser(user)"
+                          >
+                            {{ isUpdating(user) ? t('common.loading') : t('users.actions.reject') }}
+                          </button>
+                        }
+
+                        @if (canSuspend(user)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-warning"
+                            [disabled]="isUpdating(user)"
+                            (click)="suspendUser(user)"
+                          >
+                            {{ isUpdating(user) ? t('common.loading') : t('users.actions.suspend') }}
+                          </button>
+                        }
+
+                        @if (canReactivate(user)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-success"
+                            [disabled]="isUpdating(user)"
+                            (click)="reactivateUser(user)"
+                          >
+                            {{
+                              isUpdating(user) ? t('common.loading') : t('users.actions.reactivate')
+                            }}
+                          </button>
+                        }
+
+                        @if (canDeactivate(user)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            [disabled]="isUpdating(user)"
+                            (click)="deactivateUser(user)"
+                          >
+                            {{
+                              isUpdating(user) ? t('common.loading') : t('users.actions.deactivate')
+                            }}
+                          </button>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-muted small">{{ t('common.noActions') }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+}

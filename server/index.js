@@ -7,6 +7,7 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:4200')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+const bootedAt = new Date().toISOString();
 
 app.use(express.json());
 
@@ -41,7 +42,10 @@ const demoUsers = [
     phone: '+1 555 010 1000',
     password: 'admin123',
     role: 'ADMIN',
+    requestedRole: 'ADMIN',
     status: 'ACTIVE',
+    createdAt: bootedAt,
+    updatedAt: bootedAt,
   },
   {
     id: 2,
@@ -50,7 +54,10 @@ const demoUsers = [
     phone: '+1 555 010 1001',
     password: 'operator123',
     role: 'OPERATOR',
+    requestedRole: 'OPERATOR',
     status: 'ACTIVE',
+    createdAt: bootedAt,
+    updatedAt: bootedAt,
   },
   {
     id: 3,
@@ -59,7 +66,10 @@ const demoUsers = [
     phone: '+1 555 010 1002',
     password: 'supervisor123',
     role: 'SUPERVISOR',
+    requestedRole: 'SUPERVISOR',
     status: 'ACTIVE',
+    createdAt: bootedAt,
+    updatedAt: bootedAt,
   },
   {
     id: 4,
@@ -68,7 +78,10 @@ const demoUsers = [
     phone: '+1 555 010 1003',
     password: 'viewer123',
     role: 'VIEWER',
+    requestedRole: 'VIEWER',
     status: 'ACTIVE',
+    createdAt: bootedAt,
+    updatedAt: bootedAt,
   },
 ];
 
@@ -86,6 +99,13 @@ const VEHICLE_STATUSES = new Set(['AVAILABLE', 'MAINTENANCE', 'INACTIVE']);
 const DRIVER_STATUSES = new Set(['ACTIVE', 'SUSPENDED', 'INACTIVE']);
 const ROUTE_STATUSES = new Set(['ACTIVE', 'INACTIVE']);
 const TRIP_STATUSES = new Set(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']);
+const USER_STATUSES = new Set([
+  'ACTIVE',
+  'INACTIVE',
+  'PENDING_APPROVAL',
+  'REJECTED',
+  'SUSPENDED',
+]);
 const PUBLIC_REGISTRATION_ROLES = new Set(['VIEWER', 'OPERATOR', 'SUPERVISOR']);
 const PUBLIC_API_PATHS = new Set([
   '/api/health',
@@ -144,10 +164,30 @@ function findUserByEmail(email) {
   return demoUsers.find((entry) => entry.email === email);
 }
 
+function findUserById(id) {
+  const numericId = parseNumber(id);
+
+  return demoUsers.find((entry) => entry.id === numericId);
+}
+
 function findUserByPhone(phone) {
   const normalizedPhone = canonicalPhone(phone);
 
   return demoUsers.find((entry) => entry.phone && canonicalPhone(entry.phone) === normalizedPhone);
+}
+
+function serializeUser(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    requestedRole: user.requestedRole,
+    status: user.status,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 }
 
 function issueVerificationCode(store, destination, code) {
@@ -317,6 +357,14 @@ function authMiddleware(req, res, next) {
 
 app.use(authMiddleware);
 
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== 'ADMIN') {
+    return fail(res, 403, 'ADMIN role is required.');
+  }
+
+  next();
+}
+
 app.get('/api/health', (_req, res) => {
   ok(res, 'TransitOps API is running.', {
     uptimeSeconds: Math.floor(process.uptime()),
@@ -337,17 +385,19 @@ app.post('/api/auth/login', (req, res) => {
     return fail(res, 401, 'Invalid credentials.');
   }
 
+  if (user.status !== 'ACTIVE') {
+    const blockedMessages = {
+      INACTIVE: 'Account is inactive. Contact an administrator.',
+      PENDING_APPROVAL: 'Account is pending administrator approval.',
+      REJECTED: 'Account access request was rejected.',
+      SUSPENDED: 'Account is suspended. Contact an administrator.',
+    };
+
+    return fail(res, 401, blockedMessages[user.status] || 'Account is not active.');
+  }
+
   const token = `dev-${crypto.randomUUID()}`;
-  const safeUser = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    status: user.status,
-    createdAt: nowIso(),
-    updatedAt: nowIso(),
-  };
+  const safeUser = serializeUser(user);
 
   issuedTokens.set(token, safeUser);
 
@@ -470,26 +520,161 @@ app.post('/api/auth/register', (req, res) => {
   }
 
   const id = Math.max(...demoUsers.map((entry) => entry.id)) + 1;
+  const createdAt = nowIso();
+  const status = requestedRole === 'VIEWER' ? 'ACTIVE' : 'PENDING_APPROVAL';
   const user = {
     id,
     name: `${firstName} ${lastName}`,
     email,
     phone,
     password,
-    role: requestedRole,
-    status: 'ACTIVE',
+    role: 'VIEWER',
+    requestedRole,
+    status,
+    createdAt,
+    updatedAt: createdAt,
   };
 
   demoUsers.push(user);
   pendingEmailCodes.delete(email);
   pendingPhoneCodes.delete(phoneDestination);
 
-  return ok(res, 'Registration successful.', {
-    id: user.id,
-    email: user.email,
-    phone: user.phone,
-    requestedRole: user.role,
-  });
+  return ok(
+    res,
+    status === 'ACTIVE'
+      ? 'Registration successful.'
+      : 'Registration submitted for administrator approval.',
+    {
+      id: user.id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      requestedRole: user.requestedRole,
+      status: user.status,
+    },
+  );
+});
+
+app.get('/api/users', requireAdmin, (req, res) => {
+  const status = req.query?.status ? normalizeString(req.query.status).toUpperCase() : '';
+  const role = req.query?.role ? normalizeString(req.query.role).toUpperCase() : '';
+  const q = req.query?.q ? String(req.query.q).trim().toLowerCase() : '';
+
+  const filtered = demoUsers
+    .filter((user) => {
+      const statusMatch = !status || user.status === status;
+      const roleMatch = !role || user.role === role;
+      const qMatch =
+        !q ||
+        user.name.toLowerCase().includes(q) ||
+        user.email.toLowerCase().includes(q) ||
+        normalizeString(user.phone).toLowerCase().includes(q);
+
+      return statusMatch && roleMatch && qMatch;
+    })
+    .map(serializeUser);
+
+  return ok(res, 'Users loaded.', filtered);
+});
+
+app.get('/api/users/:id', requireAdmin, (req, res) => {
+  const user = findUserById(req.params.id);
+
+  if (!user) {
+    return fail(res, 404, 'User not found.');
+  }
+
+  return ok(res, 'User loaded.', serializeUser(user));
+});
+
+app.patch('/api/users/:id/approve', requireAdmin, (req, res) => {
+  const user = findUserById(req.params.id);
+
+  if (!user) {
+    return fail(res, 404, 'User not found.');
+  }
+
+  if (user.status !== 'PENDING_APPROVAL') {
+    return fail(res, 409, 'Only pending users can be approved.');
+  }
+
+  if (!PUBLIC_REGISTRATION_ROLES.has(user.requestedRole)) {
+    return fail(res, 409, 'Requested role is invalid for approval.');
+  }
+
+  user.role = user.requestedRole;
+  user.status = 'ACTIVE';
+  user.updatedAt = nowIso();
+
+  return ok(res, 'User approved.', serializeUser(user));
+});
+
+app.patch('/api/users/:id/reject', requireAdmin, (req, res) => {
+  const user = findUserById(req.params.id);
+
+  if (!user) {
+    return fail(res, 404, 'User not found.');
+  }
+
+  if (user.status !== 'PENDING_APPROVAL') {
+    return fail(res, 409, 'Only pending users can be rejected.');
+  }
+
+  user.status = 'REJECTED';
+  user.updatedAt = nowIso();
+
+  return ok(res, 'User rejected.', serializeUser(user));
+});
+
+app.patch('/api/users/:id/status', requireAdmin, (req, res) => {
+  const user = findUserById(req.params.id);
+
+  if (!user) {
+    return fail(res, 404, 'User not found.');
+  }
+
+  const status = parseStatus(req.body?.status, USER_STATUSES);
+
+  if (!status) {
+    return fail(res, 400, 'status is invalid.');
+  }
+
+  if (status === 'PENDING_APPROVAL' || status === 'REJECTED') {
+    return fail(res, 400, 'Use the approval actions for pending and rejected states.');
+  }
+
+  if (user.role === 'ADMIN') {
+    if (req.user.id === user.id && (status === 'SUSPENDED' || status === 'INACTIVE')) {
+      return fail(res, 409, 'You cannot suspend or deactivate your own administrator account.');
+    }
+
+    return fail(res, 409, 'ADMIN user status changes are not allowed.');
+  }
+
+  if (user.status === 'PENDING_APPROVAL') {
+    return fail(res, 409, 'Use approve or reject for pending users.');
+  }
+
+  if (user.status === 'REJECTED') {
+    return fail(res, 409, 'Rejected users cannot be changed through status updates.');
+  }
+
+  if (status === 'ACTIVE' && user.status !== 'SUSPENDED' && user.status !== 'INACTIVE') {
+    return fail(res, 409, 'Only suspended or inactive users can be reactivated.');
+  }
+
+  if (status === 'SUSPENDED' && user.status !== 'ACTIVE') {
+    return fail(res, 409, 'Only active users can be suspended.');
+  }
+
+  if (status === 'INACTIVE' && user.status !== 'ACTIVE' && user.status !== 'SUSPENDED') {
+    return fail(res, 409, 'Only active or suspended users can be deactivated.');
+  }
+
+  user.status = status;
+  user.updatedAt = nowIso();
+
+  return ok(res, 'User status updated.', serializeUser(user));
 });
 
 app.get('/api/vehicles', (req, res) => {
