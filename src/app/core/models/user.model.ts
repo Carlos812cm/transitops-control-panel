@@ -2,7 +2,9 @@
 
 export type UserRole = 'ADMIN' | 'VIEWER' | 'OPERATOR' | 'SUPERVISOR';
 
-export type UserStatus = 'ACTIVE' | 'INACTIVE';
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING_APPROVAL' | 'REJECTED' | 'SUSPENDED';
+
+export type PublicRegistrationRole = Exclude<UserRole, 'ADMIN'>;
 
 export interface User {
   id: number;
@@ -10,9 +12,10 @@ export interface User {
   email: string;
   phone?: string;
   role: UserRole;
+  requestedRole?: UserRole | PublicRegistrationRole;
   status: UserStatus;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface LoginRequest {
@@ -24,8 +27,6 @@ export interface LoginResponse {
   token: string;
   user: User;
 }
-
-export type PublicRegistrationRole = Exclude<UserRole, 'ADMIN'>;
 
 export interface VerificationCodeResponseData {
   destination: string;
@@ -57,5 +58,7 @@ export interface RegisterResponseData {
   id: number;
   email: string;
   phone: string;
+  role: UserRole;
   requestedRole: PublicRegistrationRole;
+  status: UserStatus;
 }

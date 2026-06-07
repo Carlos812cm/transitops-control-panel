@@ -51,14 +51,20 @@ async function request(path, { method = 'GET', token, body } = {}) {
   };
 }
 
-async function loginAndGetToken() {
+async function login(email = 'admin@transitops.com', password = 'admin123') {
   const result = await request('/api/auth/login', {
     method: 'POST',
     body: {
-      email: 'admin@transitops.com',
-      password: 'admin123',
+      email,
+      password,
     },
   });
+
+  return result;
+}
+
+async function loginAndGetToken() {
+  const result = await login();
 
   expect(result.status).toBe(200);
   expect(result.json.success).toBe(true);
@@ -139,6 +145,19 @@ describe('TransitOps API hardening rules', () => {
     expect(result.status).toBe(401);
     expect(result.json.success).toBe(false);
     expect(result.json.message).toContain('authorization token');
+  });
+
+  it('requires ADMIN role for users management endpoints', async () => {
+    const loginResult = await login('viewer@transitops.com', 'viewer123');
+    const token = loginResult.json.data.token;
+
+    const result = await request('/api/users', {
+      token,
+    });
+
+    expect(result.status).toBe(403);
+    expect(result.json.success).toBe(false);
+    expect(result.json.message).toContain('ADMIN role');
   });
 
   it('blocks trip creation when vehicle is not AVAILABLE', async () => {
@@ -249,6 +268,179 @@ describe('TransitOps API hardening rules', () => {
     expect(result.json.message).toContain('ADMIN cannot be requested');
   });
 
+  it('registers VIEWER users as ACTIVE and allows login', async () => {
+    const payload = createRegistrationPayload({
+      requestedRole: 'VIEWER',
+    });
+    await requestRegistrationCodes(payload);
+
+    const registrationResult = await request('/api/auth/register', {
+      method: 'POST',
+      body: payload,
+    });
+
+    expect(registrationResult.status).toBe(200);
+    expect(registrationResult.json.success).toBe(true);
+    expect(registrationResult.json.data?.role).toBe('VIEWER');
+    expect(registrationResult.json.data?.requestedRole).toBe('VIEWER');
+    expect(registrationResult.json.data?.status).toBe('ACTIVE');
+
+    const loginResult = await login(payload.email, payload.password);
+
+    expect(loginResult.status).toBe(200);
+    expect(loginResult.json.data?.user?.role).toBe('VIEWER');
+    expect(loginResult.json.data?.user?.status).toBe('ACTIVE');
+  });
+
+  it('registers OPERATOR users as pending until admin approval', async () => {
+    const payload = createRegistrationPayload({
+      requestedRole: 'OPERATOR',
+    });
+    await requestRegistrationCodes(payload);
+
+    const registrationResult = await request('/api/auth/register', {
+      method: 'POST',
+      body: payload,
+    });
+
+    expect(registrationResult.status).toBe(200);
+    expect(registrationResult.json.data?.role).toBe('VIEWER');
+    expect(registrationResult.json.data?.requestedRole).toBe('OPERATOR');
+    expect(registrationResult.json.data?.status).toBe('PENDING_APPROVAL');
+
+    const pendingLoginResult = await login(payload.email, payload.password);
+
+    expect(pendingLoginResult.status).toBe(401);
+    expect(pendingLoginResult.json.message).toContain('pending administrator approval');
+
+    const adminToken = await loginAndGetToken();
+    const usersResult = await request('/api/users?status=PENDING_APPROVAL&role=VIEWER', {
+      token: adminToken,
+    });
+    const pendingUser = usersResult.json.data.find((user) => user.email === payload.email);
+
+    expect(usersResult.status).toBe(200);
+    expect(pendingUser?.requestedRole).toBe('OPERATOR');
+
+    const approvalResult = await request(`/api/users/${pendingUser.id}/approve`, {
+      method: 'PATCH',
+      token: adminToken,
+    });
+
+    expect(approvalResult.status).toBe(200);
+    expect(approvalResult.json.data?.role).toBe('OPERATOR');
+    expect(approvalResult.json.data?.status).toBe('ACTIVE');
+
+    const approvedLoginResult = await login(payload.email, payload.password);
+
+    expect(approvedLoginResult.status).toBe(200);
+    expect(approvedLoginResult.json.data?.user?.role).toBe('OPERATOR');
+  });
+
+  it('allows admin to reject pending SUPERVISOR users and blocks rejected login', async () => {
+    const payload = createRegistrationPayload({
+      requestedRole: 'SUPERVISOR',
+    });
+    await requestRegistrationCodes(payload);
+
+    const registrationResult = await request('/api/auth/register', {
+      method: 'POST',
+      body: payload,
+    });
+
+    expect(registrationResult.status).toBe(200);
+    expect(registrationResult.json.data?.status).toBe('PENDING_APPROVAL');
+
+    const adminToken = await loginAndGetToken();
+    const usersResult = await request(`/api/users?q=${encodeURIComponent(payload.email)}`, {
+      token: adminToken,
+    });
+    const pendingUser = usersResult.json.data.find((user) => user.email === payload.email);
+
+    expect(pendingUser?.requestedRole).toBe('SUPERVISOR');
+
+    const rejectionResult = await request(`/api/users/${pendingUser.id}/reject`, {
+      method: 'PATCH',
+      token: adminToken,
+    });
+
+    expect(rejectionResult.status).toBe(200);
+    expect(rejectionResult.json.data?.status).toBe('REJECTED');
+
+    const rejectedLoginResult = await login(payload.email, payload.password);
+
+    expect(rejectedLoginResult.status).toBe(401);
+    expect(rejectedLoginResult.json.message).toContain('rejected');
+  });
+
+  it('blocks suspended and inactive users from login and prevents admin self-deactivation', async () => {
+    const payload = createRegistrationPayload({
+      requestedRole: 'VIEWER',
+    });
+    await requestRegistrationCodes(payload);
+
+    const registrationResult = await request('/api/auth/register', {
+      method: 'POST',
+      body: payload,
+    });
+    const userId = registrationResult.json.data.id;
+    const adminToken = await loginAndGetToken();
+
+    const suspendResult = await request(`/api/users/${userId}/status`, {
+      method: 'PATCH',
+      token: adminToken,
+      body: {
+        status: 'SUSPENDED',
+      },
+    });
+
+    expect(suspendResult.status).toBe(200);
+    expect(suspendResult.json.data?.status).toBe('SUSPENDED');
+
+    const suspendedLoginResult = await login(payload.email, payload.password);
+
+    expect(suspendedLoginResult.status).toBe(401);
+    expect(suspendedLoginResult.json.message).toContain('suspended');
+
+    const reactivateResult = await request(`/api/users/${userId}/status`, {
+      method: 'PATCH',
+      token: adminToken,
+      body: {
+        status: 'ACTIVE',
+      },
+    });
+
+    expect(reactivateResult.status).toBe(200);
+    expect(reactivateResult.json.data?.status).toBe('ACTIVE');
+
+    const deactivateResult = await request(`/api/users/${userId}/status`, {
+      method: 'PATCH',
+      token: adminToken,
+      body: {
+        status: 'INACTIVE',
+      },
+    });
+
+    expect(deactivateResult.status).toBe(200);
+    expect(deactivateResult.json.data?.status).toBe('INACTIVE');
+
+    const inactiveLoginResult = await login(payload.email, payload.password);
+
+    expect(inactiveLoginResult.status).toBe(401);
+    expect(inactiveLoginResult.json.message).toContain('inactive');
+
+    const selfDeactivationResult = await request('/api/users/1/status', {
+      method: 'PATCH',
+      token: adminToken,
+      body: {
+        status: 'INACTIVE',
+      },
+    });
+
+    expect(selfDeactivationResult.status).toBe(409);
+    expect(selfDeactivationResult.json.message).toContain('own administrator account');
+  });
+
   it('registers a user after valid codes and rejects duplicate email or phone', async () => {
     const payload = createRegistrationPayload({
       requestedRole: 'OPERATOR',
@@ -265,6 +457,8 @@ describe('TransitOps API hardening rules', () => {
     expect(registrationResult.json.data?.email).toBe(payload.email);
     expect(registrationResult.json.data?.phone).toBe(payload.phone);
     expect(registrationResult.json.data?.requestedRole).toBe('OPERATOR');
+    expect(registrationResult.json.data?.role).toBe('VIEWER');
+    expect(registrationResult.json.data?.status).toBe('PENDING_APPROVAL');
 
     const duplicateEmailResult = await request('/api/auth/request-email-code', {
       method: 'POST',

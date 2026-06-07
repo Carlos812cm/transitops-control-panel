@@ -50,6 +50,15 @@
     >
       <span>{{ t('sidebar.admin') }}</span>
     </a>
+
+    <a
+      routerLink="/users"
+      routerLinkActive="active"
+      (click)="closeOnNavigation()"
+      *appHasRole="'ADMIN'"
+    >
+      <span>{{ t('sidebar.users') }}</span>
+    </a>
   </nav>
 
   <div class="sidebar-footer">

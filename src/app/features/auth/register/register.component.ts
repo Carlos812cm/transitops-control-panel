@@ -44,6 +44,7 @@ export class RegisterComponent {
   isPhoneCodeLoading = false;
   isSubmitting = false;
   isRegistrationSuccessful = false;
+  registrationSuccessMessageKey: TranslationKey = 'auth.register.successActiveMessage';
   emailCodeMessage = '';
   phoneCodeMessage = '';
   errorMessage = '';
@@ -219,6 +220,10 @@ export class RegisterComponent {
         }
 
         this.isRegistrationSuccessful = true;
+        this.registrationSuccessMessageKey =
+          response.data?.status === 'PENDING_APPROVAL'
+            ? 'auth.register.successPendingMessage'
+            : 'auth.register.successActiveMessage';
         this.registerForm.reset({
           firstName: '',
           lastName: '',

@@ -2,7 +2,7 @@
 
 [English](README.md) | Español
 
-TransitOps Control Panel es un panel administrativo desarrollado con Angular para gestionar operaciones de transporte. Proporciona una interfaz con control por roles para administrar vehículos, conductores, rutas y viajes mediante una API REST.
+TransitOps Control Panel es un panel administrativo desarrollado con Angular para gestionar operaciones de transporte. Proporciona una interfaz con control por roles para administrar usuarios, vehículos, conductores, rutas y viajes mediante una API REST.
 
 Este repositorio representa la capa **Front-End** del proyecto de portafolio **TransitOps Platform**. Está diseñado para demostrar arquitectura Angular profesional, integración tipada con API, autenticación, comportamiento visual basado en roles, formularios reactivos, métricas operativas, filtros en tablas, diseño responsive y soporte de tema claro/oscuro.
 
@@ -14,6 +14,7 @@ El objetivo de este proyecto es presentar un sistema administrativo realista, no
 
 - Autenticación y manejo de sesión.
 - Registro público con verificación simulada por correo y teléfono.
+- Flujo de aprobación administrativa para solicitudes de roles elevados.
 - Rutas protegidas.
 - Navegación y acciones basadas en roles.
 - Integración con API REST mediante servicios tipados.
@@ -24,6 +25,7 @@ El objetivo de este proyecto es presentar un sistema administrativo realista, no
 - Layout administrativo responsive.
 - Tema claro y tema oscuro con persistencia local.
 - Página de configuración con cobertura ampliada de idioma inglés/español en la UI.
+- Sección de gestión de usuarios solo para administradores.
 - Mock API local para probar el Front-End de forma independiente.
 
 El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angular**, o como la capa visual de una plataforma **Full-Stack** más amplia llamada TransitOps Platform.
@@ -55,6 +57,8 @@ El proyecto puede presentarse en entrevistas como un proyecto **Front-End Angula
 - Pantalla de registro público.
 - Códigos simulados de verificación por correo y teléfono para desarrollo.
 - Selección de rol solicitado para `VIEWER`, `OPERATOR` o `SUPERVISOR`.
+- Los registros `VIEWER` quedan activos inmediatamente.
+- Los registros `OPERATOR` y `SUPERVISOR` quedan pendientes hasta aprobación administrativa.
 - Almacenamiento de token tipo JWT.
 - Persistencia de sesión del usuario actual.
 - Flujo de cierre de sesión.
@@ -84,6 +88,31 @@ Ejemplo:
 
 ```html
 <button *appHasRole="['ADMIN']">Create Vehicle</button>
+```
+
+### Gestión de usuarios
+
+Los administradores pueden abrir la sección Usuarios para revisar solicitudes de registro y administrar el acceso de cuentas.
+
+Funcionalidades:
+
+- Ruta `/users` solo para administradores.
+- Contadores de resumen de usuarios.
+- Búsqueda por nombre, correo o teléfono.
+- Filtros por estado y rol.
+- Visibilidad de rol actual, rol solicitado y estado.
+- Aprobación y rechazo de usuarios pendientes.
+- Acciones para suspender, reactivar y desactivar usuarios.
+- Protección contra autosuspensión o autodesactivación de administradores.
+
+Estados de usuario soportados:
+
+```txt
+ACTIVE
+INACTIVE
+PENDING_APPROVAL
+REJECTED
+SUSPENDED
 ```
 
 ### Dashboard
@@ -212,6 +241,10 @@ Reglas principales representadas en la UI y en la mock API:
 - Las acciones administrativas están restringidas por rol.
 - El registro público no puede solicitar el rol `ADMIN`.
 - Los registros públicos solo pueden solicitar `VIEWER`, `OPERATOR` o `SUPERVISOR`.
+- Los registros públicos `VIEWER` se crean como `ACTIVE`.
+- Los registros públicos `OPERATOR` y `SUPERVISOR` se crean como `PENDING_APPROVAL` con rol actual `VIEWER`.
+- Los usuarios pendientes, rechazados, suspendidos e inactivos no pueden iniciar sesión.
+- Solo usuarios `ADMIN` pueden acceder a endpoints de gestión de usuarios.
 - Los códigos de verificación son simulados por la mock API solo para desarrollo.
 - Las transiciones de estado de viajes dependen del estado actual.
 
@@ -233,6 +266,7 @@ Reglas principales representadas en la UI y en la mock API:
 | `/trips`         | Gestión de viajes                 | Usuarios autenticados             |
 | `/trips/new`     | Crear viaje                       | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
 | `/admin`         | Área demo solo admin              | `ADMIN`                           |
+| `/users`         | Gestión de usuarios               | `ADMIN`                           |
 | `/settings`      | Configuración de usuario e idioma | Usuarios autenticados             |
 | `/access-denied` | Pantalla de acceso no autorizado  | Usuarios autenticados             |
 
@@ -256,6 +290,7 @@ src/
 │   │   ├── drivers/
 │   │   ├── routes/
 │   │   ├── trips/
+│   │   ├── users/
 │   │   └── settings/
 │   ├── layout/
 │   │   ├── auth-layout/
@@ -290,6 +325,7 @@ La capa `core` contiene lógica global de la aplicación.
 | `drivers.service.ts`   | Operaciones API de conductores                     |
 | `routes.service.ts`    | Operaciones API de rutas                           |
 | `trips.service.ts`     | Operaciones API de viajes                          |
+| `users.service.ts`     | Operaciones API de gestión administrativa de usuarios |
 
 La aplicación usa interfaces de TypeScript y union types para definir contratos de API y valores válidos de estado.
 
@@ -372,7 +408,7 @@ Health check:
 GET http://localhost:4000/api/health
 ```
 
-La mock API incluye datos de ejemplo, autenticación, registro público, validaciones de autorización, operaciones CRUD por entidad y reglas de negocio para viajes.
+La mock API incluye datos de ejemplo, autenticación, registro público, validaciones de autorización, flujo de aprobación de usuarios, operaciones CRUD por entidad y reglas de negocio para viajes.
 
 La verificación de registro se simula solo para desarrollo local y pruebas de portafolio:
 
@@ -381,7 +417,7 @@ Código de correo: 123456
 Código de teléfono: 654321
 ```
 
-La mock API rechaza correos duplicados, teléfonos duplicados, códigos de verificación inválidos, roles solicitados inválidos y cualquier solicitud pública de `ADMIN`.
+La mock API rechaza correos duplicados, teléfonos duplicados, códigos de verificación inválidos, roles solicitados inválidos y cualquier solicitud pública de `ADMIN`. Los registros públicos con roles elevados se guardan como solicitudes pendientes hasta que un administrador los aprueba o rechaza.
 
 ---
 
@@ -438,6 +474,16 @@ GET    /api/trips/:id
 POST   /api/trips
 PATCH  /api/trips/:id/status
 DELETE /api/trips/:id
+```
+
+### Users
+
+```txt
+GET   /api/users
+GET   /api/users/:id
+PATCH /api/users/:id/approve
+PATCH /api/users/:id/reject
+PATCH /api/users/:id/status
 ```
 
 ---
@@ -508,6 +554,7 @@ docs/screenshots/drivers.png
 docs/screenshots/routes.png
 docs/screenshots/trips.png
 docs/screenshots/trip-form.png
+docs/screenshots/users.png
 docs/screenshots/access-denied.png
 docs/screenshots/dark-theme.png
 docs/screenshots/mobile-sidebar.png
@@ -529,6 +576,7 @@ Este proyecto demuestra:
 - Formularios reactivos con validación.
 - Filtrado local de tablas.
 - Transiciones de estado desde tablas administrativas.
+- Flujo de aprobación administrativa para solicitudes de registro público.
 - Layout responsive con sidebar móvil.
 - Sistema de tema claro/oscuro con variables CSS.
 - Preferencia de idioma inglés/español con persistencia local y cobertura ampliada de UI.
@@ -540,7 +588,7 @@ Este proyecto demuestra:
 
 Explicación breve:
 
-> TransitOps Control Panel es un panel administrativo desarrollado con Angular para operaciones de transporte. Consume una API REST para gestionar vehículos, conductores, rutas y viajes. Implementé autenticación, rutas protegidas, acciones basadas en roles, componentes reutilizables, formularios reactivos, servicios HTTP tipados, filtros de tabla, transiciones de estado, tema claro/oscuro y layout responsive.
+> TransitOps Control Panel es un panel administrativo desarrollado con Angular para operaciones de transporte. Consume una API REST para gestionar usuarios, vehículos, conductores, rutas y viajes. Implementé autenticación, registro público con aprobación administrativa, rutas protegidas, acciones basadas en roles, componentes reutilizables, formularios reactivos, servicios HTTP tipados, filtros de tabla, transiciones de estado, tema claro/oscuro y layout responsive.
 
 Explicación técnica:
 
@@ -566,6 +614,7 @@ Implementado:
 - Lista, creación y actualización de estado de rutas.
 - Lista, creación y actualización de estado de viajes.
 - Creación de viajes con catálogos relacionados.
+- Gestión administrativa de usuarios y flujo de aprobación.
 - Botones y control de acceso basado en roles.
 - Búsqueda y filtros por estado.
 - Estados de carga, error y datos vacíos.
@@ -576,7 +625,6 @@ Implementado:
 
 Mejoras futuras posibles:
 
-- Flujo de aprobación administrativa para roles solicitados en registros
 - Formularios de edición.
 - Páginas de detalle.
 - Paginación server-side.

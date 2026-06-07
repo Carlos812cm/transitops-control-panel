@@ -2,7 +2,7 @@
 
 English | [Español](README.es.md)
 
-TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It provides a role-aware interface to manage vehicles, drivers, routes and trips through a REST API.
+TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It provides a role-aware interface to manage users, vehicles, drivers, routes and trips through a REST API.
 
 This repository represents the Front-End layer of the TransitOps Platform portfolio project. It is designed to demonstrate professional Angular architecture, typed API integration, authentication, role-based UI behavior, reactive forms, dashboard metrics, table filters, responsive layout and light/dark theme support.
 
@@ -14,6 +14,7 @@ The goal of this project is to present a realistic Front-End administrative syst
 
 - Authentication and session handling
 - Public registration with simulated email and phone verification
+- Administrator approval workflow for elevated role requests
 - Protected routes
 - Role-based navigation and actions
 - REST API integration through typed services
@@ -24,6 +25,7 @@ The goal of this project is to present a realistic Front-End administrative syst
 - Responsive admin layout
 - Light and dark theme support with local persistence
 - Settings page with expanded English/Spanish UI language coverage
+- Admin-only users management section
 - Local mock API for independent Front-End testing
 
 The project can be used in interview scenarios as a Front-End Angular project, or as the UI layer of a wider Full-Stack TransitOps Platform.
@@ -55,6 +57,8 @@ The project can be used in interview scenarios as a Front-End Angular project, o
 - Public registration screen
 - Simulated email and phone verification codes for development
 - Requested role selection for `VIEWER`, `OPERATOR` or `SUPERVISOR`
+- `VIEWER` registrations become active immediately
+- `OPERATOR` and `SUPERVISOR` registrations remain pending until admin approval
 - JWT-like token storage
 - Current user session persistence
 - Logout flow
@@ -84,6 +88,31 @@ Example:
 
 ```html
 <button *appHasRole="['ADMIN']">Create Vehicle</button>
+```
+
+### Users Management
+
+Admins can open the Users section to review registration requests and manage account access.
+
+Features:
+
+- Admin-only `/users` route
+- User summary counters
+- Search by name, email or phone
+- Status and role filters
+- Current role, requested role and status visibility
+- Approval and rejection for pending users
+- Suspension, reactivation and deactivation actions
+- Protection against administrator self-suspension or self-deactivation
+
+Supported user statuses:
+
+```txt
+ACTIVE
+INACTIVE
+PENDING_APPROVAL
+REJECTED
+SUSPENDED
 ```
 
 ### Dashboard
@@ -220,6 +249,10 @@ Main rules represented in the UI and mock API:
 - Administrative actions are restricted by role.
 - Public registration cannot request the `ADMIN` role.
 - New public registrations can request only `VIEWER`, `OPERATOR` or `SUPERVISOR`.
+- Public `VIEWER` registrations are created as `ACTIVE`.
+- Public `OPERATOR` and `SUPERVISOR` registrations are created as `PENDING_APPROVAL` with current role `VIEWER`.
+- Pending, rejected, suspended and inactive users cannot sign in.
+- Only `ADMIN` users can access users management endpoints.
 - Verification codes are simulated by the mock API for development only.
 - Trip status transitions depend on the current trip status.
 
@@ -241,6 +274,7 @@ Main rules represented in the UI and mock API:
 | `/trips`         | Trip management            | Authenticated users               |
 | `/trips/new`     | Create trip                | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
 | `/admin`         | Admin-only demo area       | `ADMIN`                           |
+| `/users`         | Users management           | `ADMIN`                           |
 | `/settings`      | User settings and language | Authenticated users               |
 | `/access-denied` | Unauthorized access screen | Authenticated users               |
 
@@ -264,6 +298,7 @@ src/
 │   │   ├── drivers/
 │   │   ├── routes/
 │   │   ├── trips/
+│   │   ├── users/
 │   │   └── settings/
 │   ├── layout/
 │   │   ├── auth-layout/
@@ -298,6 +333,7 @@ The `core` layer contains application-wide logic.
 | `drivers.service.ts`   | Driver API operations                                |
 | `routes.service.ts`    | Route API operations                                 |
 | `trips.service.ts`     | Trip API operations                                  |
+| `users.service.ts`     | Admin user management API operations                 |
 
 The application uses TypeScript interfaces and union types to define API contracts and valid status values.
 
@@ -380,7 +416,7 @@ Health check:
 GET http://localhost:4000/api/health
 ```
 
-The mock API includes sample data, authentication, public registration, authorization checks, entity CRUD operations and trip business rules.
+The mock API includes sample data, authentication, public registration, authorization checks, users approval workflow, entity CRUD operations and trip business rules.
 
 Registration verification is simulated for local development and portfolio testing only:
 
@@ -389,7 +425,7 @@ Email code: 123456
 Phone code: 654321
 ```
 
-The mock API rejects duplicate email addresses, duplicate phone numbers, invalid verification codes, invalid requested roles and any public request for `ADMIN`.
+The mock API rejects duplicate email addresses, duplicate phone numbers, invalid verification codes, invalid requested roles and any public request for `ADMIN`. Elevated public registrations are stored as pending requests until an admin approves or rejects them.
 
 ---
 
@@ -446,6 +482,16 @@ GET    /api/trips/:id
 POST   /api/trips
 PATCH  /api/trips/:id/status
 DELETE /api/trips/:id
+```
+
+### Users
+
+```txt
+GET   /api/users
+GET   /api/users/:id
+PATCH /api/users/:id/approve
+PATCH /api/users/:id/reject
+PATCH /api/users/:id/status
 ```
 
 ---
@@ -516,6 +562,7 @@ docs/screenshots/drivers.png
 docs/screenshots/routes.png
 docs/screenshots/trips.png
 docs/screenshots/trip-form.png
+docs/screenshots/users.png
 docs/screenshots/access-denied.png
 docs/screenshots/dark-theme.png
 docs/screenshots/mobile-sidebar.png
@@ -537,6 +584,7 @@ This project demonstrates:
 - Reactive forms with validation
 - Local table filtering
 - Status transitions from administrative tables
+- Admin approval workflow for public registration requests
 - Responsive layout with mobile sidebar
 - Light/dark theme system with CSS variables
 - Expanded English/Spanish UI language preference with local persistence
@@ -548,7 +596,7 @@ This project demonstrates:
 
 A concise explanation for interviews:
 
-> TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It consumes a REST API to manage vehicles, drivers, routes and trips. I implemented authentication, protected routes, role-based UI actions, reusable components, reactive forms, typed HTTP services, table filters, status transitions, light/dark theme support and a responsive layout.
+> TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It consumes a REST API to manage users, vehicles, drivers, routes and trips. I implemented authentication, public registration with admin approval, protected routes, role-based UI actions, reusable components, reactive forms, typed HTTP services, table filters, status transitions, light/dark theme support and a responsive layout.
 
 A more technical explanation:
 
@@ -574,6 +622,7 @@ Implemented:
 - Route list, creation and status updates
 - Trip list, creation and status updates
 - Trip creation with related catalogs
+- Admin users management and approval workflow
 - Role-based buttons and access control
 - Search and status filters
 - Loading, error and empty states
@@ -584,7 +633,6 @@ Implemented:
 
 Possible future improvements:
 
-- Admin approval workflow for requested registration roles
 - Edit forms
 - Detail pages
 - Server-side pagination

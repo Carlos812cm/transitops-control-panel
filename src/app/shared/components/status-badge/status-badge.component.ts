@@ -40,10 +40,12 @@ export class StatusBadgeComponent {
         return 'status-success';
 
       case 'MAINTENANCE':
+      case 'PENDING_APPROVAL':
       case 'SCHEDULED':
       case 'IN_PROGRESS':
         return 'status-warning';
 
+      case 'REJECTED':
       case 'SUSPENDED':
       case 'INACTIVE':
       case 'CANCELLED':
@@ -59,6 +61,8 @@ export class StatusBadgeComponent {
     MAINTENANCE: 'status.maintenance',
     INACTIVE: 'status.inactive',
     ACTIVE: 'status.active',
+    PENDING_APPROVAL: 'status.pendingApproval',
+    REJECTED: 'status.rejected',
     SUSPENDED: 'status.suspended',
     SCHEDULED: 'status.scheduled',
     IN_PROGRESS: 'status.inProgress',
