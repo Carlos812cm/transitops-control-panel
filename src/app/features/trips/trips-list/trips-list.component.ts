@@ -1,29 +1,52 @@
-import { DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { finalize, timeout } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  BehaviorSubject,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  map,
+  merge,
+  of,
+  shareReplay,
+  timeout,
+} from 'rxjs';
 
-import { TripsService } from '../../../core/services/trips.service';
-import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { Trip, TripStatus } from '../../../core/models/trip.model';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
+import { TripsService } from '../../../core/services/trips.service';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
+import { filterBySearch } from '../../../shared/utils/search.utils';
+
+interface TripFilters {
+  search: string;
+  status: TripStatus | '';
+}
+
+type TripWithOptionalSchedule = Trip & {
+  scheduledStart?: unknown;
+  scheduledEnd?: unknown;
+};
 
 @Component({
   selector: 'app-trips-list',
   standalone: true,
   imports: [
+    AsyncPipe,
     DatePipe,
-    PageHeaderComponent,
-    StatusBadgeComponent,
-    LoadingSpinnerComponent,
     EmptyStateComponent,
     HasRoleDirective,
-    FormsModule,
+    LoadingSpinnerComponent,
+    PageHeaderComponent,
+    ReactiveFormsModule,
+    StatusBadgeComponent,
   ],
   templateUrl: './trips-list.component.html',
   styleUrls: ['./trips-list.component.scss'],
@@ -31,16 +54,47 @@ import { HasRoleDirective } from '../../../shared/directives/has-role.directive'
 export class TripsListComponent implements OnInit {
   private readonly tripsService = inject(TripsService);
   private readonly languageService = inject(LanguageService);
+  private readonly tripsSubject = new BehaviorSubject<Trip[]>([]);
 
-  trips: Trip[] = [];
+  readonly filtersForm = new FormGroup({
+    search: new FormControl('', { nonNullable: true }),
+    status: new FormControl<TripStatus | ''>('', { nonNullable: true }),
+  });
+
+  readonly allTrips$ = this.tripsSubject.asObservable();
+
+  private readonly filters$ = merge(
+    of(this.filtersForm.getRawValue()),
+    this.filtersForm.valueChanges.pipe(
+      debounceTime(100),
+      map(() => this.filtersForm.getRawValue()),
+    ),
+  ).pipe(
+    distinctUntilChanged(
+      (previous, current) => JSON.stringify(previous) === JSON.stringify(current),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  readonly filteredTrips$ = combineLatest([this.allTrips$, this.filters$]).pipe(
+    map(([trips, filters]) => this.filterTrips(trips, filters)),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  readonly vm$ = combineLatest([this.allTrips$, this.filteredTrips$, this.filters$]).pipe(
+    map(([allTrips, filteredTrips, filters]) => ({
+      filteredTrips,
+      totalCount: allTrips.length,
+      filteredCount: filteredTrips.length,
+      hasRecords: filteredTrips.length > 0,
+      hasActiveFilters: this.hasActiveFilters(filters),
+    })),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   isLoading = false;
   errorMessage = '';
   successMessage = '';
-  allTrips: Trip[] = [];
-  filteredTrips: Trip[] = [];
-  searchTerm = '';
-  statusFilter = '';
-
   updatingTripId: string | null = null;
 
   currentLanguage = toSignal(this.languageService.currentLanguage$, {
@@ -71,8 +125,7 @@ export class TripsListComponent implements OnInit {
             return;
           }
 
-          this.allTrips = response.data ?? [];
-          this.applyFilters();
+          this.tripsSubject.next(response.data ?? []);
         },
         error: (error) => {
           this.errorMessage = error?.error?.message || this.t('trips.error.load');
@@ -80,34 +133,11 @@ export class TripsListComponent implements OnInit {
       });
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
-
-    this.filteredTrips = this.allTrips.filter((trip) => {
-      const vehicleLabel = this.getVehicleLabel(trip).toLowerCase();
-      const driverName = this.getDriverName(trip).toLowerCase();
-      const routeLabel = this.getRouteLabel(trip).toLowerCase();
-      const notes = (trip.notes ?? '').toLowerCase();
-
-      const matchesSearch =
-        !search ||
-        vehicleLabel.includes(search) ||
-        driverName.includes(search) ||
-        routeLabel.includes(search) ||
-        notes.includes(search);
-
-      const matchesStatus = !this.statusFilter || trip.status === this.statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-
-    this.trips = this.filteredTrips;
-  }
-
   clearFilters(): void {
-    this.searchTerm = '';
-    this.statusFilter = '';
-    this.applyFilters();
+    this.filtersForm.reset({
+      search: '',
+      status: '',
+    });
   }
 
   updateTripStatus(trip: Trip, status: TripStatus): void {
@@ -130,36 +160,17 @@ export class TripsListComponent implements OnInit {
             return;
           }
 
-          trip.status = status;
-
           const updatedTrip = response.data ?? {
             ...trip,
             status,
           };
 
-          this.allTrips = this.allTrips.map((item) => (item.id === trip.id ? updatedTrip : item));
-
-          this.applyFilters();
-
+          this.updateTripInState(updatedTrip);
           this.successMessage = response.message || this.t('trips.success.update');
           this.refreshTripsSilently();
         },
         error: (error) => {
           this.errorMessage = error?.error?.message || this.t('trips.error.update');
-        },
-      });
-  }
-
-  private refreshTripsSilently(): void {
-    this.tripsService
-      .getTrips()
-      .pipe(timeout(15000))
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.allTrips = response.data;
-            this.applyFilters();
-          }
         },
       });
   }
@@ -182,29 +193,113 @@ export class TripsListComponent implements OnInit {
 
   getDriverName(trip: Trip): string {
     if (!trip.driver) {
-      return trip.driverId;
+      return this.formatLabelValue(trip.driverId);
     }
 
-    return `${trip.driver.firstName} ${trip.driver.lastName}`;
+    return [trip.driver.firstName, trip.driver.lastName]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' ');
   }
 
   getVehicleLabel(trip: Trip): string {
     if (!trip.vehicle) {
-      return trip.vehicleId;
+      return this.formatLabelValue(trip.vehicleId);
     }
 
-    return `${trip.vehicle.unitNumber} - ${trip.vehicle.brand} ${trip.vehicle.model}`;
+    const vehicleName = [trip.vehicle.brand, trip.vehicle.model]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' ');
+
+    return [trip.vehicle.unitNumber, vehicleName]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' - ');
   }
 
   getRouteLabel(trip: Trip): string {
     if (!trip.route) {
-      return trip.routeId;
+      return this.formatLabelValue(trip.routeId);
     }
 
-    return `${trip.route.name}: ${trip.route.origin} → ${trip.route.destination}`;
+    const routeEndpoints = [trip.route.origin, trip.route.destination]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' -> ');
+
+    return [trip.route.name, routeEndpoints]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(': ');
   }
+
   t(key: TranslationKey): string {
     this.currentLanguage();
     return this.languageService.translate(key);
+  }
+
+  private filterTrips(trips: Trip[], filters: TripFilters): Trip[] {
+    const searchFilteredTrips = filterBySearch(trips, filters.search, (trip) =>
+      this.getTripSearchValues(trip),
+    );
+
+    if (!filters.status) {
+      return searchFilteredTrips;
+    }
+
+    return searchFilteredTrips.filter((trip) => trip.status === filters.status);
+  }
+
+  private getTripSearchValues(trip: Trip): unknown[] {
+    const tripWithSchedule = trip as TripWithOptionalSchedule;
+
+    return [
+      trip.vehicle?.unitNumber,
+      trip.vehicle?.brand,
+      trip.vehicle?.model,
+      this.getVehicleLabel(trip),
+      trip.driver?.firstName,
+      trip.driver?.lastName,
+      this.getDriverName(trip),
+      trip.route?.name,
+      trip.route?.origin,
+      trip.route?.destination,
+      this.getRouteLabel(trip),
+      trip.status,
+      trip.notes,
+      trip.scheduledDeparture,
+      tripWithSchedule.scheduledStart,
+      tripWithSchedule.scheduledEnd,
+    ];
+  }
+
+  private updateTripInState(updatedTrip: Trip): void {
+    const trips = this.tripsSubject.getValue();
+
+    this.tripsSubject.next(
+      trips.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip)),
+    );
+  }
+
+  private refreshTripsSilently(): void {
+    this.tripsService
+      .getTrips()
+      .pipe(timeout(15000))
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.tripsSubject.next(response.data);
+          }
+        },
+      });
+  }
+
+  private hasActiveFilters(filters: TripFilters): boolean {
+    return Object.values(filters).some((value) => String(value ?? '').trim().length > 0);
+  }
+
+  private formatLabelValue(value: unknown): string {
+    return String(value ?? '').trim();
   }
 }
