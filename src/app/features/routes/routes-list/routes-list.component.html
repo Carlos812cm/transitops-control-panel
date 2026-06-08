@@ -12,142 +12,142 @@
   </div>
 }
 
-<div class="filters-card">
-  <div class="row g-3 align-items-end">
-    <div class="col-md-6">
-      <label class="form-label" for="routesSearch">{{ t('routes.search.label') }}</label>
-      <input
-        #routesSearch
-        id="routesSearch"
-        type="search"
-        class="form-control"
-        autocomplete="off"
-        spellcheck="false"
-        [placeholder]="t('routes.search.placeholder')"
-        [value]="searchTerm"
-        (input)="onSearchInput($event)"
-        (search)="onSearchInput($event)"
-      />
-    </div>
+@if (vm$ | async; as vm) {
+  <div class="filters-card" [formGroup]="filtersForm">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label" for="routesSearch">{{ t('routes.search.label') }}</label>
+        <input
+          id="routesSearch"
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          spellcheck="false"
+          formControlName="search"
+          [placeholder]="t('routes.search.placeholder')"
+        />
+      </div>
 
-    <div class="col-md-4">
-      <label class="form-label">{{ t('common.status') }}</label>
-      <select
-        class="form-select"
-        [attr.title]="t('routes.filter.statusTitle')"
-        [(ngModel)]="statusFilter"
-      >
-        <option value="">{{ t('common.allStatuses') }}</option>
-        <option value="ACTIVE">{{ t('status.active') }}</option>
-        <option value="INACTIVE">{{ t('status.inactive') }}</option>
-      </select>
-    </div>
+      <div class="col-md-4">
+        <label class="form-label" for="routesStatusFilter">{{ t('common.status') }}</label>
+        <select
+          id="routesStatusFilter"
+          class="form-select"
+          formControlName="status"
+          [attr.title]="t('routes.filter.statusTitle')"
+        >
+          <option value="">{{ t('common.allStatuses') }}</option>
+          <option value="ACTIVE">{{ t('status.active') }}</option>
+          <option value="INACTIVE">{{ t('status.inactive') }}</option>
+        </select>
+      </div>
 
-    <div class="col-md-2">
-      <button
-        type="button"
-        class="btn btn-outline-secondary w-100"
-        [disabled]="!hasActiveFilters"
-        (click)="clearFilters(routesSearch); routesSearch.focus()"
-      >
-        {{ t('common.clear') }}
-      </button>
-    </div>
-  </div>
-
-  <p class="filters-summary">
-    {{ t('common.showing') }} {{ routes.length }} {{ t('common.of') }} {{ allRoutes.length }}
-    {{ t('routes.summary.label') }}.
-  </p>
-</div>
-
-@if (isLoading) {
-  <app-loading-spinner [text]="t('routes.loading')" />
-} @else if (errorMessage) {
-  <div class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-} @else if (routes.length === 0) {
-  <app-empty-state
-    [title]="t('routes.empty.title')"
-    [message]="t('routes.empty.message')"
-    [actionLabel]="t('routes.create')"
-    actionLink="/routes/new"
-    [actionRoles]="['ADMIN']"
-  />
-} @else {
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <thead>
-            <tr>
-              <th>{{ t('common.name') }}</th>
-              <th>{{ t('common.origin') }}</th>
-              <th>{{ t('common.destination') }}</th>
-              <th>{{ t('common.distance') }}</th>
-              <th>{{ t('common.estimatedDuration') }}</th>
-              <th>{{ t('common.status') }}</th>
-              <th class="text-end">{{ t('common.actions') }}</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (route of routes; track route.id) {
-              <tr>
-                <td class="fw-semibold">{{ route.name }}</td>
-                <td>{{ route.origin }}</td>
-                <td>{{ route.destination }}</td>
-                <td>{{ route.distanceKm }} km</td>
-                <td>{{ route.estimatedDurationMinutes }} min</td>
-                <td>
-                  <app-status-badge [status]="route.status" />
-                </td>
-
-                <td class="text-end">
-                  <ng-container *appHasRole="['ADMIN']">
-                    <div class="btn-group btn-group-sm">
-                      @if (route.status !== 'ACTIVE') {
-                        <button
-                          type="button"
-                          class="btn btn-outline-success"
-                          [disabled]="isUpdating(route)"
-                          (click)="updateRouteStatus(route, 'ACTIVE')"
-                        >
-                          @if (isUpdating(route)) {
-                            {{ t('common.loading') }}
-                          } @else {
-                            {{ t('routes.action.activate') }}
-                          }
-                        </button>
-                      }
-
-                      @if (route.status !== 'INACTIVE') {
-                        <button
-                          type="button"
-                          class="btn btn-outline-danger"
-                          [disabled]="isUpdating(route)"
-                          (click)="updateRouteStatus(route, 'INACTIVE')"
-                        >
-                          @if (isUpdating(route)) {
-                            {{ t('common.loading') }}
-                          } @else {
-                            {{ t('routes.action.deactivate') }}
-                          }
-                        </button>
-                      }
-                    </div>
-                  </ng-container>
-
-                  <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
-                    <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
-                  </ng-container>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="col-md-2">
+        <button
+          type="button"
+          class="btn btn-outline-secondary w-100"
+          [disabled]="!vm.hasActiveFilters"
+          (click)="clearFilters()"
+        >
+          {{ t('common.clear') }}
+        </button>
       </div>
     </div>
+
+    <p class="filters-summary">
+      {{ t('common.showing') }} {{ vm.filteredCount }} {{ t('common.of') }}
+      {{ vm.totalCount }} {{ t('routes.summary.label') }}.
+    </p>
   </div>
+
+  @if (isLoading) {
+    <app-loading-spinner [text]="t('routes.loading')" />
+  } @else if (errorMessage) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+  } @else if (!vm.hasRecords) {
+    <app-empty-state
+      [title]="t('routes.empty.title')"
+      [message]="t('routes.empty.message')"
+      [actionLabel]="t('routes.create')"
+      actionLink="/routes/new"
+      [actionRoles]="['ADMIN']"
+    />
+  } @else {
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>{{ t('common.name') }}</th>
+                <th>{{ t('common.origin') }}</th>
+                <th>{{ t('common.destination') }}</th>
+                <th>{{ t('common.distance') }}</th>
+                <th>{{ t('common.estimatedDuration') }}</th>
+                <th>{{ t('common.status') }}</th>
+                <th class="text-end">{{ t('common.actions') }}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (route of vm.filteredRoutes; track route.id) {
+                <tr>
+                  <td class="fw-semibold">{{ route.name }}</td>
+                  <td>{{ route.origin }}</td>
+                  <td>{{ route.destination }}</td>
+                  <td>{{ route.distanceKm }} km</td>
+                  <td>{{ route.estimatedDurationMinutes }} min</td>
+                  <td>
+                    <app-status-badge [status]="route.status" />
+                  </td>
+
+                  <td class="text-end">
+                    <ng-container *appHasRole="['ADMIN']">
+                      <div class="btn-group btn-group-sm">
+                        @if (route.status !== 'ACTIVE') {
+                          <button
+                            type="button"
+                            class="btn btn-outline-success"
+                            [disabled]="isUpdating(route)"
+                            (click)="updateRouteStatus(route, 'ACTIVE')"
+                          >
+                            @if (isUpdating(route)) {
+                              {{ t('common.loading') }}
+                            } @else {
+                              {{ t('routes.action.activate') }}
+                            }
+                          </button>
+                        }
+
+                        @if (route.status !== 'INACTIVE') {
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            [disabled]="isUpdating(route)"
+                            (click)="updateRouteStatus(route, 'INACTIVE')"
+                          >
+                            @if (isUpdating(route)) {
+                              {{ t('common.loading') }}
+                            } @else {
+                              {{ t('routes.action.deactivate') }}
+                            }
+                          </button>
+                        }
+                      </div>
+                    </ng-container>
+
+                    <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
+                      <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
+                    </ng-container>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
 }

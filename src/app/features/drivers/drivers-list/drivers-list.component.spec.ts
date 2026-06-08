@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { Driver } from '../../../core/models/driver.model';
+import { Driver, DriverStatus } from '../../../core/models/driver.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { DriversService } from '../../../core/services/drivers.service';
 import { LanguageService } from '../../../core/services/language.service';
@@ -11,33 +11,33 @@ import { DriversListComponent } from './drivers-list.component';
 const drivers: Driver[] = [
   {
     id: 'driver-1',
-    firstName: 'Alex',
-    lastName: 'Rivera',
-    licenseNumber: 'LIC-100',
+    firstName: 'Luc\u00eda',
+    lastName: 'Rojas',
+    licenseNumber: 'LIC-102030',
     phone: '555-0100',
-    email: 'alex.rivera@example.com',
+    email: 'lucia.rojas@example.com',
     status: 'ACTIVE',
     createdAt: new Date('2026-01-01T08:00:00Z'),
     updatedAt: new Date('2026-01-01T08:00:00Z'),
   },
   {
     id: 'driver-2',
-    firstName: 'Marta',
+    firstName: 'Martin',
     lastName: 'Lopez',
     licenseNumber: 'LIC-200',
     phone: '555-0200',
-    email: 'marta.lopez@example.com',
+    email: 'martin.lopez@example.com',
     status: 'SUSPENDED',
     createdAt: new Date('2026-01-02T08:00:00Z'),
     updatedAt: new Date('2026-01-02T08:00:00Z'),
   },
   {
     id: 'driver-3',
-    firstName: 'Diego',
-    lastName: 'Santos',
+    firstName: 'Ana',
+    lastName: 'Perez',
     licenseNumber: 'LIC-300',
     phone: '555-0300',
-    email: 'diego.santos@example.com',
+    email: 'ana.perez@example.com',
     status: 'INACTIVE',
     createdAt: new Date('2026-01-03T08:00:00Z'),
     updatedAt: new Date('2026-01-03T08:00:00Z'),
@@ -47,8 +47,11 @@ const drivers: Driver[] = [
 describe('DriversListComponent search', () => {
   let fixture: ComponentFixture<DriversListComponent>;
   let nativeElement: HTMLElement;
+  let currentDrivers: Driver[];
 
   beforeEach(async () => {
+    currentDrivers = drivers.map((driver) => ({ ...driver }));
+
     await TestBed.configureTestingModule({
       imports: [DriversListComponent],
       providers: [
@@ -56,9 +59,23 @@ describe('DriversListComponent search', () => {
         {
           provide: DriversService,
           useValue: {
-            getDrivers: () => of({ success: true, message: 'Drivers loaded.', data: drivers }),
-            updateDriverStatus: () =>
-              of({ success: true, message: 'Driver updated.', data: drivers[0] }),
+            getDrivers: () => of({ success: true, message: 'Drivers loaded.', data: currentDrivers }),
+            updateDriverStatus: (id: string, status: DriverStatus) => {
+              const updatedDriver = {
+                ...currentDrivers.find((driver) => driver.id === id)!,
+                status,
+              };
+
+              currentDrivers = currentDrivers.map((driver) =>
+                driver.id === id ? updatedDriver : driver,
+              );
+
+              return of({
+                success: true,
+                message: 'Driver updated.',
+                data: updatedDriver,
+              });
+            },
           },
         },
         {
@@ -85,50 +102,71 @@ describe('DriversListComponent search', () => {
     fixture.detectChanges();
   });
 
-  it('updates the rendered rows while typing and deleting in the search input', () => {
-    const input = getSearchInput();
-
+  it('shows all records after loading', () => {
     expect(renderedRows()).toBe(3);
+  });
 
-    enterSearch(input, 'al ri', 'input');
+  it('filters while typing without blur and restores rows when the text is deleted', async () => {
+    await enterSearch('lucia');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('Alex Rivera');
-    expect(getClearButton().disabled).toBe(false);
+    expect(nativeElement.textContent).toContain('Luc\u00eda Rojas');
 
-    enterSearch(input, 'lex', 'input');
-    expect(renderedRows()).toBe(0);
-    expect(nativeElement.querySelector('app-empty-state')).not.toBeNull();
-
-    enterSearch(input, 'mar lo', 'input');
+    await enterSearch('mart');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('Marta Lopez');
+    expect(nativeElement.textContent).toContain('Martin Lopez');
 
-    enterSearch(input, '', 'input');
+    await enterSearch('lopez');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Martin Lopez');
+
+    await enterSearch('');
     expect(renderedRows()).toBe(3);
     expect(getClearButton().disabled).toBe(true);
   });
 
-  it('restores the table when the native search clear event or Clear button empties the input', () => {
-    const input = getSearchInput();
+  it('combines search and status filters', async () => {
+    await enterSearch('martin');
+    await setStatus('SUSPENDED');
 
-    enterSearch(input, 'not-a-driver', 'input');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Martin Lopez');
+
+    await setStatus('ACTIVE');
+
     expect(renderedRows()).toBe(0);
+  });
 
-    enterSearch(input, '', 'search');
+  it('clears all filters and works multiple times', async () => {
+    await enterSearch('martin');
+    await setStatus('SUSPENDED');
+    expect(renderedRows()).toBe(1);
+
+    await clickClear();
+    expect(fixture.componentInstance.filtersForm.getRawValue()).toEqual({
+      search: '',
+      status: '',
+    });
     expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
 
-    enterSearch(input, 'not-a-driver', 'input');
-    expect(renderedRows()).toBe(0);
+    await enterSearch('lucia');
+    expect(renderedRows()).toBe(1);
 
-    const clearButton = getClearButton();
-    expect(clearButton.disabled).toBe(false);
+    await clickClear();
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+  });
 
-    clearButton.click();
+  it('recalculates visible rows when a status changes under an active filter', async () => {
+    await setStatus('ACTIVE');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Luc\u00eda Rojas');
+
+    fixture.componentInstance.updateDriverStatus(currentDrivers[0], 'SUSPENDED');
     fixture.detectChanges();
 
-    expect(input.value).toBe('');
-    expect(renderedRows()).toBe(3);
-    expect(clearButton.disabled).toBe(true);
+    expect(renderedRows()).toBe(0);
+    expect(nativeElement.textContent).not.toContain('Luc\u00eda Rojas');
   });
 
   function getSearchInput(): HTMLInputElement {
@@ -141,13 +179,39 @@ describe('DriversListComponent search', () => {
     return input;
   }
 
-  function enterSearch(
-    input: HTMLInputElement,
-    value: string,
-    eventName: 'input' | 'search',
-  ): void {
+  async function enterSearch(value: string): Promise<void> {
+    const input = getSearchInput();
+
     input.value = value;
-    input.dispatchEvent(new Event(eventName, { bubbles: true }));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  function getStatusFilter(): HTMLSelectElement {
+    const select = nativeElement.querySelector<HTMLSelectElement>('#driversStatusFilter');
+
+    if (!select) {
+      throw new Error('Expected drivers status filter to exist.');
+    }
+
+    return select;
+  }
+
+  async function setStatus(value: string): Promise<void> {
+    const select = getStatusFilter();
+
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  async function clickClear(): Promise<void> {
+    getClearButton().click();
+    await waitForDebounce();
+  }
+
+  async function waitForDebounce(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 130));
     fixture.detectChanges();
   }
 

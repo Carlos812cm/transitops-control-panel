@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { User } from '../../../core/models/user.model';
+import { User, UserStatus } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { UsersService } from '../../../core/services/users.service';
@@ -11,29 +11,29 @@ import { UsersListComponent } from './users-list.component';
 const users: User[] = [
   {
     id: 1,
-    name: 'Admin Demo',
-    email: 'admin@transitops.com',
-    phone: '+1 555 010 1000',
-    role: 'ADMIN',
-    requestedRole: 'ADMIN',
+    name: 'Luc\u00eda Rojas',
+    email: 'lucia.rojas@transitops.com',
+    phone: '+1 555 010 1010',
+    role: 'OPERATOR',
+    requestedRole: 'OPERATOR',
     status: 'ACTIVE',
     createdAt: '2026-01-01T08:00:00Z',
   },
   {
     id: 2,
-    name: 'Operator Demo',
-    email: 'operator@transitops.com',
-    phone: '+1 555 010 1001',
-    role: 'OPERATOR',
-    requestedRole: 'OPERATOR',
+    name: 'Martin Lopez',
+    email: 'martin.lopez@transitops.com',
+    phone: '+1 555 010 2020',
+    role: 'SUPERVISOR',
+    requestedRole: 'SUPERVISOR',
     status: 'ACTIVE',
     createdAt: '2026-01-02T08:00:00Z',
   },
   {
     id: 3,
-    name: 'Viewer Pending',
-    email: 'viewer.pending@transitops.com',
-    phone: '+1 555 010 1002',
+    name: 'Ana Perez',
+    email: 'ana.perez@transitops.com',
+    phone: '+1 555 010 3030',
     role: 'VIEWER',
     requestedRole: 'VIEWER',
     status: 'PENDING_APPROVAL',
@@ -44,8 +44,11 @@ const users: User[] = [
 describe('UsersListComponent search', () => {
   let fixture: ComponentFixture<UsersListComponent>;
   let nativeElement: HTMLElement;
+  let currentUsers: User[];
 
   beforeEach(async () => {
+    currentUsers = users.map((user) => ({ ...user }));
+
     await TestBed.configureTestingModule({
       imports: [UsersListComponent],
       providers: [
@@ -53,10 +56,11 @@ describe('UsersListComponent search', () => {
         {
           provide: UsersService,
           useValue: {
-            getUsers: () => of({ success: true, message: 'Users loaded.', data: users }),
-            approveUser: () => of({ success: true, message: 'User approved.', data: users[0] }),
-            rejectUser: () => of({ success: true, message: 'User rejected.', data: users[0] }),
-            updateUserStatus: () => of({ success: true, message: 'User updated.', data: users[0] }),
+            getUsers: () => of({ success: true, message: 'Users loaded.', data: currentUsers }),
+            approveUser: (id: number) => updateUser(id, 'ACTIVE', 'User approved.'),
+            rejectUser: (id: number) => updateUser(id, 'REJECTED', 'User rejected.'),
+            updateUserStatus: (id: number, status: UserStatus) =>
+              updateUser(id, status, 'User updated.'),
           },
         },
         {
@@ -83,32 +87,101 @@ describe('UsersListComponent search', () => {
     fixture.detectChanges();
   });
 
-  it('keeps the reference user-search behavior while typing, recovering and clearing', () => {
-    const input = getSearchInput();
-
+  it('shows all records after loading', () => {
     expect(renderedRows()).toBe(3);
+  });
 
-    enterSearch(input, 'ope de', 'input');
+  it('filters while typing without blur by name, email and phone', async () => {
+    await enterSearch('lucia');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('Operator Demo');
-    expect(getClearButton().disabled).toBe(false);
+    expect(nativeElement.textContent).toContain('Luc\u00eda Rojas');
 
-    enterSearch(input, 'pera', 'input');
+    await enterSearch('martin.lopez');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Martin Lopez');
+
+    await enterSearch('3030');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Ana Perez');
+
+    await enterSearch('');
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+  });
+
+  it('combines search, status and role filters', async () => {
+    await enterSearch('martin');
+    await setStatus('ACTIVE');
+    await setRole('SUPERVISOR');
+
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Martin Lopez');
+
+    await setRole('OPERATOR');
+
     expect(renderedRows()).toBe(0);
-    expect(nativeElement.querySelector('app-empty-state')).not.toBeNull();
+  });
 
-    enterSearch(input, 'vie pen', 'input');
+  it('filters by status and role independently', async () => {
+    await setStatus('PENDING_APPROVAL');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('Viewer Pending');
+    expect(nativeElement.textContent).toContain('Ana Perez');
 
-    const clearButton = getClearButton();
-    clearButton.click();
+    await clickClear();
+    await setRole('OPERATOR');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Luc\u00eda Rojas');
+  });
+
+  it('clears all filters and works multiple times', async () => {
+    await enterSearch('martin');
+    await setStatus('ACTIVE');
+    await setRole('SUPERVISOR');
+    expect(renderedRows()).toBe(1);
+
+    await clickClear();
+    expect(fixture.componentInstance.filtersForm.getRawValue()).toEqual({
+      search: '',
+      status: '',
+      role: '',
+    });
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+
+    await enterSearch('3030');
+    expect(renderedRows()).toBe(1);
+
+    await clickClear();
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+  });
+
+  it('recalculates visible rows when a user status changes under an active filter', async () => {
+    await setStatus('PENDING_APPROVAL');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Ana Perez');
+
+    fixture.componentInstance.approveUser(currentUsers[2]);
     fixture.detectChanges();
 
-    expect(input.value).toBe('');
-    expect(renderedRows()).toBe(3);
-    expect(clearButton.disabled).toBe(true);
+    expect(renderedRows()).toBe(0);
+    expect(nativeElement.textContent).not.toContain('Ana Perez');
   });
+
+  function updateUser(id: number, status: UserStatus, message: string) {
+    const updatedUser = {
+      ...currentUsers.find((user) => user.id === id)!,
+      status,
+    };
+
+    currentUsers = currentUsers.map((user) => (user.id === id ? updatedUser : user));
+
+    return of({
+      success: true,
+      message,
+      data: updatedUser,
+    });
+  }
 
   function getSearchInput(): HTMLInputElement {
     const input = nativeElement.querySelector<HTMLInputElement>('#usersSearch');
@@ -120,13 +193,57 @@ describe('UsersListComponent search', () => {
     return input;
   }
 
-  function enterSearch(
-    input: HTMLInputElement,
-    value: string,
-    eventName: 'input' | 'search',
-  ): void {
+  async function enterSearch(value: string): Promise<void> {
+    const input = getSearchInput();
+
     input.value = value;
-    input.dispatchEvent(new Event(eventName, { bubbles: true }));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  function getStatusFilter(): HTMLSelectElement {
+    const select = nativeElement.querySelector<HTMLSelectElement>('#usersStatusFilter');
+
+    if (!select) {
+      throw new Error('Expected users status filter to exist.');
+    }
+
+    return select;
+  }
+
+  function getRoleFilter(): HTMLSelectElement {
+    const select = nativeElement.querySelector<HTMLSelectElement>('#usersRoleFilter');
+
+    if (!select) {
+      throw new Error('Expected users role filter to exist.');
+    }
+
+    return select;
+  }
+
+  async function setStatus(value: string): Promise<void> {
+    const select = getStatusFilter();
+
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  async function setRole(value: string): Promise<void> {
+    const select = getRoleFilter();
+
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  async function clickClear(): Promise<void> {
+    getClearButton().click();
+    await waitForDebounce();
+  }
+
+  async function waitForDebounce(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 130));
     fixture.detectChanges();
   }
 

@@ -1,44 +1,3 @@
-export function matchesSearchQuery(query: unknown, values: unknown[]): boolean {
-  const normalizedQuery = normalizeSearchValue(query);
-
-  if (!normalizedQuery) {
-    return true;
-  }
-
-  const queryTokens = splitSearchTokens(normalizedQuery);
-  const searchableTokens = values.flatMap((value) =>
-    splitSearchTokens(normalizeSearchValue(value)),
-  );
-
-  if (searchableTokens.length === 0) {
-    return false;
-  }
-
-  if (queryTokens.length === 1) {
-    const [queryToken] = queryTokens;
-
-    return (
-      searchableTokens.some((token) => token.startsWith(queryToken)) ||
-      hasCompactPrefixMatch(queryToken, searchableTokens)
-    );
-  }
-
-  let nextTokenIndex = 0;
-
-  return queryTokens.every((queryToken) => {
-    const matchIndex = searchableTokens.findIndex(
-      (token, index) => index >= nextTokenIndex && token.startsWith(queryToken),
-    );
-
-    if (matchIndex === -1) {
-      return false;
-    }
-
-    nextTokenIndex = matchIndex + 1;
-    return true;
-  });
-}
-
 export function normalizeSearchValue(value: unknown): string {
   return String(value ?? '')
     .normalize('NFD')
@@ -49,12 +8,36 @@ export function normalizeSearchValue(value: unknown): string {
     .replace(/\s+/g, ' ');
 }
 
-function splitSearchTokens(value: string): string[] {
-  return value ? value.split(' ') : [];
+export function matchesSearchQuery(query: unknown, values: unknown[]): boolean {
+  const normalizedQuery = normalizeSearchValue(query);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const searchableText = normalizeSearchValue(values.join(' '));
+
+  if (!searchableText) {
+    return false;
+  }
+
+  const compactSearchableText = searchableText.replace(/\s+/g, '');
+  const tokens = normalizedQuery.split(' ').filter(Boolean);
+  const compactQuery = tokens.join('');
+
+  const matchesAllTokens = tokens.every((token) => {
+    const compactToken = token.replace(/\s+/g, '');
+
+    return searchableText.includes(token) || compactSearchableText.includes(compactToken);
+  });
+
+  return matchesAllTokens || compactSearchableText.includes(compactQuery);
 }
 
-function hasCompactPrefixMatch(queryToken: string, searchableTokens: string[]): boolean {
-  return searchableTokens.some((_, index) =>
-    searchableTokens.slice(index).join('').startsWith(queryToken),
-  );
+export function filterBySearch<T>(
+  items: T[],
+  query: unknown,
+  selector: (item: T) => unknown[],
+): T[] {
+  return items.filter((item) => matchesSearchQuery(query, selector(item)));
 }

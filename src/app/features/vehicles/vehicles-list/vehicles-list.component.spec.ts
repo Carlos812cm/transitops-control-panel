@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { Vehicle } from '../../../core/models/vehicle.model';
+import { Vehicle, VehicleStatus } from '../../../core/models/vehicle.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { VehiclesService } from '../../../core/services/vehicles.service';
@@ -11,16 +11,16 @@ import { VehiclesListComponent } from './vehicles-list.component';
 const vehicles: Vehicle[] = [
   {
     id: 'vehicle-1',
-    unitNumber: 'BUS-101',
-    brand: 'Ford',
-    model: 'Transit',
+    unitNumber: 'ABC-123',
+    brand: 'Volvo',
+    model: 'B9R',
     year: 2024,
     capacity: 28,
     status: 'AVAILABLE',
   },
   {
     id: 'vehicle-2',
-    unitNumber: 'VAN-202',
+    unitNumber: 'LIC-102030',
     brand: 'Mercedes',
     model: 'Sprinter',
     year: 2023,
@@ -41,8 +41,11 @@ const vehicles: Vehicle[] = [
 describe('VehiclesListComponent search', () => {
   let fixture: ComponentFixture<VehiclesListComponent>;
   let nativeElement: HTMLElement;
+  let currentVehicles: Vehicle[];
 
   beforeEach(async () => {
+    currentVehicles = vehicles.map((vehicle) => ({ ...vehicle }));
+
     await TestBed.configureTestingModule({
       imports: [VehiclesListComponent],
       providers: [
@@ -50,9 +53,24 @@ describe('VehiclesListComponent search', () => {
         {
           provide: VehiclesService,
           useValue: {
-            getVehicles: () => of({ success: true, message: 'Vehicles loaded.', data: vehicles }),
-            updateVehicleStatus: () =>
-              of({ success: true, message: 'Vehicle updated.', data: vehicles[0] }),
+            getVehicles: () =>
+              of({ success: true, message: 'Vehicles loaded.', data: currentVehicles }),
+            updateVehicleStatus: (id: string, status: VehicleStatus) => {
+              const updatedVehicle = {
+                ...currentVehicles.find((vehicle) => vehicle.id === id)!,
+                status,
+              };
+
+              currentVehicles = currentVehicles.map((vehicle) =>
+                vehicle.id === id ? updatedVehicle : vehicle,
+              );
+
+              return of({
+                success: true,
+                message: 'Vehicle updated.',
+                data: updatedVehicle,
+              });
+            },
           },
         },
         {
@@ -79,50 +97,68 @@ describe('VehiclesListComponent search', () => {
     fixture.detectChanges();
   });
 
-  it('updates the rendered rows while typing and deleting in the search input', () => {
-    const input = getSearchInput();
-
+  it('shows all records after loading', () => {
     expect(renderedRows()).toBe(3);
+  });
 
-    enterSearch(input, 'fo tr', 'input');
+  it('filters while typing without blur and restores rows when the text is deleted', async () => {
+    await enterSearch('abc');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('BUS-101');
+    expect(nativeElement.textContent).toContain('ABC-123');
     expect(getClearButton().disabled).toBe(false);
 
-    enterSearch(input, 'ord', 'input');
-    expect(renderedRows()).toBe(0);
-    expect(nativeElement.querySelector('app-empty-state')).not.toBeNull();
-
-    enterSearch(input, 'mer', 'input');
+    await enterSearch('vol');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('VAN-202');
+    expect(nativeElement.textContent).toContain('Volvo');
 
-    enterSearch(input, '', 'input');
+    await enterSearch('');
     expect(renderedRows()).toBe(3);
     expect(getClearButton().disabled).toBe(true);
   });
 
-  it('restores the table when the native search clear event or Clear button empties the input', () => {
-    const input = getSearchInput();
+  it('combines search and status filters', async () => {
+    await enterSearch('vol');
+    await setStatus('AVAILABLE');
 
-    enterSearch(input, 'not-a-record', 'input');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('ABC-123');
+
+    await setStatus('MAINTENANCE');
+
     expect(renderedRows()).toBe(0);
+  });
 
-    enterSearch(input, '', 'search');
+  it('clears all filters and works multiple times', async () => {
+    await enterSearch('mer');
+    await setStatus('MAINTENANCE');
+    expect(renderedRows()).toBe(1);
+
+    await clickClear();
+    expect(fixture.componentInstance.filtersForm.getRawValue()).toEqual({
+      search: '',
+      status: '',
+    });
     expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
 
-    enterSearch(input, 'not-a-record', 'input');
-    expect(renderedRows()).toBe(0);
+    await enterSearch('vol');
+    expect(renderedRows()).toBe(1);
 
-    const clearButton = getClearButton();
-    expect(clearButton.disabled).toBe(false);
+    await clickClear();
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+  });
 
-    clearButton.click();
+  it('recalculates visible rows when a status changes under an active filter', async () => {
+    await setStatus('AVAILABLE');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('ABC-123');
+
+    fixture.componentInstance.updateVehicleStatus(currentVehicles[0], 'MAINTENANCE');
     fixture.detectChanges();
 
-    expect(input.value).toBe('');
-    expect(renderedRows()).toBe(3);
-    expect(clearButton.disabled).toBe(true);
+    expect(renderedRows()).toBe(0);
+    expect(nativeElement.textContent).not.toContain('ABC-123');
   });
 
   function getSearchInput(): HTMLInputElement {
@@ -135,13 +171,39 @@ describe('VehiclesListComponent search', () => {
     return input;
   }
 
-  function enterSearch(
-    input: HTMLInputElement,
-    value: string,
-    eventName: 'input' | 'search',
-  ): void {
+  async function enterSearch(value: string): Promise<void> {
+    const input = getSearchInput();
+
     input.value = value;
-    input.dispatchEvent(new Event(eventName, { bubbles: true }));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  function getStatusFilter(): HTMLSelectElement {
+    const select = nativeElement.querySelector<HTMLSelectElement>('#vehiclesStatusFilter');
+
+    if (!select) {
+      throw new Error('Expected vehicles status filter to exist.');
+    }
+
+    return select;
+  }
+
+  async function setStatus(value: string): Promise<void> {
+    const select = getStatusFilter();
+
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  async function clickClear(): Promise<void> {
+    getClearButton().click();
+    await waitForDebounce();
+  }
+
+  async function waitForDebounce(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 130));
     fixture.detectChanges();
   }
 

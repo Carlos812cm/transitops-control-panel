@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { Trip } from '../../../core/models/trip.model';
+import { Trip, TripStatus } from '../../../core/models/trip.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { TripsService } from '../../../core/services/trips.service';
@@ -16,34 +16,34 @@ const trips: Trip[] = [
     routeId: 'route-1',
     scheduledDeparture: new Date('2026-01-01T08:00:00Z'),
     status: 'SCHEDULED',
-    notes: 'Morning service',
+    notes: 'Servicio matutino',
     createdAt: new Date('2026-01-01T08:00:00Z'),
     updatedAt: new Date('2026-01-01T08:00:00Z'),
     vehicle: {
       id: 'vehicle-1',
-      unitNumber: 'BUS-101',
-      brand: 'Ford',
-      model: 'Transit',
+      unitNumber: 'ABC-123',
+      brand: 'Volvo',
+      model: 'B9R',
       year: 2024,
       capacity: 28,
       status: 'AVAILABLE',
     },
     driver: {
       id: 'driver-1',
-      firstName: 'Alex',
-      lastName: 'Rivera',
-      licenseNumber: 'LIC-100',
+      firstName: 'Luc\u00eda',
+      lastName: 'Rojas',
+      licenseNumber: 'LIC-102030',
       phone: '555-0100',
-      email: 'alex.rivera@example.com',
+      email: 'lucia.rojas@example.com',
       status: 'ACTIVE',
       createdAt: new Date('2026-01-01T08:00:00Z'),
       updatedAt: new Date('2026-01-01T08:00:00Z'),
     },
     route: {
       id: 'route-1',
-      name: 'Ruta Norte',
-      origin: 'Terminal Central',
-      destination: 'Parque Industrial',
+      name: 'Centro - Aeropuerto',
+      origin: 'Centro',
+      destination: 'Aeropuerto',
       distanceKm: 18,
       estimatedDurationMinutes: 45,
       status: 'ACTIVE',
@@ -58,12 +58,12 @@ const trips: Trip[] = [
     routeId: 'route-2',
     scheduledDeparture: new Date('2026-01-02T08:00:00Z'),
     status: 'IN_PROGRESS',
-    notes: 'Campus run',
+    notes: 'Turno nocturno',
     createdAt: new Date('2026-01-02T08:00:00Z'),
     updatedAt: new Date('2026-01-02T08:00:00Z'),
     vehicle: {
       id: 'vehicle-2',
-      unitNumber: 'VAN-202',
+      unitNumber: 'DEF-456',
       brand: 'Mercedes',
       model: 'Sprinter',
       year: 2023,
@@ -72,20 +72,20 @@ const trips: Trip[] = [
     },
     driver: {
       id: 'driver-2',
-      firstName: 'Marta',
+      firstName: 'Martin',
       lastName: 'Lopez',
       licenseNumber: 'LIC-200',
       phone: '555-0200',
-      email: 'marta.lopez@example.com',
+      email: 'martin.lopez@example.com',
       status: 'ACTIVE',
       createdAt: new Date('2026-01-02T08:00:00Z'),
       updatedAt: new Date('2026-01-02T08:00:00Z'),
     },
     route: {
       id: 'route-2',
-      name: 'Circuito Sur',
-      origin: 'Centro Historico',
-      destination: 'Universidad',
+      name: 'Norte - Sur',
+      origin: 'Norte',
+      destination: 'Sur',
       distanceKm: 12,
       estimatedDurationMinutes: 35,
       status: 'ACTIVE',
@@ -100,34 +100,34 @@ const trips: Trip[] = [
     routeId: 'route-3',
     scheduledDeparture: new Date('2026-01-03T08:00:00Z'),
     status: 'COMPLETED',
-    notes: 'Airport transfer',
+    notes: 'Ruta escolar',
     createdAt: new Date('2026-01-03T08:00:00Z'),
     updatedAt: new Date('2026-01-03T08:00:00Z'),
     vehicle: {
       id: 'vehicle-3',
-      unitNumber: 'CAR-303',
+      unitNumber: 'GHI-789',
       brand: 'Nissan',
-      model: 'Versa',
+      model: 'Urvan',
       year: 2022,
       capacity: 4,
       status: 'INACTIVE',
     },
     driver: {
       id: 'driver-3',
-      firstName: 'Diego',
-      lastName: 'Santos',
+      firstName: 'Ana',
+      lastName: 'Perez',
       licenseNumber: 'LIC-300',
       phone: '555-0300',
-      email: 'diego.santos@example.com',
+      email: 'ana.perez@example.com',
       status: 'ACTIVE',
       createdAt: new Date('2026-01-03T08:00:00Z'),
       updatedAt: new Date('2026-01-03T08:00:00Z'),
     },
     route: {
       id: 'route-3',
-      name: 'Expreso Este',
-      origin: 'Aeropuerto',
-      destination: 'Zona Hotelera',
+      name: 'Circular Este',
+      origin: 'Terminal Este',
+      destination: 'Zona Industrial',
       distanceKm: 24,
       estimatedDurationMinutes: 55,
       status: 'ACTIVE',
@@ -140,8 +140,11 @@ const trips: Trip[] = [
 describe('TripsListComponent search', () => {
   let fixture: ComponentFixture<TripsListComponent>;
   let nativeElement: HTMLElement;
+  let currentTrips: Trip[];
 
   beforeEach(async () => {
+    currentTrips = trips.map((trip) => ({ ...trip }));
+
     await TestBed.configureTestingModule({
       imports: [TripsListComponent],
       providers: [
@@ -149,8 +152,21 @@ describe('TripsListComponent search', () => {
         {
           provide: TripsService,
           useValue: {
-            getTrips: () => of({ success: true, message: 'Trips loaded.', data: trips }),
-            updateTripStatus: () => of({ success: true, message: 'Trip updated.', data: trips[0] }),
+            getTrips: () => of({ success: true, message: 'Trips loaded.', data: currentTrips }),
+            updateTripStatus: (id: string, status: TripStatus) => {
+              const updatedTrip = {
+                ...currentTrips.find((trip) => trip.id === id)!,
+                status,
+              };
+
+              currentTrips = currentTrips.map((trip) => (trip.id === id ? updatedTrip : trip));
+
+              return of({
+                success: true,
+                message: 'Trip updated.',
+                data: updatedTrip,
+              });
+            },
           },
         },
         {
@@ -177,50 +193,75 @@ describe('TripsListComponent search', () => {
     fixture.detectChanges();
   });
 
-  it('updates the rendered rows while typing and deleting in the search input', () => {
-    const input = getSearchInput();
-
+  it('shows all records after loading', () => {
     expect(renderedRows()).toBe(3);
+  });
 
-    enterSearch(input, 'bus10', 'input');
+  it('filters while typing without blur across vehicle, driver, route and notes', async () => {
+    await enterSearch('abc');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('BUS-101');
-    expect(getClearButton().disabled).toBe(false);
+    expect(nativeElement.textContent).toContain('ABC-123');
 
-    enterSearch(input, 'us10', 'input');
-    expect(renderedRows()).toBe(0);
-    expect(nativeElement.querySelector('app-empty-state')).not.toBeNull();
-
-    enterSearch(input, 'van20', 'input');
+    await enterSearch('lucia');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('VAN-202');
+    expect(nativeElement.textContent).toContain('Luc\u00eda Rojas');
 
-    enterSearch(input, '', 'input');
+    await enterSearch('sur');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Norte - Sur');
+
+    await enterSearch('nocturno');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Turno nocturno');
+
+    await enterSearch('');
     expect(renderedRows()).toBe(3);
     expect(getClearButton().disabled).toBe(true);
   });
 
-  it('restores the table when the native search clear event or Clear button empties the input', () => {
-    const input = getSearchInput();
+  it('combines search and status filters', async () => {
+    await enterSearch('nocturno');
+    await setStatus('IN_PROGRESS');
 
-    enterSearch(input, 'not-a-trip', 'input');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Turno nocturno');
+
+    await setStatus('COMPLETED');
+
     expect(renderedRows()).toBe(0);
+  });
 
-    enterSearch(input, '', 'search');
+  it('clears all filters and works multiple times', async () => {
+    await enterSearch('nocturno');
+    await setStatus('IN_PROGRESS');
+    expect(renderedRows()).toBe(1);
+
+    await clickClear();
+    expect(fixture.componentInstance.filtersForm.getRawValue()).toEqual({
+      search: '',
+      status: '',
+    });
     expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
 
-    enterSearch(input, 'not-a-trip', 'input');
-    expect(renderedRows()).toBe(0);
+    await enterSearch('abc');
+    expect(renderedRows()).toBe(1);
 
-    const clearButton = getClearButton();
-    expect(clearButton.disabled).toBe(false);
+    await clickClear();
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+  });
 
-    clearButton.click();
+  it('recalculates visible rows when a status changes under an active filter', async () => {
+    await setStatus('SCHEDULED');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('ABC-123');
+
+    fixture.componentInstance.updateTripStatus(currentTrips[0], 'IN_PROGRESS');
     fixture.detectChanges();
 
-    expect(input.value).toBe('');
-    expect(renderedRows()).toBe(3);
-    expect(clearButton.disabled).toBe(true);
+    expect(renderedRows()).toBe(0);
+    expect(nativeElement.textContent).not.toContain('ABC-123');
   });
 
   function getSearchInput(): HTMLInputElement {
@@ -233,13 +274,39 @@ describe('TripsListComponent search', () => {
     return input;
   }
 
-  function enterSearch(
-    input: HTMLInputElement,
-    value: string,
-    eventName: 'input' | 'search',
-  ): void {
+  async function enterSearch(value: string): Promise<void> {
+    const input = getSearchInput();
+
     input.value = value;
-    input.dispatchEvent(new Event(eventName, { bubbles: true }));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  function getStatusFilter(): HTMLSelectElement {
+    const select = nativeElement.querySelector<HTMLSelectElement>('#tripsStatusFilter');
+
+    if (!select) {
+      throw new Error('Expected trips status filter to exist.');
+    }
+
+    return select;
+  }
+
+  async function setStatus(value: string): Promise<void> {
+    const select = getStatusFilter();
+
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  async function clickClear(): Promise<void> {
+    getClearButton().click();
+    await waitForDebounce();
+  }
+
+  async function waitForDebounce(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 130));
     fixture.detectChanges();
   }
 

@@ -12,154 +12,158 @@
   </div>
 }
 
-<div class="filters-card">
-  <div class="row g-3 align-items-end">
-    <div class="col-md-6">
-      <label class="form-label" for="vehiclesSearch">{{ t('vehicles.search.label') }}</label>
-      <input
-        #vehiclesSearch
-        id="vehiclesSearch"
-        type="search"
-        class="form-control"
-        autocomplete="off"
-        spellcheck="false"
-        [placeholder]="t('vehicles.search.placeholder')"
-        [value]="searchTerm"
-        (input)="onSearchInput($event)"
-        (search)="onSearchInput($event)"
-      />
-    </div>
+@if (vm$ | async; as vm) {
+  <div class="filters-card" [formGroup]="filtersForm">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label" for="vehiclesSearch">{{ t('vehicles.search.label') }}</label>
+        <input
+          id="vehiclesSearch"
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          spellcheck="false"
+          formControlName="search"
+          [placeholder]="t('vehicles.search.placeholder')"
+        />
+      </div>
 
-    <div class="col-md-4">
-      <label class="form-label">{{ t('common.status') }}</label>
-      <select class="form-select" [attr.title]="t('common.status')" [(ngModel)]="statusFilter">
-        <option value="">{{ t('common.allStatuses') }}</option>
-        <option value="AVAILABLE">{{ t('status.available') }}</option>
-        <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
-        <option value="INACTIVE">{{ t('status.inactive') }}</option>
-      </select>
-    </div>
+      <div class="col-md-4">
+        <label class="form-label" for="vehiclesStatusFilter">{{ t('common.status') }}</label>
+        <select
+          id="vehiclesStatusFilter"
+          class="form-select"
+          formControlName="status"
+          [attr.title]="t('common.status')"
+        >
+          <option value="">{{ t('common.allStatuses') }}</option>
+          <option value="AVAILABLE">{{ t('status.available') }}</option>
+          <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
+          <option value="INACTIVE">{{ t('status.inactive') }}</option>
+        </select>
+      </div>
 
-    <div class="col-md-2">
-      <button
-        type="button"
-        class="btn btn-outline-secondary w-100"
-        [disabled]="!hasActiveFilters"
-        (click)="clearFilters(vehiclesSearch); vehiclesSearch.focus()"
-      >
-        {{ t('common.clear') }}
-      </button>
-    </div>
-  </div>
-
-  <p class="filters-summary">
-    {{ t('common.showing') }} {{ vehicles.length }} {{ t('common.of') }} {{ allVehicles.length }}
-    {{ t('vehicles.summary.label') }}.
-  </p>
-</div>
-
-@if (isLoading) {
-  <app-loading-spinner [text]="t('vehicles.loading')" />
-} @else if (errorMessage) {
-  <div class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-} @else if (vehicles.length === 0) {
-  <app-empty-state
-    [title]="t('vehicles.empty.title')"
-    [message]="t('vehicles.empty.message')"
-    [actionLabel]="t('vehicles.create')"
-    actionLink="/vehicles/new"
-    [actionRoles]="['ADMIN']"
-  />
-} @else {
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <thead>
-            <tr>
-              <th>{{ t('vehicles.form.unitNumber') }}</th>
-              <th>{{ t('vehicles.form.brand') }}</th>
-              <th>{{ t('vehicles.form.model') }}</th>
-              <th>{{ t('vehicles.form.year') }}</th>
-              <th>{{ t('vehicles.form.capacity') }}</th>
-              <th>{{ t('common.status') }}</th>
-              <th class="text-end">{{ t('common.actions') }}</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (vehicle of vehicles; track vehicle.id) {
-              <tr>
-                <td class="fw-semibold">{{ vehicle.unitNumber }}</td>
-                <td>{{ vehicle.brand }}</td>
-                <td>{{ vehicle.model }}</td>
-                <td>{{ vehicle.year }}</td>
-                <td>{{ vehicle.capacity }}</td>
-                <td>
-                  <app-status-badge [status]="vehicle.status" />
-                </td>
-
-                <td class="text-end">
-                  <ng-container *appHasRole="['ADMIN']">
-                    <div class="btn-group btn-group-sm">
-                      @if (vehicle.status !== 'AVAILABLE') {
-                        <button
-                          type="button"
-                          class="btn btn-outline-success"
-                          [disabled]="isUpdating(vehicle)"
-                          (click)="updateVehicleStatus(vehicle, 'AVAILABLE')"
-                        >
-                          @if (isUpdating(vehicle)) {
-                            {{ t('common.loading') }}
-                          } @else {
-                            {{ t('status.available') }}
-                          }
-                        </button>
-                      }
-
-                      @if (vehicle.status !== 'MAINTENANCE') {
-                        <button
-                          type="button"
-                          class="btn btn-outline-warning"
-                          [disabled]="isUpdating(vehicle)"
-                          (click)="updateVehicleStatus(vehicle, 'MAINTENANCE')"
-                        >
-                          @if (isUpdating(vehicle)) {
-                            {{ t('common.loading') }}
-                          } @else {
-                            {{ t('status.maintenance') }}
-                          }
-                        </button>
-                      }
-
-                      @if (vehicle.status !== 'INACTIVE') {
-                        <button
-                          type="button"
-                          class="btn btn-outline-danger"
-                          [disabled]="isUpdating(vehicle)"
-                          (click)="updateVehicleStatus(vehicle, 'INACTIVE')"
-                        >
-                          @if (isUpdating(vehicle)) {
-                            {{ t('common.loading') }}
-                          } @else {
-                            {{ t('status.inactive') }}
-                          }
-                        </button>
-                      }
-                    </div>
-                  </ng-container>
-
-                  <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
-                    <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
-                  </ng-container>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="col-md-2">
+        <button
+          type="button"
+          class="btn btn-outline-secondary w-100"
+          [disabled]="!vm.hasActiveFilters"
+          (click)="clearFilters()"
+        >
+          {{ t('common.clear') }}
+        </button>
       </div>
     </div>
+
+    <p class="filters-summary">
+      {{ t('common.showing') }} {{ vm.filteredCount }} {{ t('common.of') }}
+      {{ vm.totalCount }} {{ t('vehicles.summary.label') }}.
+    </p>
   </div>
+
+  @if (isLoading) {
+    <app-loading-spinner [text]="t('vehicles.loading')" />
+  } @else if (errorMessage) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+  } @else if (!vm.hasRecords) {
+    <app-empty-state
+      [title]="t('vehicles.empty.title')"
+      [message]="t('vehicles.empty.message')"
+      [actionLabel]="t('vehicles.create')"
+      actionLink="/vehicles/new"
+      [actionRoles]="['ADMIN']"
+    />
+  } @else {
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>{{ t('vehicles.form.unitNumber') }}</th>
+                <th>{{ t('vehicles.form.brand') }}</th>
+                <th>{{ t('vehicles.form.model') }}</th>
+                <th>{{ t('vehicles.form.year') }}</th>
+                <th>{{ t('vehicles.form.capacity') }}</th>
+                <th>{{ t('common.status') }}</th>
+                <th class="text-end">{{ t('common.actions') }}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (vehicle of vm.filteredVehicles; track vehicle.id) {
+                <tr>
+                  <td class="fw-semibold">{{ vehicle.unitNumber }}</td>
+                  <td>{{ vehicle.brand }}</td>
+                  <td>{{ vehicle.model }}</td>
+                  <td>{{ vehicle.year }}</td>
+                  <td>{{ vehicle.capacity }}</td>
+                  <td>
+                    <app-status-badge [status]="vehicle.status" />
+                  </td>
+
+                  <td class="text-end">
+                    <ng-container *appHasRole="['ADMIN']">
+                      <div class="btn-group btn-group-sm">
+                        @if (vehicle.status !== 'AVAILABLE') {
+                          <button
+                            type="button"
+                            class="btn btn-outline-success"
+                            [disabled]="isUpdating(vehicle)"
+                            (click)="updateVehicleStatus(vehicle, 'AVAILABLE')"
+                          >
+                            @if (isUpdating(vehicle)) {
+                              {{ t('common.loading') }}
+                            } @else {
+                              {{ t('status.available') }}
+                            }
+                          </button>
+                        }
+
+                        @if (vehicle.status !== 'MAINTENANCE') {
+                          <button
+                            type="button"
+                            class="btn btn-outline-warning"
+                            [disabled]="isUpdating(vehicle)"
+                            (click)="updateVehicleStatus(vehicle, 'MAINTENANCE')"
+                          >
+                            @if (isUpdating(vehicle)) {
+                              {{ t('common.loading') }}
+                            } @else {
+                              {{ t('status.maintenance') }}
+                            }
+                          </button>
+                        }
+
+                        @if (vehicle.status !== 'INACTIVE') {
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            [disabled]="isUpdating(vehicle)"
+                            (click)="updateVehicleStatus(vehicle, 'INACTIVE')"
+                          >
+                            @if (isUpdating(vehicle)) {
+                              {{ t('common.loading') }}
+                            } @else {
+                              {{ t('status.inactive') }}
+                            }
+                          </button>
+                        }
+                      </div>
+                    </ng-container>
+
+                    <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
+                      <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
+                    </ng-container>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
 }

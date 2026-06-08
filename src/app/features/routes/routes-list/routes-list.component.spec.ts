@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { TransitRoute } from '../../../core/models/route.model';
+import { RouteStatus, TransitRoute } from '../../../core/models/route.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { RoutesService } from '../../../core/services/routes.service';
@@ -11,9 +11,9 @@ import { RoutesListComponent } from './routes-list.component';
 const routes: TransitRoute[] = [
   {
     id: 'route-1',
-    name: 'Ruta Norte',
-    origin: 'Terminal Central',
-    destination: 'Parque Industrial',
+    name: 'Centro - Aeropuerto',
+    origin: 'Centro',
+    destination: 'Aeropuerto',
     distanceKm: 18,
     estimatedDurationMinutes: 45,
     status: 'ACTIVE',
@@ -22,9 +22,9 @@ const routes: TransitRoute[] = [
   },
   {
     id: 'route-2',
-    name: 'Circuito Sur',
-    origin: 'Centro Historico',
-    destination: 'Universidad',
+    name: 'Norte - Sur',
+    origin: 'Norte',
+    destination: 'Sur',
     distanceKm: 12,
     estimatedDurationMinutes: 35,
     status: 'INACTIVE',
@@ -33,9 +33,9 @@ const routes: TransitRoute[] = [
   },
   {
     id: 'route-3',
-    name: 'Expreso Este',
-    origin: 'Aeropuerto',
-    destination: 'Zona Hotelera',
+    name: 'Circular Este',
+    origin: 'Terminal Este',
+    destination: 'Zona Industrial',
     distanceKm: 24,
     estimatedDurationMinutes: 55,
     status: 'ACTIVE',
@@ -47,8 +47,11 @@ const routes: TransitRoute[] = [
 describe('RoutesListComponent search', () => {
   let fixture: ComponentFixture<RoutesListComponent>;
   let nativeElement: HTMLElement;
+  let currentRoutes: TransitRoute[];
 
   beforeEach(async () => {
+    currentRoutes = routes.map((route) => ({ ...route }));
+
     await TestBed.configureTestingModule({
       imports: [RoutesListComponent],
       providers: [
@@ -56,9 +59,23 @@ describe('RoutesListComponent search', () => {
         {
           provide: RoutesService,
           useValue: {
-            getRoutes: () => of({ success: true, message: 'Routes loaded.', data: routes }),
-            updateRouteStatus: () =>
-              of({ success: true, message: 'Route updated.', data: routes[0] }),
+            getRoutes: () => of({ success: true, message: 'Routes loaded.', data: currentRoutes }),
+            updateRouteStatus: (id: string, status: RouteStatus) => {
+              const updatedRoute = {
+                ...currentRoutes.find((route) => route.id === id)!,
+                status,
+              };
+
+              currentRoutes = currentRoutes.map((route) =>
+                route.id === id ? updatedRoute : route,
+              );
+
+              return of({
+                success: true,
+                message: 'Route updated.',
+                data: updatedRoute,
+              });
+            },
           },
         },
         {
@@ -85,50 +102,66 @@ describe('RoutesListComponent search', () => {
     fixture.detectChanges();
   });
 
-  it('updates the rendered rows while typing and deleting in the search input', () => {
-    const input = getSearchInput();
-
+  it('shows all records after loading', () => {
     expect(renderedRows()).toBe(3);
+  });
 
-    enterSearch(input, 'rut nor', 'input');
+  it('filters while typing without blur and restores rows when the text is deleted', async () => {
+    await enterSearch('centro');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('Ruta Norte');
-    expect(getClearButton().disabled).toBe(false);
+    expect(nativeElement.textContent).toContain('Centro - Aeropuerto');
 
-    enterSearch(input, 'orte', 'input');
-    expect(renderedRows()).toBe(0);
-    expect(nativeElement.querySelector('app-empty-state')).not.toBeNull();
-
-    enterSearch(input, 'cir sur', 'input');
+    await enterSearch('sur');
     expect(renderedRows()).toBe(1);
-    expect(nativeElement.textContent).toContain('Circuito Sur');
+    expect(nativeElement.textContent).toContain('Norte - Sur');
 
-    enterSearch(input, '', 'input');
+    await enterSearch('');
     expect(renderedRows()).toBe(3);
     expect(getClearButton().disabled).toBe(true);
   });
 
-  it('restores the table when the native search clear event or Clear button empties the input', () => {
-    const input = getSearchInput();
+  it('combines search and status filters', async () => {
+    await enterSearch('sur');
+    await setStatus('INACTIVE');
 
-    enterSearch(input, 'not-a-route', 'input');
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).toContain('Norte - Sur');
+
+    await setStatus('ACTIVE');
+
     expect(renderedRows()).toBe(0);
+  });
 
-    enterSearch(input, '', 'search');
+  it('clears all filters and works multiple times', async () => {
+    await enterSearch('sur');
+    await setStatus('INACTIVE');
+    expect(renderedRows()).toBe(1);
+
+    await clickClear();
+    expect(fixture.componentInstance.filtersForm.getRawValue()).toEqual({
+      search: '',
+      status: '',
+    });
     expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
 
-    enterSearch(input, 'not-a-route', 'input');
-    expect(renderedRows()).toBe(0);
+    await enterSearch('centro');
+    expect(renderedRows()).toBe(1);
 
-    const clearButton = getClearButton();
-    expect(clearButton.disabled).toBe(false);
+    await clickClear();
+    expect(renderedRows()).toBe(3);
+    expect(getClearButton().disabled).toBe(true);
+  });
 
-    clearButton.click();
+  it('recalculates visible rows when a status changes under an active filter', async () => {
+    await setStatus('ACTIVE');
+    expect(renderedRows()).toBe(2);
+
+    fixture.componentInstance.updateRouteStatus(currentRoutes[0], 'INACTIVE');
     fixture.detectChanges();
 
-    expect(input.value).toBe('');
-    expect(renderedRows()).toBe(3);
-    expect(clearButton.disabled).toBe(true);
+    expect(renderedRows()).toBe(1);
+    expect(nativeElement.textContent).not.toContain('Centro - Aeropuerto');
   });
 
   function getSearchInput(): HTMLInputElement {
@@ -141,13 +174,39 @@ describe('RoutesListComponent search', () => {
     return input;
   }
 
-  function enterSearch(
-    input: HTMLInputElement,
-    value: string,
-    eventName: 'input' | 'search',
-  ): void {
+  async function enterSearch(value: string): Promise<void> {
+    const input = getSearchInput();
+
     input.value = value;
-    input.dispatchEvent(new Event(eventName, { bubbles: true }));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  function getStatusFilter(): HTMLSelectElement {
+    const select = nativeElement.querySelector<HTMLSelectElement>('#routesStatusFilter');
+
+    if (!select) {
+      throw new Error('Expected routes status filter to exist.');
+    }
+
+    return select;
+  }
+
+  async function setStatus(value: string): Promise<void> {
+    const select = getStatusFilter();
+
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitForDebounce();
+  }
+
+  async function clickClear(): Promise<void> {
+    getClearButton().click();
+    await waitForDebounce();
+  }
+
+  async function waitForDebounce(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 130));
     fixture.detectChanges();
   }
 
