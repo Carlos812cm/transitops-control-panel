@@ -33,23 +33,22 @@
     <div class="col-lg-5">
       <label class="form-label" for="usersSearch">{{ t('users.search.label') }}</label>
       <input
+        #usersSearch
         id="usersSearch"
-        type="text"
+        type="search"
         class="form-control"
+        autocomplete="off"
+        spellcheck="false"
         [placeholder]="t('users.search.placeholder')"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
+        [value]="searchTerm"
+        (input)="onSearchInput($event)"
+        (search)="onSearchInput($event)"
       />
     </div>
 
     <div class="col-md-4 col-lg-3">
       <label class="form-label" for="usersStatusFilter">{{ t('common.status') }}</label>
-      <select
-        id="usersStatusFilter"
-        class="form-select"
-        [(ngModel)]="statusFilter"
-        (ngModelChange)="applyFilters()"
-      >
+      <select id="usersStatusFilter" class="form-select" [(ngModel)]="statusFilter">
         <option value="">{{ t('common.allStatuses') }}</option>
         @for (status of statuses; track status) {
           <option [value]="status">{{ statusLabel(status) }}</option>
@@ -59,12 +58,7 @@
 
     <div class="col-md-4 col-lg-2">
       <label class="form-label" for="usersRoleFilter">{{ t('users.filters.role') }}</label>
-      <select
-        id="usersRoleFilter"
-        class="form-select"
-        [(ngModel)]="roleFilter"
-        (ngModelChange)="applyFilters()"
-      >
+      <select id="usersRoleFilter" class="form-select" [(ngModel)]="roleFilter">
         <option value="">{{ t('users.filters.allRoles') }}</option>
         @for (role of roles; track role) {
           <option [value]="role">{{ roleLabel(role) }}</option>
@@ -73,7 +67,12 @@
     </div>
 
     <div class="col-md-4 col-lg-2">
-      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+      <button
+        type="button"
+        class="btn btn-outline-secondary w-100"
+        [disabled]="!hasActiveFilters"
+        (click)="clearFilters(usersSearch); usersSearch.focus()"
+      >
         {{ t('common.clear') }}
       </button>
     </div>
@@ -146,7 +145,9 @@
                             [disabled]="isUpdating(user)"
                             (click)="approveUser(user)"
                           >
-                            {{ isUpdating(user) ? t('common.loading') : t('users.actions.approve') }}
+                            {{
+                              isUpdating(user) ? t('common.loading') : t('users.actions.approve')
+                            }}
                           </button>
                         }
 
@@ -168,7 +169,9 @@
                             [disabled]="isUpdating(user)"
                             (click)="suspendUser(user)"
                           >
-                            {{ isUpdating(user) ? t('common.loading') : t('users.actions.suspend') }}
+                            {{
+                              isUpdating(user) ? t('common.loading') : t('users.actions.suspend')
+                            }}
                           </button>
                         }
 

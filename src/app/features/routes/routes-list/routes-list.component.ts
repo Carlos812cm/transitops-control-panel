@@ -10,6 +10,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
+import { matchesSearchQuery } from '../../../shared/utils/search.utils';
 
 @Component({
   selector: 'app-routes-list',
@@ -28,14 +29,12 @@ export class RoutesListComponent implements OnInit {
   private readonly routesService = inject(RoutesService);
   private readonly languageService = inject(LanguageService);
 
-  routes: TransitRoute[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   allRoutes: TransitRoute[] = [];
-  filteredRoutes: TransitRoute[] = [];
   searchTerm = '';
-  statusFilter = '';
+  statusFilter: RouteStatus | '' = '';
 
   updatingRouteId: string | null = null;
 
@@ -45,6 +44,22 @@ export class RoutesListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRoutes();
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || !!this.statusFilter;
+  }
+
+  get routes(): TransitRoute[] {
+    return this.allRoutes.filter((route) => {
+      const matchesSearch =
+        !this.searchTerm ||
+        matchesSearchQuery(this.searchTerm, [route.name, route.origin, route.destination]);
+
+      const matchesStatus = !this.statusFilter || route.status === this.statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
   }
 
   loadRoutes(): void {
@@ -62,7 +77,6 @@ export class RoutesListComponent implements OnInit {
         }
 
         this.allRoutes = response.data ?? [];
-        this.applyFilters();
       },
       error: (error) => {
         this.isLoading = false;
@@ -71,28 +85,21 @@ export class RoutesListComponent implements OnInit {
     });
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
-
-    this.filteredRoutes = this.allRoutes.filter((route) => {
-      const matchesSearch =
-        !search ||
-        route.name.toLowerCase().includes(search) ||
-        route.origin.toLowerCase().includes(search) ||
-        route.destination.toLowerCase().includes(search);
-
-      const matchesStatus = !this.statusFilter || route.status === this.statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-
-    this.routes = this.filteredRoutes;
+  onSearchTermChange(value: string): void {
+    this.searchTerm = value;
   }
 
-  clearFilters(): void {
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.onSearchTermChange(input?.value ?? '');
+  }
+
+  clearFilters(searchInput?: HTMLInputElement): void {
     this.searchTerm = '';
     this.statusFilter = '';
-    this.applyFilters();
+    if (searchInput) {
+      searchInput.value = '';
+    }
   }
 
   updateRouteStatus(route: TransitRoute, status: RouteStatus): void {
@@ -115,8 +122,6 @@ export class RoutesListComponent implements OnInit {
         };
 
         this.allRoutes = this.allRoutes.map((item) => (item.id === route.id ? updatedRoute : item));
-
-        this.applyFilters();
 
         this.successMessage = response.message || this.t('routes.success.update');
       },

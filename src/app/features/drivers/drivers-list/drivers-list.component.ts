@@ -10,6 +10,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
+import { matchesSearchQuery } from '../../../shared/utils/search.utils';
 
 @Component({
   selector: 'app-drivers-list',
@@ -28,14 +29,12 @@ export class DriversListComponent implements OnInit {
   private readonly driversService = inject(DriversService);
   private readonly languageService = inject(LanguageService);
 
-  drivers: Driver[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   allDrivers: Driver[] = [];
-  filteredDrivers: Driver[] = [];
   searchTerm = '';
-  statusFilter = '';
+  statusFilter: DriverStatus | '' = '';
 
   updatingDriverId: string | null = null;
 
@@ -45,6 +44,28 @@ export class DriversListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDrivers();
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || !!this.statusFilter;
+  }
+
+  get drivers(): Driver[] {
+    return this.allDrivers.filter((driver) => {
+      const matchesSearch =
+        !this.searchTerm ||
+        matchesSearchQuery(this.searchTerm, [
+          driver.firstName,
+          driver.lastName,
+          driver.licenseNumber,
+          driver.email,
+          driver.phone,
+        ]);
+
+      const matchesStatus = !this.statusFilter || driver.status === this.statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
   }
 
   loadDrivers(): void {
@@ -62,7 +83,6 @@ export class DriversListComponent implements OnInit {
         }
 
         this.allDrivers = response.data ?? [];
-        this.applyFilters();
       },
       error: (error) => {
         this.isLoading = false;
@@ -71,31 +91,21 @@ export class DriversListComponent implements OnInit {
     });
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
-
-    this.filteredDrivers = this.allDrivers.filter((driver) => {
-      const fullName = `${driver.firstName} ${driver.lastName}`.toLowerCase();
-
-      const matchesSearch =
-        !search ||
-        fullName.includes(search) ||
-        driver.licenseNumber.toLowerCase().includes(search) ||
-        driver.email.toLowerCase().includes(search) ||
-        driver.phone.toLowerCase().includes(search);
-
-      const matchesStatus = !this.statusFilter || driver.status === this.statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-
-    this.drivers = this.filteredDrivers;
+  onSearchTermChange(value: string): void {
+    this.searchTerm = value;
   }
 
-  clearFilters(): void {
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.onSearchTermChange(input?.value ?? '');
+  }
+
+  clearFilters(searchInput?: HTMLInputElement): void {
     this.searchTerm = '';
     this.statusFilter = '';
-    this.applyFilters();
+    if (searchInput) {
+      searchInput.value = '';
+    }
   }
 
   updateDriverStatus(driver: Driver, status: DriverStatus): void {
@@ -120,8 +130,6 @@ export class DriversListComponent implements OnInit {
         this.allDrivers = this.allDrivers.map((item) =>
           item.id === driver.id ? updatedDriver : item,
         );
-
-        this.applyFilters();
 
         this.successMessage = response.message || this.t('drivers.success.update');
       },

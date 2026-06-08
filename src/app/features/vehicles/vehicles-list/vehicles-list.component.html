@@ -15,24 +15,24 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">{{ t('vehicles.search.label') }}</label>
+      <label class="form-label" for="vehiclesSearch">{{ t('vehicles.search.label') }}</label>
       <input
-        type="text"
+        #vehiclesSearch
+        id="vehiclesSearch"
+        type="search"
         class="form-control"
+        autocomplete="off"
+        spellcheck="false"
         [placeholder]="t('vehicles.search.placeholder')"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
+        [value]="searchTerm"
+        (input)="onSearchInput($event)"
+        (search)="onSearchInput($event)"
       />
     </div>
 
     <div class="col-md-4">
       <label class="form-label">{{ t('common.status') }}</label>
-      <select
-        class="form-select"
-        [attr.title]="t('common.status')"
-        [(ngModel)]="statusFilter"
-        (ngModelChange)="applyFilters()"
-      >
+      <select class="form-select" [attr.title]="t('common.status')" [(ngModel)]="statusFilter">
         <option value="">{{ t('common.allStatuses') }}</option>
         <option value="AVAILABLE">{{ t('status.available') }}</option>
         <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
@@ -41,7 +41,12 @@
     </div>
 
     <div class="col-md-2">
-      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+      <button
+        type="button"
+        class="btn btn-outline-secondary w-100"
+        [disabled]="!hasActiveFilters"
+        (click)="clearFilters(vehiclesSearch); vehiclesSearch.focus()"
+      >
         {{ t('common.clear') }}
       </button>
     </div>

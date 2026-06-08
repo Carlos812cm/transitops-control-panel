@@ -13,6 +13,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { matchesSearchQuery } from '../../../shared/utils/search.utils';
 
 @Component({
   selector: 'app-users-list',
@@ -42,7 +43,6 @@ export class UsersListComponent implements OnInit {
   readonly roles: UserRole[] = ['ADMIN', 'OPERATOR', 'SUPERVISOR', 'VIEWER'];
 
   allUsers: User[] = [];
-  users: User[] = [];
   searchTerm = '';
   statusFilter: UserStatus | '' = '';
   roleFilter: UserRole | '' = '';
@@ -87,9 +87,25 @@ export class UsersListComponent implements OnInit {
   }
 
   get restrictedUsers(): number {
-    return this.allUsers.filter(
-      (user) => user.status === 'REJECTED' || user.status === 'SUSPENDED',
-    ).length;
+    return this.allUsers.filter((user) => user.status === 'REJECTED' || user.status === 'SUSPENDED')
+      .length;
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || !!this.statusFilter || !!this.roleFilter;
+  }
+
+  get users(): User[] {
+    return this.allUsers.filter((user) => {
+      const matchesSearch =
+        !this.searchTerm ||
+        matchesSearchQuery(this.searchTerm, [user.name, user.email, user.phone]);
+
+      const matchesStatus = !this.statusFilter || user.status === this.statusFilter;
+      const matchesRole = !this.roleFilter || user.role === this.roleFilter;
+
+      return matchesSearch && matchesStatus && matchesRole;
+    });
   }
 
   loadUsers(): void {
@@ -107,7 +123,6 @@ export class UsersListComponent implements OnInit {
         }
 
         this.allUsers = response.data ?? [];
-        this.applyFilters();
       },
       error: (error) => {
         this.isLoading = false;
@@ -116,28 +131,22 @@ export class UsersListComponent implements OnInit {
     });
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
-
-    this.users = this.allUsers.filter((user) => {
-      const matchesSearch =
-        !search ||
-        user.name.toLowerCase().includes(search) ||
-        user.email.toLowerCase().includes(search) ||
-        (user.phone ?? '').toLowerCase().includes(search);
-
-      const matchesStatus = !this.statusFilter || user.status === this.statusFilter;
-      const matchesRole = !this.roleFilter || user.role === this.roleFilter;
-
-      return matchesSearch && matchesStatus && matchesRole;
-    });
+  onSearchTermChange(value: string): void {
+    this.searchTerm = value;
   }
 
-  clearFilters(): void {
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.onSearchTermChange(input?.value ?? '');
+  }
+
+  clearFilters(searchInput?: HTMLInputElement): void {
     this.searchTerm = '';
     this.statusFilter = '';
     this.roleFilter = '';
-    this.applyFilters();
+    if (searchInput) {
+      searchInput.value = '';
+    }
   }
 
   approveUser(user: User): void {
@@ -190,15 +199,13 @@ export class UsersListComponent implements OnInit {
 
   canReactivate(user: User): boolean {
     return (
-      (user.status === 'SUSPENDED' || user.status === 'INACTIVE') &&
-      !this.isAdminStatusLocked(user)
+      (user.status === 'SUSPENDED' || user.status === 'INACTIVE') && !this.isAdminStatusLocked(user)
     );
   }
 
   canDeactivate(user: User): boolean {
     return (
-      (user.status === 'ACTIVE' || user.status === 'SUSPENDED') &&
-      !this.isAdminStatusLocked(user)
+      (user.status === 'ACTIVE' || user.status === 'SUSPENDED') && !this.isAdminStatusLocked(user)
     );
   }
 
@@ -269,7 +276,6 @@ export class UsersListComponent implements OnInit {
           this.allUsers = this.allUsers.map((item) =>
             item.id === response.data?.id ? response.data : item,
           );
-          this.applyFilters();
         }
 
         this.successMessage = response.message || this.t(fallbackSuccessKey);

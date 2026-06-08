@@ -10,6 +10,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
+import { matchesSearchQuery } from '../../../shared/utils/search.utils';
 
 @Component({
   selector: 'app-vehicles-list',
@@ -29,14 +30,12 @@ export class VehiclesListComponent implements OnInit {
   private readonly vehiclesService = inject(VehiclesService);
   private readonly languageService = inject(LanguageService);
 
-  vehicles: Vehicle[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   allVehicles: Vehicle[] = [];
-  filteredVehicles: Vehicle[] = [];
   searchTerm = '';
-  statusFilter = '';
+  statusFilter: VehicleStatus | '' = '';
 
   updatingVehicleId: string | null = null;
 
@@ -48,28 +47,37 @@ export class VehiclesListComponent implements OnInit {
     this.loadVehicles();
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
+  get hasActiveFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || !!this.statusFilter;
+  }
 
-    this.filteredVehicles = this.allVehicles.filter((vehicle) => {
+  get vehicles(): Vehicle[] {
+    return this.allVehicles.filter((vehicle) => {
       const matchesSearch =
-        !search ||
-        vehicle.unitNumber.toLowerCase().includes(search) ||
-        vehicle.brand.toLowerCase().includes(search) ||
-        vehicle.model.toLowerCase().includes(search);
+        !this.searchTerm ||
+        matchesSearchQuery(this.searchTerm, [vehicle.unitNumber, vehicle.brand, vehicle.model]);
 
       const matchesStatus = !this.statusFilter || vehicle.status === this.statusFilter;
 
       return matchesSearch && matchesStatus;
     });
-
-    this.vehicles = this.filteredVehicles;
   }
 
-  clearFilters(): void {
+  onSearchTermChange(value: string): void {
+    this.searchTerm = value;
+  }
+
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.onSearchTermChange(input?.value ?? '');
+  }
+
+  clearFilters(searchInput?: HTMLInputElement): void {
     this.searchTerm = '';
     this.statusFilter = '';
-    this.applyFilters();
+    if (searchInput) {
+      searchInput.value = '';
+    }
   }
 
   loadVehicles(): void {
@@ -87,7 +95,6 @@ export class VehiclesListComponent implements OnInit {
         }
 
         this.allVehicles = response.data ?? [];
-        this.applyFilters();
       },
       error: (error) => {
         this.isLoading = false;
@@ -118,8 +125,6 @@ export class VehiclesListComponent implements OnInit {
         this.allVehicles = this.allVehicles.map((item) =>
           item.id === vehicle.id ? updatedVehicle : item,
         );
-
-        this.applyFilters();
 
         this.successMessage = response.message || this.t('vehicles.success.update');
       },

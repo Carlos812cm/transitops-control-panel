@@ -15,13 +15,18 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">{{ t('routes.search.label') }}</label>
+      <label class="form-label" for="routesSearch">{{ t('routes.search.label') }}</label>
       <input
-        type="text"
+        #routesSearch
+        id="routesSearch"
+        type="search"
         class="form-control"
+        autocomplete="off"
+        spellcheck="false"
         [placeholder]="t('routes.search.placeholder')"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
+        [value]="searchTerm"
+        (input)="onSearchInput($event)"
+        (search)="onSearchInput($event)"
       />
     </div>
 
@@ -31,7 +36,6 @@
         class="form-select"
         [attr.title]="t('routes.filter.statusTitle')"
         [(ngModel)]="statusFilter"
-        (ngModelChange)="applyFilters()"
       >
         <option value="">{{ t('common.allStatuses') }}</option>
         <option value="ACTIVE">{{ t('status.active') }}</option>
@@ -40,7 +44,12 @@
     </div>
 
     <div class="col-md-2">
-      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+      <button
+        type="button"
+        class="btn btn-outline-secondary w-100"
+        [disabled]="!hasActiveFilters"
+        (click)="clearFilters(routesSearch); routesSearch.focus()"
+      >
         {{ t('common.clear') }}
       </button>
     </div>

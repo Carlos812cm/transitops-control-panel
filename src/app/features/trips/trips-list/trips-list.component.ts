@@ -12,6 +12,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
+import { matchesSearchQuery } from '../../../shared/utils/search.utils';
 
 @Component({
   selector: 'app-trips-list',
@@ -32,14 +33,12 @@ export class TripsListComponent implements OnInit {
   private readonly tripsService = inject(TripsService);
   private readonly languageService = inject(LanguageService);
 
-  trips: Trip[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   allTrips: Trip[] = [];
-  filteredTrips: Trip[] = [];
   searchTerm = '';
-  statusFilter = '';
+  statusFilter: TripStatus | '' = '';
 
   updatingTripId: string | null = null;
 
@@ -49,6 +48,27 @@ export class TripsListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTrips();
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || !!this.statusFilter;
+  }
+
+  get trips(): Trip[] {
+    return this.allTrips.filter((trip) => {
+      const matchesSearch =
+        !this.searchTerm ||
+        matchesSearchQuery(this.searchTerm, [
+          this.getVehicleLabel(trip),
+          this.getDriverName(trip),
+          this.getRouteLabel(trip),
+          trip.notes,
+        ]);
+
+      const matchesStatus = !this.statusFilter || trip.status === this.statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
   }
 
   loadTrips(): void {
@@ -72,7 +92,6 @@ export class TripsListComponent implements OnInit {
           }
 
           this.allTrips = response.data ?? [];
-          this.applyFilters();
         },
         error: (error) => {
           this.errorMessage = error?.error?.message || this.t('trips.error.load');
@@ -80,34 +99,21 @@ export class TripsListComponent implements OnInit {
       });
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
-
-    this.filteredTrips = this.allTrips.filter((trip) => {
-      const vehicleLabel = this.getVehicleLabel(trip).toLowerCase();
-      const driverName = this.getDriverName(trip).toLowerCase();
-      const routeLabel = this.getRouteLabel(trip).toLowerCase();
-      const notes = (trip.notes ?? '').toLowerCase();
-
-      const matchesSearch =
-        !search ||
-        vehicleLabel.includes(search) ||
-        driverName.includes(search) ||
-        routeLabel.includes(search) ||
-        notes.includes(search);
-
-      const matchesStatus = !this.statusFilter || trip.status === this.statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-
-    this.trips = this.filteredTrips;
+  onSearchTermChange(value: string): void {
+    this.searchTerm = value;
   }
 
-  clearFilters(): void {
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.onSearchTermChange(input?.value ?? '');
+  }
+
+  clearFilters(searchInput?: HTMLInputElement): void {
     this.searchTerm = '';
     this.statusFilter = '';
-    this.applyFilters();
+    if (searchInput) {
+      searchInput.value = '';
+    }
   }
 
   updateTripStatus(trip: Trip, status: TripStatus): void {
@@ -139,8 +145,6 @@ export class TripsListComponent implements OnInit {
 
           this.allTrips = this.allTrips.map((item) => (item.id === trip.id ? updatedTrip : item));
 
-          this.applyFilters();
-
           this.successMessage = response.message || this.t('trips.success.update');
           this.refreshTripsSilently();
         },
@@ -158,7 +162,6 @@ export class TripsListComponent implements OnInit {
         next: (response) => {
           if (response.success && response.data) {
             this.allTrips = response.data;
-            this.applyFilters();
           }
         },
       });
@@ -182,29 +185,53 @@ export class TripsListComponent implements OnInit {
 
   getDriverName(trip: Trip): string {
     if (!trip.driver) {
-      return trip.driverId;
+      return this.formatLabelValue(trip.driverId);
     }
 
-    return `${trip.driver.firstName} ${trip.driver.lastName}`;
+    return [trip.driver.firstName, trip.driver.lastName]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' ');
   }
 
   getVehicleLabel(trip: Trip): string {
     if (!trip.vehicle) {
-      return trip.vehicleId;
+      return this.formatLabelValue(trip.vehicleId);
     }
 
-    return `${trip.vehicle.unitNumber} - ${trip.vehicle.brand} ${trip.vehicle.model}`;
+    const vehicleName = [trip.vehicle.brand, trip.vehicle.model]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' ');
+
+    return [trip.vehicle.unitNumber, vehicleName]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' - ');
   }
 
   getRouteLabel(trip: Trip): string {
     if (!trip.route) {
-      return trip.routeId;
+      return this.formatLabelValue(trip.routeId);
     }
 
-    return `${trip.route.name}: ${trip.route.origin} → ${trip.route.destination}`;
+    const routeEndpoints = [trip.route.origin, trip.route.destination]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(' → ');
+
+    return [trip.route.name, routeEndpoints]
+      .map((value) => this.formatLabelValue(value))
+      .filter(Boolean)
+      .join(': ');
   }
+
   t(key: TranslationKey): string {
     this.currentLanguage();
     return this.languageService.translate(key);
+  }
+
+  private formatLabelValue(value: unknown): string {
+    return String(value ?? '').trim();
   }
 }

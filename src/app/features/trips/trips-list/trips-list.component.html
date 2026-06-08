@@ -15,24 +15,24 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">{{ t('trips.search.label') }}</label>
+      <label class="form-label" for="tripsSearch">{{ t('trips.search.label') }}</label>
       <input
-        type="text"
+        #tripsSearch
+        id="tripsSearch"
+        type="search"
         class="form-control"
+        autocomplete="off"
+        spellcheck="false"
         [placeholder]="t('trips.search.placeholder')"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
+        [value]="searchTerm"
+        (input)="onSearchInput($event)"
+        (search)="onSearchInput($event)"
       />
     </div>
 
     <div class="col-md-4">
       <label class="form-label">{{ t('common.status') }}</label>
-      <select
-        class="form-select"
-        [attr.title]="t('common.status')"
-        [(ngModel)]="statusFilter"
-        (ngModelChange)="applyFilters()"
-      >
+      <select class="form-select" [attr.title]="t('common.status')" [(ngModel)]="statusFilter">
         <option value="">{{ t('common.allStatuses') }}</option>
         <option value="SCHEDULED">{{ t('status.scheduled') }}</option>
         <option value="IN_PROGRESS">{{ t('status.inProgress') }}</option>
@@ -42,7 +42,12 @@
     </div>
 
     <div class="col-md-2">
-      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+      <button
+        type="button"
+        class="btn btn-outline-secondary w-100"
+        [disabled]="!hasActiveFilters"
+        (click)="clearFilters(tripsSearch); tripsSearch.focus()"
+      >
         {{ t('common.clear') }}
       </button>
     </div>

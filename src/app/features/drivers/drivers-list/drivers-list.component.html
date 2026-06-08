@@ -15,24 +15,24 @@
 <div class="filters-card">
   <div class="row g-3 align-items-end">
     <div class="col-md-6">
-      <label class="form-label">{{ t('drivers.search.label') }}</label>
+      <label class="form-label" for="driversSearch">{{ t('drivers.search.label') }}</label>
       <input
-        type="text"
+        #driversSearch
+        id="driversSearch"
+        type="search"
         class="form-control"
+        autocomplete="off"
+        spellcheck="false"
         [placeholder]="t('drivers.search.placeholder')"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
+        [value]="searchTerm"
+        (input)="onSearchInput($event)"
+        (search)="onSearchInput($event)"
       />
     </div>
 
     <div class="col-md-4">
       <label class="form-label" for="statusFilter">{{ t('common.status') }}</label>
-      <select
-        id="statusFilter"
-        class="form-select"
-        [(ngModel)]="statusFilter"
-        (ngModelChange)="applyFilters()"
-      >
+      <select id="statusFilter" class="form-select" [(ngModel)]="statusFilter">
         <option value="">{{ t('common.allStatuses') }}</option>
         <option value="ACTIVE">{{ t('status.active') }}</option>
         <option value="SUSPENDED">{{ t('status.suspended') }}</option>
@@ -41,7 +41,12 @@
     </div>
 
     <div class="col-md-2">
-      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+      <button
+        type="button"
+        class="btn btn-outline-secondary w-100"
+        [disabled]="!hasActiveFilters"
+        (click)="clearFilters(driversSearch); driversSearch.focus()"
+      >
         {{ t('common.clear') }}
       </button>
     </div>
