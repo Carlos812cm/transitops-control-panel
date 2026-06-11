@@ -42,3 +42,18 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment variables
+.env
+server/.env
+
+# Server dependencies
+server/node_modules/
+server/dist/
+server/.env
+server/.vite/
+
+# Nested Node artifacts
+**/node_modules/
+**/dist/
+**/.vite/
