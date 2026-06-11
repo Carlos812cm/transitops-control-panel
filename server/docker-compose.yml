@@ -4,7 +4,7 @@ services:
     container_name: transitops_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: transitops_db
+      POSTGRES_DB: transitops_platform_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
