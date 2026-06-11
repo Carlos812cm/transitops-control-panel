@@ -117,7 +117,7 @@ async function requestRegistrationCodes(payload) {
 }
 
 beforeAll(async () => {
-  serverProcess = spawn(process.execPath, ['server/mock/index.js'], {
+  serverProcess = spawn(process.execPath, ['server/mock/index.cjs'], {
     cwd: process.cwd(),
     env: {
       ...process.env,
@@ -481,4 +481,5 @@ describe('TransitOps API hardening rules', () => {
     expect(duplicatePhoneResult.json.message).toContain('Phone is already registered');
   });
 });
+
 
