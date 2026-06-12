@@ -1,0 +1,23 @@
+import { UserRole, UserStatus } from '@prisma/client';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: UserRole;
+  requestedRole?: UserRole | null;
+  status: UserStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface LoginResponseData {
+  token: string;
+  user: AuthUser;
+}
+
+export interface JwtPayload {
+  sub: string;
+  role: UserRole;
+}
