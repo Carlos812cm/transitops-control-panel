@@ -5,3 +5,129 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  SUPERVISOR
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_APPROVAL
+  REJECTED
+  SUSPENDED
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  MAINTENANCE
+  INACTIVE
+}
+
+enum DriverStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum RouteStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TripStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String     @id @default(uuid())
+  name          String
+  email         String     @unique
+  phone         String?    @unique
+  passwordHash  String
+  role          UserRole   @default(VIEWER)
+  requestedRole UserRole?
+  status        UserStatus @default(PENDING_APPROVAL)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model Vehicle {
+  id                  String        @id @default(uuid())
+  unitNumber          String        @unique
+  brand               String
+  model               String
+  year                Int
+  capacity            Int
+  status              VehicleStatus @default(AVAILABLE)
+  lastMaintenanceDate DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  trips Trip[]
+
+  @@map("vehicles")
+}
+
+model Driver {
+  id            String       @id @default(uuid())
+  firstName     String
+  lastName      String
+  licenseNumber String       @unique
+  phone         String
+  email         String       @unique
+  status        DriverStatus @default(ACTIVE)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  trips Trip[]
+
+  @@map("drivers")
+}
+
+model TransitRoute {
+  id                       String      @id @default(uuid())
+  name                     String
+  origin                   String
+  destination              String
+  distanceKm               Float
+  estimatedDurationMinutes Int
+  status                   RouteStatus @default(ACTIVE)
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+
+  trips Trip[]
+
+  @@map("transit_routes")
+}
+
+model Trip {
+  id                 String     @id @default(uuid())
+  vehicleId          String
+  driverId           String
+  routeId            String
+  scheduledDeparture DateTime
+  status             TripStatus @default(SCHEDULED)
+  notes              String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  vehicle Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  driver  Driver       @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  route   TransitRoute @relation(fields: [routeId], references: [id], onDelete: Restrict)
+
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([routeId])
+  @@index([status])
+  @@index([scheduledDeparture])
+  @@map("trips")
+}
