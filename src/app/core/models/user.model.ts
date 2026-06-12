@@ -7,7 +7,7 @@ export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING_APPROVAL' | 'REJECTED'
 export type PublicRegistrationRole = Exclude<UserRole, 'ADMIN'>;
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone?: string;
@@ -55,10 +55,12 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponseData {
-  id: number;
+  id: string;
   email: string;
   phone: string;
   role: UserRole;
   requestedRole: PublicRegistrationRole;
   status: UserStatus;
 }
+
+
