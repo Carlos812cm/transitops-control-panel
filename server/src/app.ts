@@ -3,7 +3,9 @@ import express from 'express';
 import helmet from 'helmet';
 
 import { env } from './config/env.js';
-import { sendError, sendSuccess } from './common/responses/api-response.js';
+import { errorHandlerMiddleware } from './common/middlewares/error-handler.middleware.js';
+import { notFoundMiddleware } from './common/middlewares/not-found.middleware.js';
+import { apiRouter } from './routes/index.js';
 
 export const app = express();
 
@@ -18,14 +20,7 @@ app.use(
 
 app.use(express.json());
 
-app.get(`${env.API_PREFIX}/health`, (_request, response) => {
-  return sendSuccess(response, 'TransitOps real API is running.', {
-    service: 'transitops-api',
-    environment: env.NODE_ENV,
-    uptimeSeconds: Math.floor(process.uptime()),
-  });
-});
+app.use(env.API_PREFIX, apiRouter);
 
-app.use(env.API_PREFIX, (_request, response) => {
-  return sendError(response, 404, 'Endpoint not found.');
-});
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);

@@ -105,7 +105,7 @@ export class UsersListComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
-  updatingUserId: number | null = null;
+  updatingUserId: string | null = null;
 
   currentLanguage = toSignal(this.languageService.currentLanguage$, {
     initialValue: this.languageService.getCurrentLanguage(),

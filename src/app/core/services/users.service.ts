@@ -25,19 +25,19 @@ export class UsersService {
     });
   }
 
-  getUserById(id: number): Observable<ApiResponse<User>> {
+  getUserById(id: string): Observable<ApiResponse<User>> {
     return this.http.get<ApiResponse<User>>(`${this.apiUrl}/${id}`);
   }
 
-  approveUser(id: number): Observable<ApiResponse<User>> {
+  approveUser(id: string): Observable<ApiResponse<User>> {
     return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/${id}/approve`, {});
   }
 
-  rejectUser(id: number): Observable<ApiResponse<User>> {
+  rejectUser(id: string): Observable<ApiResponse<User>> {
     return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/${id}/reject`, {});
   }
 
-  updateUserStatus(id: number, status: UserStatus): Observable<ApiResponse<User>> {
+  updateUserStatus(id: string, status: UserStatus): Observable<ApiResponse<User>> {
     return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/${id}/status`, {
       status,
     });
