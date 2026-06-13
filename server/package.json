@@ -5,11 +5,21 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "ng": "ng",
     "start": "node dist/server.js",
+    "api": "node server/mock/index.cjs",
+    "api:dev": "node --watch server/mock/index.cjs",
+    "api:real": "cd server && npm run dev",
+    "api:real:seed": "cd server && npm run seed",
+    "api:real:test": "cd server && npm run test",
+    "api:real:build": "cd server && npm run build",
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "watch": "ng build --watch --configuration development",
     "test": "vitest run --config vitest.config.ts",
+    "test:api": "vitest run server/mock/index.test.mjs --environment node",
+    "serve:ssr:transitops-control-panel": "node dist/transitops-control-panel/server/server.mjs",
+    "dev": "tsx watch src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "seed": "prisma db seed"
   },
   "keywords": [

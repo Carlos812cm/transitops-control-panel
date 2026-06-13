@@ -10,7 +10,7 @@ import { UsersListComponent } from './users-list.component';
 
 const users: User[] = [
   {
-    id: 1,
+    id: "1",
     name: 'Luc\u00eda Rojas',
     email: 'lucia.rojas@transitops.com',
     phone: '+1 555 010 1010',
@@ -20,7 +20,7 @@ const users: User[] = [
     createdAt: '2026-01-01T08:00:00Z',
   },
   {
-    id: 2,
+    id: "2",
     name: 'Martin Lopez',
     email: 'martin.lopez@transitops.com',
     phone: '+1 555 010 2020',
@@ -30,7 +30,7 @@ const users: User[] = [
     createdAt: '2026-01-02T08:00:00Z',
   },
   {
-    id: 3,
+    id: "3",
     name: 'Ana Perez',
     email: 'ana.perez@transitops.com',
     phone: '+1 555 010 3030',
@@ -57,9 +57,9 @@ describe('UsersListComponent search', () => {
           provide: UsersService,
           useValue: {
             getUsers: () => of({ success: true, message: 'Users loaded.', data: currentUsers }),
-            approveUser: (id: number) => updateUser(id, 'ACTIVE', 'User approved.'),
-            rejectUser: (id: number) => updateUser(id, 'REJECTED', 'User rejected.'),
-            updateUserStatus: (id: number, status: UserStatus) =>
+            approveUser: (id: string) => updateUser(id, 'ACTIVE', 'User approved.'),
+            rejectUser: (id: string) => updateUser(id, 'REJECTED', 'User rejected.'),
+            updateUserStatus: (id: string, status: UserStatus) =>
               updateUser(id, status, 'User updated.'),
           },
         },
@@ -168,7 +168,7 @@ describe('UsersListComponent search', () => {
     expect(nativeElement.textContent).not.toContain('Ana Perez');
   });
 
-  function updateUser(id: number, status: UserStatus, message: string) {
+  function updateUser(id: string, status: UserStatus, message: string) {
     const updatedUser = {
       ...currentUsers.find((user) => user.id === id)!,
       status,
