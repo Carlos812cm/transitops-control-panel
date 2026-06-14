@@ -30,22 +30,22 @@ The project can be explained as a Full-Stack system, or separated into Front-End
 
 ## Tech Stack
 
-| Technology         | Purpose                          |
-| ------------------ | -------------------------------- |
-| Angular 21         | Front-End framework              |
-| TypeScript         | Typed application logic          |
-| Bootstrap 5        | UI layout and components         |
-| SCSS               | Custom styling                   |
-| Angular Router     | Client-side routing              |
-| Angular HttpClient | REST communication               |
-| Reactive Forms     | Forms and validation             |
-| RxJS               | Async data handling              |
-| Express            | Real API and local mock API      |
-| Prisma             | Database ORM                     |
-| PostgreSQL         | Relational database              |
-| Docker             | Local database container         |
-| Zod                | Back-End validation              |
-| Vitest             | API tests                        |
+| Technology | Purpose |
+| --- | --- |
+| Angular 21 | Front-End framework |
+| TypeScript | Typed application logic |
+| Bootstrap 5 | UI layout and components |
+| SCSS | Custom styling |
+| Angular Router | Client-side routing |
+| Angular HttpClient | REST communication |
+| Reactive Forms | Forms and validation |
+| RxJS | Async data handling |
+| Express | Real API and local mock API |
+| Prisma | Database ORM |
+| PostgreSQL | Relational database |
+| Docker | Local database container |
+| Zod | Back-End validation |
+| Vitest | API tests |
 
 ---
 
@@ -70,12 +70,12 @@ The project can be explained as a Full-Stack system, or separated into Front-End
 
 ## Roles
 
-| Role         | Access Level                           |
-| ------------ | -------------------------------------- |
-| `ADMIN`      | Full administrative access             |
-| `OPERATOR`   | Operational access for trip management |
+| Role | Access Level |
+| --- | --- |
+| `ADMIN` | Full administrative access |
+| `OPERATOR` | Operational access for trip management |
 | `SUPERVISOR` | Operational access for trip management |
-| `VIEWER`     | Read-only access                       |
+| `VIEWER` | Read-only access |
 
 ---
 
@@ -97,22 +97,22 @@ The API enforces these rules:
 
 ## Application Routes
 
-| Route            | Description                | Access                            |
-| ---------------- | -------------------------- | --------------------------------- |
-| `/login`         | Login screen               | Public                            |
-| `/register`      | Registration screen        | Public                            |
-| `/dashboard`     | Operational dashboard      | Authenticated users               |
-| `/vehicles`      | Vehicle management         | Authenticated users               |
-| `/vehicles/new`  | Create vehicle             | `ADMIN`                           |
-| `/drivers`       | Driver management          | Authenticated users               |
-| `/drivers/new`   | Create driver              | `ADMIN`                           |
-| `/routes`        | Route management           | Authenticated users               |
-| `/routes/new`    | Create route               | `ADMIN`                           |
-| `/trips`         | Trip management            | Authenticated users               |
-| `/trips/new`     | Create trip                | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
-| `/users`         | Users management           | `ADMIN`                           |
-| `/settings`      | Settings and language      | Authenticated users               |
-| `/access-denied` | Unauthorized access screen | Authenticated users               |
+| Route | Description | Access |
+| --- | --- | --- |
+| `/login` | Login screen | Public |
+| `/register` | Registration screen | Public |
+| `/dashboard` | Operational dashboard | Authenticated users |
+| `/vehicles` | Vehicle management | Authenticated users |
+| `/vehicles/new` | Create vehicle | `ADMIN` |
+| `/drivers` | Driver management | Authenticated users |
+| `/drivers/new` | Create driver | `ADMIN` |
+| `/routes` | Route management | Authenticated users |
+| `/routes/new` | Create route | `ADMIN` |
+| `/trips` | Trip management | Authenticated users |
+| `/trips/new` | Create trip | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
+| `/users` | Users management | `ADMIN` |
+| `/settings` | Settings and language | Authenticated users |
+| `/access-denied` | Unauthorized access screen | Authenticated users |
 
 ---
 
@@ -257,18 +257,19 @@ http://localhost:4200
 
 ## Available Scripts
 
-| Command                  | Description                            |
-| ------------------------ | -------------------------------------- |
-| `npm start`              | Starts Angular on port 4200            |
-| `npm run build`          | Builds the Angular application         |
-| `npm test`               | Runs Angular tests                     |
-| `npm run api`            | Starts the local mock API on port 4000 |
-| `npm run api:dev`        | Starts the mock API with watch mode    |
-| `npm run test:api`       | Runs mock API tests                    |
-| `npm run api:real`       | Starts the real Express API            |
-| `npm run api:real:seed`  | Seeds the PostgreSQL database          |
-| `npm run api:real:test`  | Runs real Back-End tests               |
-| `npm run api:real:build` | Builds the real Back-End API           |
+| Command | Description |
+| --- | --- |
+| `npm start` | Starts Angular on port 4200 |
+| `npm run build` | Builds the Angular application |
+| `npm test` | Runs Angular tests |
+| `npm run api` | Starts the local mock API on port 4000 |
+| `npm run api:dev` | Starts the mock API with watch mode |
+| `npm run test:api` | Runs mock API tests |
+| `npm run api:real` | Starts the real Express API |
+| `npm run api:real:seed` | Seeds the PostgreSQL database |
+| `npm run api:real:typecheck` | Runs Back-End TypeScript checks |
+| `npm run api:real:test` | Runs real Back-End tests |
+| `npm run api:real:build` | Builds the real Back-End API |
 
 ---
 
@@ -280,11 +281,84 @@ A complete local validation guide is available at:
 docs/real-api-smoke-test.md
 ```
 
+Recommended final validation:
+
+```bash
+npm run build
+npm run test:api
+npm run api:real:typecheck
+npm run api:real:test
+npm run api:real:build
+```
+
 ---
 
-## Interview Explanation
+## Demo Flow
 
-> TransitOps Control Panel is a Full-Stack administrative platform for transportation operations. It uses Angular for the control panel, Express for the API, Prisma for database access and PostgreSQL for persistence. The system manages users, vehicles, drivers, routes and trips with role-based access and operational business rules.
+Recommended order for a live demo:
+
+```txt
+1. Login
+2. Dashboard
+3. Vehicles
+4. Drivers
+5. Routes
+6. Trips
+7. Users
+8. Settings
+9. Code architecture
+```
+
+Suggested explanation:
+
+> TransitOps Platform is a Full-Stack administrative system for transportation operations. It uses Angular for the control panel, Express for the API, Prisma for database access and PostgreSQL for persistence. The system manages users, vehicles, drivers, routes and trips with authentication, role-based access and operational business rules.
+
+Key points to show:
+
+- Dashboard metrics come from the real API.
+- Trips connect vehicles, drivers and routes.
+- The API rejects trips with unavailable resources.
+- Viewer users can read data but cannot perform protected actions.
+- Admin users can manage operational resources and users.
+
+---
+
+## Interview Checklist
+
+Before presenting the project:
+
+```txt
+[ ] PostgreSQL container is running
+[ ] Database seed was executed
+[ ] Real API is running on port 4000
+[ ] Angular is running on port 4200
+[ ] Login works
+[ ] Dashboard loads real data
+[ ] Vehicles list loads records
+[ ] Drivers list loads records
+[ ] Routes list loads records
+[ ] Trips list loads records with relations
+[ ] README and smoke test guide are updated
+```
+
+---
+
+## Architecture Highlights
+
+This project demonstrates:
+
+- Feature-based Angular organization
+- Standalone Angular components
+- Typed API models
+- Guards for authentication and authorization
+- HTTP interceptors for token handling and global errors
+- Reactive forms with validation
+- Real REST API with Express and Prisma
+- PostgreSQL relational data model
+- Role-based Back-End authorization
+- Zod request validation
+- Back-End route tests with Vitest
+- Local mock API for independent Front-End fallback testing
 
 ---
 
@@ -302,6 +376,7 @@ Implemented:
 - Back-End route tests
 - Local mock API fallback
 - Full local smoke test guide
+- Demo flow and interview checklist
 
 Possible future improvements:
 
