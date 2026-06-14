@@ -1,32 +1,51 @@
 .empty-state {
-  background: var(--app-surface);
-  border: 1px dashed var(--app-border);
-  border-radius: 1rem;
-  padding: 2.5rem 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(37, 99, 235, 0.035), transparent),
+    var(--app-surface);
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-sm);
+  color: var(--app-text);
+  display: grid;
+  justify-items: center;
+  padding: clamp(2rem, 4vw, 3rem) 1.5rem;
   text-align: center;
 }
 
 .empty-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 999px;
-  background: var(--app-surface-muted);
-  color: var(--app-text-muted);
-  display: inline-flex;
   align-items: center;
+  background: var(--app-primary-soft);
+  border: 1px solid var(--app-primary-soft-border);
+  border-radius: var(--app-radius-pill);
+  color: var(--app-primary-soft-text);
+  display: inline-flex;
+  font-size: 1.45rem;
+  font-weight: 900;
+  height: 3.25rem;
   justify-content: center;
-  font-size: 1.5rem;
+  line-height: 1;
   margin-bottom: 1rem;
+  width: 3.25rem;
+}
+
+.empty-content {
+  max-width: 32rem;
 }
 
 .empty-state h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
   color: var(--app-text);
-  margin-bottom: 0.35rem;
+  font-size: 1.08rem;
+  font-weight: 850;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.4rem;
 }
 
 .empty-state p {
   color: var(--app-text-muted);
-  margin-bottom: 1rem;
+  line-height: 1.55;
+  margin: 0 0 1.1rem;
+}
+
+.empty-state .btn {
+  min-width: 8rem;
 }
