@@ -1,9 +1,11 @@
-<div class="loading-spinner" [class.fullpage]="fullpage">
-  <div class="spinner-border text-primary" role="status">
-    <span class="visually-hidden">{{ t('common.loading') }}</span>
+<div class="loading-spinner" [class.fullpage]="fullpage" role="status" aria-live="polite">
+  <div class="loading-orb" aria-hidden="true">
+    <div class="spinner-border" role="presentation"></div>
   </div>
 
   @if (displayText) {
     <p>{{ displayText }}</p>
   }
+
+  <span class="visually-hidden">{{ t('common.loading') }}</span>
 </div>

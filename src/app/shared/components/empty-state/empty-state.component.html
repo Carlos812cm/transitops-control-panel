@@ -1,8 +1,12 @@
 <div class="empty-state">
-  <div class="empty-icon">—</div>
+  <div class="empty-icon" aria-hidden="true">
+    ∅
+  </div>
 
-  <h3>{{ displayTitle }}</h3>
-  <p>{{ displayMessage }}</p>
+  <div class="empty-content">
+    <h3>{{ displayTitle }}</h3>
+    <p>{{ displayMessage }}</p>
+  </div>
 
   @if (actionLabel && actionLink) {
     @if (actionRoles.length > 0) {
