@@ -2,73 +2,73 @@
 
 English | [Español](README.es.md)
 
-TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It provides a role-aware interface to manage users, vehicles, drivers, routes and trips through a REST API.
+TransitOps Control Panel is a Full-Stack transportation operations platform built with Angular, Express, Prisma and PostgreSQL.
 
-This repository represents the Front-End layer of the TransitOps Platform portfolio project. It is designed to demonstrate professional Angular architecture, typed API integration, authentication, role-based UI behavior, reactive forms, dashboard metrics, table filters, responsive layout and light/dark theme support.
+It provides a role-aware administrative interface to manage users, vehicles, drivers, routes and trips through a real REST API. The project also keeps a local mock API as a lightweight Front-End fallback.
 
 ---
 
 ## Project Purpose
 
-The goal of this project is to present a realistic Front-End administrative system rather than a static dashboard. The application includes operational workflows that are common in internal business platforms:
+This project presents a realistic administrative system for transportation operations. It demonstrates:
 
-- Authentication and session handling
-- Public registration with simulated email and phone verification
-- Administrator approval workflow for elevated role requests
-- Protected routes
-- Role-based navigation and actions
-- REST API integration through typed services
-- Reactive forms with validation
-- Entity status management
-- Table searching and filtering
-- Loading, empty and error states
-- Responsive admin layout
-- Light and dark theme support with local persistence
-- Settings page with expanded English/Spanish UI language coverage
-- Admin-only users management section
-- Local mock API for independent Front-End testing
+- Angular administrative dashboard architecture
+- Real REST API integration
+- PostgreSQL persistence through Prisma
+- Authentication and role-based authorization
+- Users management workflow
+- Vehicles, drivers, routes and trips operations
+- Dashboard metrics from real API data
+- Business rules for trip scheduling
+- Light and dark theme support
+- English and Spanish UI language support
+- Local mock API fallback
 
-The project can be used in interview scenarios as a Front-End Angular project, or as the UI layer of a wider Full-Stack TransitOps Platform.
+The project can be explained as a Full-Stack system, or separated into Front-End and Back-End narratives for interviews.
 
 ---
 
 ## Tech Stack
 
-| Technology         | Purpose                                |
-| ------------------ | -------------------------------------- |
-| Angular 21         | Main Front-End framework               |
-| TypeScript         | Strongly typed application logic       |
-| Bootstrap 5        | Layout and UI components               |
-| SCSS               | Custom styling                         |
-| Angular Router     | Client-side routing                    |
-| Angular HttpClient | REST API communication                 |
-| Reactive Forms     | Form handling and validation           |
-| RxJS               | Async data handling                    |
-| Express            | Local mock API for development/testing |
-| Vitest             | Mock API tests                         |
+| Technology         | Purpose                          |
+| ------------------ | -------------------------------- |
+| Angular 21         | Front-End framework              |
+| TypeScript         | Typed application logic          |
+| Bootstrap 5        | UI layout and components         |
+| SCSS               | Custom styling                   |
+| Angular Router     | Client-side routing              |
+| Angular HttpClient | REST communication               |
+| Reactive Forms     | Forms and validation             |
+| RxJS               | Async data handling              |
+| Express            | Real API and local mock API      |
+| Prisma             | Database ORM                     |
+| PostgreSQL         | Relational database              |
+| Docker             | Local database container         |
+| Zod                | Back-End validation              |
+| Vitest             | API tests                        |
 
 ---
 
 ## Main Features
 
-### Authentication
+- Login and session handling
+- Protected application routes
+- Role-based UI behavior
+- Dashboard summary with operational metrics
+- Admin users management
+- Vehicles management
+- Drivers management
+- Routes management
+- Trips management
+- Real Back-End business rules
+- Table search and status filters
+- Loading, empty and error states
+- Light and dark theme
+- English and Spanish UI preference
 
-- Login screen
-- Public registration screen
-- Simulated email and phone verification codes for development
-- Requested role selection for `VIEWER`, `OPERATOR` or `SUPERVISOR`
-- `VIEWER` registrations become active immediately
-- `OPERATOR` and `SUPERVISOR` registrations remain pending until admin approval
-- JWT-like token storage
-- Current user session persistence
-- Logout flow
-- Route protection through `AuthGuard`
-- Automatic token injection through `authInterceptor`
-- Global 401/403 handling through `errorInterceptor`
+---
 
-### Role-Based UI
-
-The application supports the following roles:
+## Roles
 
 | Role         | Access Level                           |
 | ------------ | -------------------------------------- |
@@ -77,169 +77,11 @@ The application supports the following roles:
 | `SUPERVISOR` | Operational access for trip management |
 | `VIEWER`     | Read-only access                       |
 
-Role-based behavior includes:
-
-- Hidden action buttons for unauthorized users
-- Protected creation routes
-- Read-only table actions for viewer users
-- Reusable `appHasRole` structural directive
-
-Example:
-
-```html
-<button *appHasRole="['ADMIN']">Create Vehicle</button>
-```
-
-### Users Management
-
-Admins can open the Users section to review registration requests and manage account access.
-
-Features:
-
-- Admin-only `/users` route
-- User summary counters
-- Search by name, email or phone
-- Status and role filters
-- Current role, requested role and status visibility
-- Approval and rejection for pending users
-- Suspension, reactivation and deactivation actions
-- Protection against administrator self-suspension or self-deactivation
-
-Supported user statuses:
-
-```txt
-ACTIVE
-INACTIVE
-PENDING_APPROVAL
-REJECTED
-SUSPENDED
-```
-
-### Dashboard
-
-The dashboard calculates operational metrics from real API responses:
-
-- Total vehicles
-- Available vehicles
-- Vehicles in maintenance
-- Active drivers
-- Suspended drivers
-- Active routes
-- Trips by status
-- Latest trips
-- Quick navigation actions
-
-### Vehicles Module
-
-Features:
-
-- Vehicle list
-- Search by unit number, brand or model
-- Status filter
-- Create vehicle form
-- Change vehicle status
-- Role-based actions
-- Loading, error and empty states
-
-Supported statuses:
-
-```txt
-AVAILABLE
-MAINTENANCE
-INACTIVE
-```
-
-### Drivers Module
-
-Features:
-
-- Driver list
-- Search by name, license, email or phone
-- Status filter
-- Create driver form
-- Change driver status
-- Role-based actions
-- Loading, error and empty states
-
-Supported statuses:
-
-```txt
-ACTIVE
-SUSPENDED
-INACTIVE
-```
-
-### Routes Module
-
-Features:
-
-- Route list
-- Search by name, origin or destination
-- Status filter
-- Create route form
-- Change route status
-- Role-based actions
-- Loading, error and empty states
-
-Supported statuses:
-
-```txt
-ACTIVE
-INACTIVE
-```
-
-### Trips Module
-
-Features:
-
-- Trip list
-- Search by vehicle, driver, route or notes
-- Status filter
-- Create trip form
-- Load available vehicles
-- Load active drivers
-- Load active routes
-- Change trip status
-- Display Back-End business rule errors
-- Role-based actions
-
-Supported statuses:
-
-```txt
-SCHEDULED
-IN_PROGRESS
-COMPLETED
-CANCELLED
-```
-
-Supported UI transitions:
-
-```txt
-SCHEDULED   -> IN_PROGRESS
-SCHEDULED   -> CANCELLED
-IN_PROGRESS -> COMPLETED
-IN_PROGRESS -> CANCELLED
-```
-
-### Theme Support
-
-TransitOps Control Panel includes light and dark theme support.
-
-The selected theme is persisted using `localStorage`, allowing the user preference to remain active after refreshing or reopening the application. The theme system uses a global `ThemeService`, CSS variables and Bootstrap `data-bs-theme` integration.
-
-### Settings and Language Support
-
-The Settings section is available to authenticated users from the lower area of the sidebar.
-
-Users can switch the interface language between English and Spanish. The selected language is persisted using `localStorage` through a global `LanguageService`, and supported layout, dashboard, admin, auth, shared state, table, filter and form labels update immediately after selection.
-
 ---
 
 ## Business Rules
 
-The Front-End helps users select valid data, but the API remains responsible for final validation.
-
-Main rules represented in the UI and mock API:
+The API enforces these rules:
 
 - Only authenticated users can access protected resources.
 - Only available vehicles can be assigned to trips.
@@ -247,14 +89,9 @@ Main rules represented in the UI and mock API:
 - Only active routes can be assigned to trips.
 - Viewer users can consult data only.
 - Administrative actions are restricted by role.
-- Public registration cannot request the `ADMIN` role.
-- New public registrations can request only `VIEWER`, `OPERATOR` or `SUPERVISOR`.
-- Public `VIEWER` registrations are created as `ACTIVE`.
-- Public `OPERATOR` and `SUPERVISOR` registrations are created as `PENDING_APPROVAL` with current role `VIEWER`.
-- Pending, rejected, suspended and inactive users cannot sign in.
-- Only `ADMIN` users can access users management endpoints.
-- Verification codes are simulated by the mock API for development only.
-- Trip status transitions depend on the current trip status.
+- Users that are not active cannot sign in.
+- Only administrators can manage users.
+- Resources with related trips are protected from deletion.
 
 ---
 
@@ -273,95 +110,13 @@ Main rules represented in the UI and mock API:
 | `/routes/new`    | Create route               | `ADMIN`                           |
 | `/trips`         | Trip management            | Authenticated users               |
 | `/trips/new`     | Create trip                | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
-| `/admin`         | Admin-only demo area       | `ADMIN`                           |
 | `/users`         | Users management           | `ADMIN`                           |
-| `/settings`      | User settings and language | Authenticated users               |
+| `/settings`      | Settings and language      | Authenticated users               |
 | `/access-denied` | Unauthorized access screen | Authenticated users               |
 
 ---
 
-## Project Structure
-
-```txt
-src/
-├── app/
-│   ├── core/
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   ├── models/
-│   │   └── services/
-│   ├── features/
-│   │   ├── admin/
-│   │   ├── auth/
-│   │   ├── dashboard/
-│   │   ├── vehicles/
-│   │   ├── drivers/
-│   │   ├── routes/
-│   │   ├── trips/
-│   │   ├── users/
-│   │   └── settings/
-│   ├── layout/
-│   │   ├── auth-layout/
-│   │   ├── main-layout/
-│   │   ├── navbar/
-│   │   └── sidebar/
-│   ├── shared/
-│   │   ├── components/
-│   │   └── directives/
-│   ├── app.config.ts
-│   └── app.routes.ts
-├── environments/
-└── styles.scss
-```
-
----
-
-## Core Layer
-
-The `core` layer contains application-wide logic.
-
-| File                   | Purpose                                              |
-| ---------------------- | ---------------------------------------------------- |
-| `auth.guard.ts`        | Protects private routes                              |
-| `role.guard.ts`        | Restricts routes by user role                        |
-| `auth.interceptor.ts`  | Adds the token to API requests                       |
-| `error.interceptor.ts` | Handles unauthorized and forbidden responses         |
-| `auth.service.ts`      | Handles login, registration, logout and user session |
-| `theme.service.ts`     | Handles light/dark theme persistence                 |
-| `language.service.ts`  | Handles English/Spanish language persistence         |
-| `vehicles.service.ts`  | Vehicle API operations                               |
-| `drivers.service.ts`   | Driver API operations                                |
-| `routes.service.ts`    | Route API operations                                 |
-| `trips.service.ts`     | Trip API operations                                  |
-| `users.service.ts`     | Admin user management API operations                 |
-
-The application uses TypeScript interfaces and union types to define API contracts and valid status values.
-
-Example:
-
-```ts
-export type TripStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-```
-
----
-
-## Shared Layer
-
-Reusable UI elements live in the `shared` layer.
-
-| Component/Directive       | Purpose                               |
-| ------------------------- | ------------------------------------- |
-| `PageHeaderComponent`     | Standard page title and action button |
-| `StatusBadgeComponent`    | Visual status labels                  |
-| `LoadingSpinnerComponent` | Loading state                         |
-| `EmptyStateComponent`     | Empty data state                      |
-| `HasRoleDirective`        | Shows or hides elements by role       |
-
----
-
-## API Integration
-
-The application expects an API at:
+## API Base URL
 
 ```txt
 http://localhost:4000/api
@@ -371,74 +126,34 @@ Configured in:
 
 ```txt
 src/environments/environment.development.ts
+src/environments/environment.ts
 ```
-
-Expected success response:
-
-```json
-{
-  "success": true,
-  "message": "Trips retrieved successfully",
-  "data": []
-}
-```
-
-Expected error response:
-
-```json
-{
-  "success": false,
-  "message": "Vehicle must be AVAILABLE to schedule a trip."
-}
-```
-
----
-
-## Local Mock API
-
-This repository includes a small Express mock API in the `server/` folder. It allows the Front-End to run independently for local testing and portfolio demonstrations.
-
-Start the mock API:
-
-```bash
-npm run api
-```
-
-Development mode with watch:
-
-```bash
-npm run api:dev
-```
-
-Health check:
-
-```txt
-GET http://localhost:4000/api/health
-```
-
-The mock API includes sample data, authentication, public registration, authorization checks, users approval workflow, entity CRUD operations and trip business rules.
-
-Registration verification is simulated for local development and portfolio testing only:
-
-```txt
-Email code: 123456
-Phone code: 654321
-```
-
-The mock API rejects duplicate email addresses, duplicate phone numbers, invalid verification codes, invalid requested roles and any public request for `ADMIN`. Elevated public registrations are stored as pending requests until an admin approves or rejects them.
 
 ---
 
 ## Main API Endpoints
 
+### Dashboard
+
+```txt
+GET /api/dashboard/summary
+```
+
 ### Auth
 
 ```txt
 POST /api/auth/login
-POST /api/auth/request-email-code
-POST /api/auth/request-phone-code
-POST /api/auth/register
 GET  /api/auth/profile
+```
+
+### Users
+
+```txt
+GET   /api/users
+GET   /api/users/:id
+PATCH /api/users/:id/approve
+PATCH /api/users/:id/reject
+PATCH /api/users/:id/status
 ```
 
 ### Vehicles
@@ -484,50 +199,55 @@ PATCH  /api/trips/:id/status
 DELETE /api/trips/:id
 ```
 
-### Users
-
-```txt
-GET   /api/users
-GET   /api/users/:id
-PATCH /api/users/:id/approve
-PATCH /api/users/:id/reject
-PATCH /api/users/:id/status
-```
-
----
-
-## Demo Users
-
-| Role         | Email                       | Password        |
-| ------------ | --------------------------- | --------------- |
-| `ADMIN`      | `admin@transitops.com`      | `admin123`      |
-| `OPERATOR`   | `operator@transitops.com`   | `operator123`   |
-| `SUPERVISOR` | `supervisor@transitops.com` | `supervisor123` |
-| `VIEWER`     | `viewer@transitops.com`     | `viewer123`     |
-
 ---
 
 ## Installation
 
-Install dependencies:
+Install root dependencies:
 
 ```bash
 npm install
 ```
 
-Run the mock API in one terminal:
+Install Back-End dependencies:
 
 ```bash
-npm run api
+cd server
+npm install
+cd ..
 ```
 
-Run the Angular application in another terminal:
+Start PostgreSQL:
+
+```bash
+docker start transitops_postgres
+```
+
+If the database container does not exist yet:
+
+```bash
+docker compose -f server/docker-compose.yml up -d
+```
+
+Seed the database:
+
+```bash
+npm run api:real:seed
+```
+
+Start the real API:
+
+```bash
+npm run api:real
+```
+
+Start Angular:
 
 ```bash
 npm start
 ```
 
-Open the application:
+Open:
 
 ```txt
 http://localhost:4200
@@ -537,74 +257,34 @@ http://localhost:4200
 
 ## Available Scripts
 
-| Command            | Description                            |
-| ------------------ | -------------------------------------- |
-| `npm start`        | Starts Angular on port 4200            |
-| `npm run api`      | Starts the local mock API on port 4000 |
-| `npm run api:dev`  | Starts the mock API with watch mode    |
-| `npm run build`    | Builds the Angular application         |
-| `npm test`         | Runs Angular tests                     |
-| `npm run test:api` | Runs mock API tests                    |
+| Command                  | Description                            |
+| ------------------------ | -------------------------------------- |
+| `npm start`              | Starts Angular on port 4200            |
+| `npm run build`          | Builds the Angular application         |
+| `npm test`               | Runs Angular tests                     |
+| `npm run api`            | Starts the local mock API on port 4000 |
+| `npm run api:dev`        | Starts the mock API with watch mode    |
+| `npm run test:api`       | Runs mock API tests                    |
+| `npm run api:real`       | Starts the real Express API            |
+| `npm run api:real:seed`  | Seeds the PostgreSQL database          |
+| `npm run api:real:test`  | Runs real Back-End tests               |
+| `npm run api:real:build` | Builds the real Back-End API           |
 
 ---
 
-## Recommended Screenshots
+## Real API Smoke Test
 
-Use the `docs/screenshots/` folder for portfolio images.
-
-Suggested screenshots:
+A complete local validation guide is available at:
 
 ```txt
-docs/screenshots/login.png
-docs/screenshots/dashboard.png
-docs/screenshots/vehicles.png
-docs/screenshots/drivers.png
-docs/screenshots/routes.png
-docs/screenshots/trips.png
-docs/screenshots/trip-form.png
-docs/screenshots/users.png
-docs/screenshots/access-denied.png
-docs/screenshots/dark-theme.png
-docs/screenshots/mobile-sidebar.png
+docs/real-api-smoke-test.md
 ```
-
----
-
-## Architecture Highlights
-
-This project demonstrates:
-
-- Feature-based Angular organization
-- Standalone Angular components
-- Typed API models
-- Reusable UI components
-- Guards for authentication and authorization
-- HTTP interceptors for token handling and global errors
-- Structural directive for role-based rendering
-- Reactive forms with validation
-- Local table filtering
-- Status transitions from administrative tables
-- Admin approval workflow for public registration requests
-- Responsive layout with mobile sidebar
-- Light/dark theme system with CSS variables
-- Expanded English/Spanish UI language preference with local persistence
-- Local mock API for independent testing
 
 ---
 
 ## Interview Explanation
 
-A concise explanation for interviews:
-
-> TransitOps Control Panel is an Angular administrative dashboard for transportation operations. It consumes a REST API to manage users, vehicles, drivers, routes and trips. I implemented authentication, public registration with admin approval, protected routes, role-based UI actions, reusable components, reactive forms, typed HTTP services, table filters, status transitions, light/dark theme support and a responsive layout.
-
-A more technical explanation:
-
-> The application uses Angular standalone components, Angular Router, HttpClient and RxJS. Domain communication is separated into services such as VehiclesService, DriversService, RoutesService and TripsService. Authentication is handled through AuthService, with a local token automatically attached to requests through an HTTP interceptor. I also implemented guards for authentication and role validation, a reusable structural directive to hide UI elements based on the current user role, a ThemeService to manage light/dark UI preferences and a LanguageService for expanded English/Spanish UI preferences with local persistence.
-
-Business-focused explanation:
-
-> The system helps transportation administrators monitor operational resources, manage vehicle and driver availability, configure routes and schedule trips. The UI prevents invalid selections where possible, while the API enforces the final business rules, such as preventing trips with unavailable vehicles, suspended drivers or inactive routes.
+> TransitOps Control Panel is a Full-Stack administrative platform for transportation operations. It uses Angular for the control panel, Express for the API, Prisma for database access and PostgreSQL for persistence. The system manages users, vehicles, drivers, routes and trips with role-based access and operational business rules.
 
 ---
 
@@ -612,33 +292,23 @@ Business-focused explanation:
 
 Implemented:
 
-- Authentication UI
-- Registration UI with simulated email and phone verification
-- Protected admin layout
-- Responsive sidebar and navbar
-- Dashboard with calculated metrics
-- Vehicle list, creation and status updates
-- Driver list, creation and status updates
-- Route list, creation and status updates
-- Trip list, creation and status updates
-- Trip creation with related catalogs
-- Admin users management and approval workflow
-- Role-based buttons and access control
-- Search and status filters
-- Loading, error and empty states
-- Light and dark theme support
-- Settings section with English/Spanish language selector
-- Expanded English/Spanish coverage for visible static UI text
-- Local mock API with tests
+- Angular control panel
+- Real Express Back-End API
+- PostgreSQL database with Prisma ORM
+- Real dashboard summary endpoint
+- Real API endpoints for users, vehicles, drivers, routes and trips
+- Users management workflow
+- Trip scheduling business rules
+- Back-End route tests
+- Local mock API fallback
+- Full local smoke test guide
 
 Possible future improvements:
 
 - Edit forms
 - Detail pages
 - Server-side pagination
-- Server-side search and filters
 - Toast notifications
-- More unit tests
 - E2E tests
 - Dashboard charts
 - Deployment configuration
@@ -650,5 +320,5 @@ Possible future improvements:
 Carlos.
 
 Project: TransitOps Platform  
-Layer: Front-End Control Panel  
-Focus: Angular administrative system, REST API integration and role-based operations
+Layer: Full-Stack Control Panel  
+Focus: Angular administrative system, REST API integration, PostgreSQL persistence and role-based operations
