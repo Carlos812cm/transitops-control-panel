@@ -1,16 +1,17 @@
 <header class="navbar-panel">
-  <button
-    type="button"
-    class="mobile-sidebar-toggle"
-    [attr.aria-label]="t('navbar.openSidebar')"
-    [class.hidden]="isSidebarOpen"
-    (click)="openMenu()"
-  >
-    <span aria-hidden="true">&#9776;</span>
-  </button>
+  <div class="navbar-main">
+    <button
+      type="button"
+      class="mobile-sidebar-toggle"
+      [attr.aria-label]="t('navbar.openSidebar')"
+      [class.hidden]="isSidebarOpen"
+      (click)="openMenu()"
+    >
+      <span aria-hidden="true">&#9776;</span>
+    </button>
 
-  <div class="navbar-left">
-    <div>
+    <div class="navbar-title-block">
+      <span class="navbar-eyebrow">TransitOps Platform</span>
       <h2>{{ t('navbar.title') }}</h2>
       <p>{{ t('navbar.subtitle') }}</p>
     </div>
@@ -18,10 +19,16 @@
 
   @if (currentUser(); as user) {
     <div class="navbar-user">
-      <span class="user-role">{{ user.role }}</span>
-      <span class="user-name">{{ user.name }}</span>
+      <div class="user-avatar" aria-hidden="true">
+        {{ user.name.charAt(0).toUpperCase() }}
+      </div>
 
-      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="logout()">
+      <div class="user-copy">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-role">{{ user.role }}</span>
+      </div>
+
+      <button type="button" class="btn btn-sm btn-outline-secondary logout-button" (click)="logout()">
         {{ t('navbar.logout') }}
       </button>
     </div>
