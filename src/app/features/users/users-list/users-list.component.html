@@ -8,24 +8,40 @@
 
 @if (vm$ | async; as vm) {
   <section class="users-summary" [attr.aria-label]="t('users.summary.title')">
-    <div class="users-summary-card">
-      <span>{{ t('users.summary.total') }}</span>
-      <strong>{{ vm.totalCount }}</strong>
+    <div class="users-summary-card users-summary-card-primary">
+      <span class="users-summary-icon" aria-hidden="true">Σ</span>
+
+      <div>
+        <span>{{ t('users.summary.total') }}</span>
+        <strong>{{ vm.totalCount }}</strong>
+      </div>
     </div>
 
     <div class="users-summary-card">
-      <span>{{ t('users.summary.active') }}</span>
-      <strong>{{ vm.activeCount }}</strong>
+      <span class="users-summary-icon" aria-hidden="true">✓</span>
+
+      <div>
+        <span>{{ t('users.summary.active') }}</span>
+        <strong>{{ vm.activeCount }}</strong>
+      </div>
     </div>
 
     <div class="users-summary-card">
-      <span>{{ t('users.summary.pending') }}</span>
-      <strong>{{ vm.pendingCount }}</strong>
+      <span class="users-summary-icon" aria-hidden="true">◌</span>
+
+      <div>
+        <span>{{ t('users.summary.pending') }}</span>
+        <strong>{{ vm.pendingCount }}</strong>
+      </div>
     </div>
 
     <div class="users-summary-card">
-      <span>{{ t('users.summary.restricted') }}</span>
-      <strong>{{ vm.restrictedCount }}</strong>
+      <span class="users-summary-icon" aria-hidden="true">!</span>
+
+      <div>
+        <span>{{ t('users.summary.restricted') }}</span>
+        <strong>{{ vm.restrictedCount }}</strong>
+      </div>
     </div>
   </section>
 
@@ -98,10 +114,10 @@
     @if (!vm.hasRecords) {
       <app-empty-state [title]="t('users.empty.title')" [message]="t('users.empty.message')" />
     } @else {
-      <div class="card border-0 shadow-sm">
+      <div class="card border-0 shadow-sm resource-table-card">
         <div class="card-body">
-          <div class="table-responsive">
-            <table class="table align-middle mb-0">
+          <div class="resource-table-shell">
+            <table class="table align-middle resource-table users-resource-table">
               <thead>
                 <tr>
                   <th>{{ t('common.name') }}</th>
@@ -118,28 +134,56 @@
               <tbody>
                 @for (user of vm.filteredUsers; track user.id) {
                   <tr>
-                    <td class="fw-semibold">{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.phone || t('users.table.noPhone') }}</td>
-                    <td>{{ roleLabel(user.role) }}</td>
-                    <td>{{ roleLabel(user.requestedRole) }}</td>
+                    <td>
+                      <span class="resource-primary-cell">
+                        {{ user.name }}
+                        <small>{{ user.email }}</small>
+                      </span>
+                    </td>
+
+                    <td>
+                      <span class="resource-muted-cell">{{ user.email }}</span>
+                    </td>
+
+                    <td>
+                      <span class="resource-muted-cell">
+                        {{ user.phone || t('users.table.noPhone') }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span class="resource-metric-cell">
+                        {{ roleLabel(user.role) }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span class="resource-metric-cell">
+                        {{ roleLabel(user.requestedRole) }}
+                      </span>
+                    </td>
+
                     <td>
                       <app-status-badge [status]="user.status" />
                     </td>
+
                     <td>
-                      @if (user.createdAt) {
-                        {{ user.createdAt | date: 'mediumDate' }}
-                      } @else {
-                        {{ t('users.table.noDate') }}
-                      }
+                      <span class="resource-muted-cell">
+                        @if (user.createdAt) {
+                          {{ user.createdAt | date: 'mediumDate' }}
+                        } @else {
+                          {{ t('users.table.noDate') }}
+                        }
+                      </span>
                     </td>
+
                     <td class="text-end">
                       @if (hasActions(user)) {
-                        <div class="btn-group btn-group-sm">
+                        <div class="resource-actions">
                           @if (canApprove(user)) {
                             <button
                               type="button"
-                              class="btn btn-outline-success"
+                              class="btn btn-outline-success btn-sm"
                               [disabled]="isUpdating(user)"
                               (click)="approveUser(user)"
                             >
@@ -152,7 +196,7 @@
                           @if (canReject(user)) {
                             <button
                               type="button"
-                              class="btn btn-outline-danger"
+                              class="btn btn-outline-danger btn-sm"
                               [disabled]="isUpdating(user)"
                               (click)="rejectUser(user)"
                             >
@@ -165,7 +209,7 @@
                           @if (canSuspend(user)) {
                             <button
                               type="button"
-                              class="btn btn-outline-warning"
+                              class="btn btn-outline-warning btn-sm"
                               [disabled]="isUpdating(user)"
                               (click)="suspendUser(user)"
                             >
@@ -178,7 +222,7 @@
                           @if (canReactivate(user)) {
                             <button
                               type="button"
-                              class="btn btn-outline-success"
+                              class="btn btn-outline-success btn-sm"
                               [disabled]="isUpdating(user)"
                               (click)="reactivateUser(user)"
                             >
@@ -193,7 +237,7 @@
                           @if (canDeactivate(user)) {
                             <button
                               type="button"
-                              class="btn btn-outline-secondary"
+                              class="btn btn-outline-secondary btn-sm"
                               [disabled]="isUpdating(user)"
                               (click)="deactivateUser(user)"
                             >
@@ -206,7 +250,7 @@
                           }
                         </div>
                       } @else {
-                        <span class="text-muted small">{{ t('common.noActions') }}</span>
+                        <span class="resource-readonly">{{ t('common.noActions') }}</span>
                       }
                     </td>
                   </tr>

@@ -15,7 +15,7 @@
 @if (vm$ | async; as vm) {
   <div class="filters-card" [formGroup]="filtersForm">
     <div class="row g-3 align-items-end">
-      <div class="col-md-6">
+      <div class="col-lg-6">
         <label class="form-label" for="routesSearch">{{ t('routes.search.label') }}</label>
         <input
           id="routesSearch"
@@ -28,7 +28,7 @@
         />
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-6 col-lg-4">
         <label class="form-label" for="routesStatusFilter">{{ t('common.status') }}</label>
         <select
           id="routesStatusFilter"
@@ -42,7 +42,7 @@
         </select>
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-6 col-lg-2">
         <button
           type="button"
           class="btn btn-outline-secondary w-100"
@@ -75,10 +75,10 @@
       [actionRoles]="['ADMIN']"
     />
   } @else {
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm resource-table-card">
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
+        <div class="resource-table-shell">
+          <table class="table align-middle resource-table">
             <thead>
               <tr>
                 <th>{{ t('common.name') }}</th>
@@ -94,22 +94,44 @@
             <tbody>
               @for (route of vm.filteredRoutes; track route.id) {
                 <tr>
-                  <td class="fw-semibold">{{ route.name }}</td>
-                  <td>{{ route.origin }}</td>
-                  <td>{{ route.destination }}</td>
-                  <td>{{ route.distanceKm }} km</td>
-                  <td>{{ route.estimatedDurationMinutes }} min</td>
+                  <td>
+                    <span class="resource-primary-cell">
+                      {{ route.name }}
+                      <small>{{ route.origin }} → {{ route.destination }}</small>
+                    </span>
+                  </td>
+
+                  <td>
+                    <span class="resource-muted-cell">{{ route.origin }}</span>
+                  </td>
+
+                  <td>
+                    <span class="resource-muted-cell">{{ route.destination }}</span>
+                  </td>
+
+                  <td>
+                    <span class="resource-metric-cell">
+                      {{ route.distanceKm }} km
+                    </span>
+                  </td>
+
+                  <td>
+                    <span class="resource-metric-cell">
+                      {{ route.estimatedDurationMinutes }} min
+                    </span>
+                  </td>
+
                   <td>
                     <app-status-badge [status]="route.status" />
                   </td>
 
                   <td class="text-end">
                     <ng-container *appHasRole="['ADMIN']">
-                      <div class="btn-group btn-group-sm">
+                      <div class="resource-actions">
                         @if (route.status !== 'ACTIVE') {
                           <button
                             type="button"
-                            class="btn btn-outline-success"
+                            class="btn btn-outline-success btn-sm"
                             [disabled]="isUpdating(route)"
                             (click)="updateRouteStatus(route, 'ACTIVE')"
                           >
@@ -124,7 +146,7 @@
                         @if (route.status !== 'INACTIVE') {
                           <button
                             type="button"
-                            class="btn btn-outline-danger"
+                            class="btn btn-outline-danger btn-sm"
                             [disabled]="isUpdating(route)"
                             (click)="updateRouteStatus(route, 'INACTIVE')"
                           >
@@ -139,7 +161,7 @@
                     </ng-container>
 
                     <ng-container *appHasRole="['OPERATOR', 'SUPERVISOR', 'VIEWER']">
-                      <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
+                      <span class="resource-readonly"> {{ t('common.viewOnly') }} </span>
                     </ng-container>
                   </td>
                 </tr>
