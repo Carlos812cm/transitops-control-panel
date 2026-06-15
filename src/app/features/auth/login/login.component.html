@@ -1,81 +1,128 @@
-<div class="card border-0 shadow-sm login-card">
-  <div class="card-body p-4">
-    <div class="mb-4">
-      <span class="login-brand">TransitOps</span>
-      <h1 class="h4 fw-bold mb-1">{{ t('auth.login.welcome') }}</h1>
-      <p class="text-muted mb-0">{{ t('auth.login.subtitle') }}</p>
+<div class="login-shell">
+  <section class="login-hero" aria-label="TransitOps Platform">
+    <div class="login-brand-lockup">
+      <span class="login-brand-mark" aria-hidden="true">T</span>
+
+      <div>
+        <span class="login-brand-name">TransitOps</span>
+        <strong>Control Panel</strong>
+      </div>
     </div>
 
-    @if (errorMessage) {
-      <div class="alert alert-danger" role="alert">
-        {{ errorMessage }}
-      </div>
-    }
-
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="mb-3">
-        <label for="email" class="form-label">{{ t('auth.login.email') }}</label>
-
-        <input
-          id="email"
-          type="email"
-          class="form-control"
-          formControlName="email"
-          placeholder="admin@transitops.com"
-          [class.is-invalid]="email.invalid && email.touched"
-        />
-
-        @if (email.hasError('required') && email.touched) {
-          <div class="invalid-feedback">{{ t('auth.validation.emailRequired') }}</div>
-        }
-
-        @if (email.hasError('email') && email.touched) {
-          <div class="invalid-feedback">{{ t('auth.validation.emailValid') }}</div>
-        }
-      </div>
-
-      <div class="mb-3">
-        <label for="password" class="form-label">{{ t('auth.login.password') }}</label>
-
-        <input
-          id="password"
-          type="password"
-          class="form-control"
-          formControlName="password"
-          placeholder="••••••••"
-          [class.is-invalid]="password.invalid && password.touched"
-        />
-
-        @if (password.hasError('required') && password.touched) {
-          <div class="invalid-feedback">{{ t('auth.validation.passwordRequired') }}</div>
-        }
-      </div>
-
-      <button
-        type="submit"
-        class="btn btn-primary w-100"
-        [disabled]="loginForm.invalid || isLoading"
-      >
-        @if (isLoading) {
-          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-          {{ t('auth.login.signingIn') }}
-        } @else {
-          {{ t('auth.login.signIn') }}
-        }
-      </button>
-    </form>
-
-    <div class="login-register mt-3 text-center">
-      <span class="text-muted">{{ t('auth.login.noAccount') }}</span>
-      <a routerLink="/register" class="fw-semibold ms-1">{{ t('auth.login.createAccount') }}</a>
+    <div class="login-hero-copy">
+      <span class="login-kicker">Operations command center</span>
+      <h1>{{ t('auth.login.welcome') }}</h1>
+      <p>{{ t('auth.login.subtitle') }}</p>
     </div>
 
-    <div class="login-help mt-4">
-      <p class="mb-1 fw-semibold">{{ t('auth.login.demoUsers') }}</p>
-      <p class="mb-0 text-muted">admin@transitops.com</p>
-      <p class="mb-0 text-muted">operator@transitops.com</p>
-      <p class="mb-0 text-muted">supervisor@transitops.com</p>
-      <p class="mb-0 text-muted">viewer@transitops.com</p>
+    <div class="login-feature-grid" aria-label="Platform highlights">
+      <div class="login-feature-card">
+        <span>Fleet</span>
+        <strong>Vehicles</strong>
+      </div>
+
+      <div class="login-feature-card">
+        <span>Teams</span>
+        <strong>Drivers</strong>
+      </div>
+
+      <div class="login-feature-card">
+        <span>Ops</span>
+        <strong>Trips</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="card border-0 shadow-sm login-card">
+    <div class="card-body">
+      <div class="login-card-header">
+        <span class="login-brand">TransitOps</span>
+
+        <div>
+          <h2>{{ t('auth.login.signIn') }}</h2>
+          <p>{{ t('auth.login.subtitle') }}</p>
+        </div>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="login-field">
+          <label for="email" class="form-label">{{ t('auth.login.email') }}</label>
+
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            placeholder="admin@transitops.com"
+            autocomplete="email"
+            [class.is-invalid]="email.invalid && email.touched"
+          />
+
+          @if (email.hasError('required') && email.touched) {
+            <div class="invalid-feedback">{{ t('auth.validation.emailRequired') }}</div>
+          }
+
+          @if (email.hasError('email') && email.touched) {
+            <div class="invalid-feedback">{{ t('auth.validation.emailValid') }}</div>
+          }
+        </div>
+
+        <div class="login-field">
+          <label for="password" class="form-label">{{ t('auth.login.password') }}</label>
+
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            [class.is-invalid]="password.invalid && password.touched"
+          />
+
+          @if (password.hasError('required') && password.touched) {
+            <div class="invalid-feedback">{{ t('auth.validation.passwordRequired') }}</div>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 login-submit"
+          [disabled]="loginForm.invalid || isLoading"
+        >
+          @if (isLoading) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            {{ t('auth.login.signingIn') }}
+          } @else {
+            {{ t('auth.login.signIn') }}
+          }
+        </button>
+      </form>
+
+      <div class="login-register">
+        <span>{{ t('auth.login.noAccount') }}</span>
+        <a routerLink="/register">{{ t('auth.login.createAccount') }}</a>
+      </div>
+
+      <div class="login-help">
+        <div class="login-help-header">
+          <p>{{ t('auth.login.demoUsers') }}</p>
+          <span>Demo</span>
+        </div>
+
+        <div class="login-demo-list">
+          <span>admin@transitops.com</span>
+          <span>operator@transitops.com</span>
+          <span>supervisor@transitops.com</span>
+          <span>viewer@transitops.com</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
