@@ -20,6 +20,27 @@ El proyecto puede explicarse en entrevistas desde tres perspectivas:
 
 ---
 
+## Revisión de portafolio
+
+Usa estos documentos para validar y presentar el proyecto:
+
+| Documento | Propósito |
+| --- | --- |
+| [`docs/final-qa-and-demo-checklist.md`](docs/final-qa-and-demo-checklist.md) | QA final, revisión responsive, revisión de tema y flujo de demo para entrevista |
+| [`docs/real-api-smoke-test.md`](docs/real-api-smoke-test.md) | Validación local completa de PostgreSQL, API y Angular |
+| [`README.md`](README.md) | Versión en inglés para revisión técnica y portafolio internacional |
+
+Flujo recomendado de portafolio:
+
+```txt
+1. Leer el propósito del proyecto y el stack tecnológico.
+2. Ejecutar el Real API Smoke Test.
+3. Completar el Final QA and Demo Checklist.
+4. Usar el flujo de demo durante entrevistas.
+```
+
+---
+
 ## Stack tecnológico
 
 | Tecnología | Propósito |
@@ -162,6 +183,25 @@ Validación recomendada antes de una demo:
 
 ---
 
+## Checklist final de QA y demo
+
+Antes de usar el proyecto en portafolio, revisión con reclutadores o entrevista técnica, valida la experiencia completa con:
+
+`docs/final-qa-and-demo-checklist.md`
+
+Esta guía cubre:
+
+- Configuración del entorno local.
+- Comandos de quality gate.
+- Rutas para smoke test visual.
+- Validación funcional por módulo.
+- Revisión responsive.
+- Revisión de tema claro y oscuro.
+- Flujo recomendado de demo en vivo.
+- Explicación breve para entrevista.
+
+---
+
 ## Flujo de demo
 
 Orden sugerido para presentar el proyecto:
@@ -194,6 +234,7 @@ Antes de presentar:
 - El Dashboard carga datos reales.
 - Vehicles, Drivers, Routes y Trips cargan registros.
 - Trips muestra relaciones entre vehículo, conductor y ruta.
+- El Final QA and Demo Checklist fue completado.
 - README y smoke test están actualizados.
 
 ---
@@ -228,6 +269,7 @@ Implementado:
 - Reglas de negocio para viajes.
 - Mock API como respaldo.
 - Guía de smoke test.
+- Checklist final de QA y demo.
 - Flujo de demo y checklist para entrevista.
 
 Mejoras futuras posibles:
