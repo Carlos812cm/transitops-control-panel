@@ -1,156 +1,215 @@
 <app-page-header [title]="t('vehicles.form.title')" [subtitle]="t('vehicles.form.subtitle')" />
 
-<div class="card border-0 shadow-sm vehicle-form-card">
-  <div class="card-body p-4">
+<div class="card border-0 shadow-sm resource-form-card vehicle-form-card">
+  <div class="card-body">
     @if (errorMessage) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger form-error-banner" role="alert">
         {{ errorMessage }}
       </div>
     }
 
-    <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label for="unitNumber" class="form-label">{{ t('vehicles.form.unitNumber') }}</label>
+    <form class="resource-form" [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">01</span>
 
-          <input
-            id="unitNumber"
-            type="text"
-            class="form-control"
-            formControlName="unitNumber"
-            placeholder="BUS-100"
-            [class.is-invalid]="unitNumber.invalid && unitNumber.touched"
-          />
-
-          @if (unitNumber.hasError('required') && unitNumber.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberRequired') }}</div>
-          }
-
-          @if (unitNumber.hasError('minlength') && unitNumber.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberMin') }}</div>
-          }
-
-          @if (unitNumber.hasError('maxlength') && unitNumber.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberMax') }}</div>
-          }
+          <div>
+            <h2 class="form-panel-title">{{ t('vehicles.form.unitNumber') }}</h2>
+            <p class="form-panel-subtitle">
+              {{ t('vehicles.form.brand') }} · {{ t('vehicles.form.model') }}
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label for="brand" class="form-label">{{ t('vehicles.form.brand') }}</label>
+        <div class="row g-3">
+          <div class="col-md-6 field-group">
+            <label for="unitNumber" class="form-label">{{ t('vehicles.form.unitNumber') }}</label>
 
-          <input
-            id="brand"
-            type="text"
-            class="form-control"
-            formControlName="brand"
-            placeholder="Mercedes-Benz"
-            [class.is-invalid]="brand.invalid && brand.touched"
-          />
+            <input
+              id="unitNumber"
+              type="text"
+              class="form-control"
+              formControlName="unitNumber"
+              placeholder="BUS-100"
+              [class.is-invalid]="unitNumber.invalid && unitNumber.touched"
+            />
 
-          @if (brand.hasError('required') && brand.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.brandRequired') }}</div>
-          }
+            <small class="field-hint">Ejemplo: BUS-100, VAN-021, UNIT-300.</small>
 
-          @if (brand.hasError('maxlength') && brand.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.brandMax') }}</div>
-          }
+            @if (unitNumber.hasError('required') && unitNumber.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberRequired') }}</div>
+            }
+
+            @if (unitNumber.hasError('minlength') && unitNumber.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberMin') }}</div>
+            }
+
+            @if (unitNumber.hasError('maxlength') && unitNumber.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.unitNumberMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-6 field-group">
+            <label for="brand" class="form-label">{{ t('vehicles.form.brand') }}</label>
+
+            <input
+              id="brand"
+              type="text"
+              class="form-control"
+              formControlName="brand"
+              placeholder="Mercedes-Benz"
+              [class.is-invalid]="brand.invalid && brand.touched"
+            />
+
+            <small class="field-hint">Marca comercial del vehículo.</small>
+
+            @if (brand.hasError('required') && brand.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.brandRequired') }}</div>
+            }
+
+            @if (brand.hasError('maxlength') && brand.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.brandMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-6 field-group">
+            <label for="model" class="form-label">{{ t('vehicles.form.model') }}</label>
+
+            <input
+              id="model"
+              type="text"
+              class="form-control"
+              formControlName="model"
+              placeholder="Sprinter"
+              [class.is-invalid]="model.invalid && model.touched"
+            />
+
+            <small class="field-hint">Modelo o línea operativa de la unidad.</small>
+
+            @if (model.hasError('required') && model.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.modelRequired') }}</div>
+            }
+
+            @if (model.hasError('maxlength') && model.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.modelMax') }}</div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">02</span>
+
+          <div>
+            <h2 class="form-panel-title">{{ t('vehicles.form.capacity') }}</h2>
+            <p class="form-panel-subtitle">
+              {{ t('vehicles.form.year') }} · {{ t('vehicles.form.capacity') }}
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label for="model" class="form-label">{{ t('vehicles.form.model') }}</label>
+        <div class="row g-3">
+          <div class="col-md-4 field-group">
+            <label for="year" class="form-label">{{ t('vehicles.form.year') }}</label>
 
-          <input
-            id="model"
-            type="text"
-            class="form-control"
-            formControlName="model"
-            placeholder="Sprinter"
-            [class.is-invalid]="model.invalid && model.touched"
-          />
+            <input
+              id="year"
+              type="number"
+              class="form-control"
+              formControlName="year"
+              [class.is-invalid]="year.invalid && year.touched"
+            />
 
-          @if (model.hasError('required') && model.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.modelRequired') }}</div>
-          }
+            <small class="field-hint">Año de fabricación de la unidad.</small>
 
-          @if (model.hasError('maxlength') && model.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.modelMax') }}</div>
-          }
+            @if (year.hasError('required') && year.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.yearRequired') }}</div>
+            }
+
+            @if ((year.hasError('min') || year.hasError('max')) && year.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.yearValid') }}</div>
+            }
+          </div>
+
+          <div class="col-md-4 field-group">
+            <label for="capacity" class="form-label">{{ t('vehicles.form.capacity') }}</label>
+
+            <input
+              id="capacity"
+              type="number"
+              class="form-control"
+              formControlName="capacity"
+              [class.is-invalid]="capacity.invalid && capacity.touched"
+            />
+
+            <small class="field-hint">Número máximo de pasajeros o espacios disponibles.</small>
+
+            @if (capacity.hasError('required') && capacity.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.capacityRequired') }}</div>
+            }
+
+            @if ((capacity.hasError('min') || capacity.hasError('max')) && capacity.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.capacityRange') }}</div>
+            }
+          </div>
+
+          <div class="col-md-4 field-group">
+            <label for="lastMaintenanceDate" class="form-label">
+              {{ t('vehicles.form.lastMaintenanceDate') }}
+            </label>
+
+            <input
+              id="lastMaintenanceDate"
+              type="date"
+              class="form-control"
+              formControlName="lastMaintenanceDate"
+            />
+
+            <small class="field-hint">Opcional. Útil para control operativo.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">03</span>
+
+          <div>
+            <h2 class="form-panel-title">{{ t('common.status') }}</h2>
+            <p class="form-panel-subtitle">
+              Define si la unidad puede participar en viajes.
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-3">
-          <label for="year" class="form-label">{{ t('vehicles.form.year') }}</label>
+        <div class="row g-3">
+          <div class="col-md-6 field-group">
+            <label for="status" class="form-label">{{ t('common.status') }}</label>
 
-          <input
-            id="year"
-            type="number"
-            class="form-control"
-            formControlName="year"
-            [class.is-invalid]="year.invalid && year.touched"
-          />
+            <select
+              id="status"
+              class="form-select"
+              formControlName="status"
+              [class.is-invalid]="status.invalid && status.touched"
+            >
+              <option value="AVAILABLE">{{ t('status.available') }}</option>
+              <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
+              <option value="INACTIVE">{{ t('status.inactive') }}</option>
+            </select>
 
-          @if (year.hasError('required') && year.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.yearRequired') }}</div>
-          }
+            <small class="field-hint">
+              Solo las unidades disponibles deben usarse para nuevos viajes.
+            </small>
 
-          @if ((year.hasError('min') || year.hasError('max')) && year.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.yearValid') }}</div>
-          }
+            @if (status.hasError('required') && status.touched) {
+              <div class="invalid-feedback">{{ t('vehicles.validation.statusRequired') }}</div>
+            }
+          </div>
         </div>
+      </section>
 
-        <div class="col-md-3">
-          <label for="capacity" class="form-label">{{ t('vehicles.form.capacity') }}</label>
-
-          <input
-            id="capacity"
-            type="number"
-            class="form-control"
-            formControlName="capacity"
-            [class.is-invalid]="capacity.invalid && capacity.touched"
-          />
-
-          @if (capacity.hasError('required') && capacity.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.capacityRequired') }}</div>
-          }
-
-          @if ((capacity.hasError('min') || capacity.hasError('max')) && capacity.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.capacityRange') }}</div>
-          }
-        </div>
-
-        <div class="col-md-6">
-          <label for="status" class="form-label">{{ t('common.status') }}</label>
-
-          <select
-            id="status"
-            class="form-select"
-            formControlName="status"
-            [class.is-invalid]="status.invalid && status.touched"
-          >
-            <option value="AVAILABLE">{{ t('status.available') }}</option>
-            <option value="MAINTENANCE">{{ t('status.maintenance') }}</option>
-            <option value="INACTIVE">{{ t('status.inactive') }}</option>
-          </select>
-
-          @if (status.hasError('required') && status.touched) {
-            <div class="invalid-feedback">{{ t('vehicles.validation.statusRequired') }}</div>
-          }
-        </div>
-
-        <div class="col-md-6">
-          <label for="lastMaintenanceDate" class="form-label">
-            {{ t('vehicles.form.lastMaintenanceDate') }}
-          </label>
-
-          <input
-            id="lastMaintenanceDate"
-            type="date"
-            class="form-control"
-            formControlName="lastMaintenanceDate"
-          />
-        </div>
-      </div>
-
-      <div class="form-actions">
+      <div class="form-footer">
         <a routerLink="/vehicles" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
         <button

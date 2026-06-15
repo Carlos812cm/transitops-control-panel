@@ -14,139 +14,202 @@
     [message]="t('trips.form.notEnough.message')"
   />
 
-  <div class="resource-summary mt-3">
-    <div class="resource-item">
+  <div class="resource-readiness-grid">
+    <div class="resource-readiness-card">
       <span>{{ t('trips.form.availableVehicles') }}</span>
       <strong>{{ availableVehicles.length }}</strong>
     </div>
 
-    <div class="resource-item">
+    <div class="resource-readiness-card">
       <span>{{ t('trips.form.activeDrivers') }}</span>
       <strong>{{ activeDrivers.length }}</strong>
     </div>
 
-    <div class="resource-item">
+    <div class="resource-readiness-card">
       <span>{{ t('trips.form.activeRoutes') }}</span>
       <strong>{{ activeRoutes.length }}</strong>
     </div>
   </div>
 } @else {
-  <div class="card border-0 shadow-sm trip-form-card">
-    <div class="card-body p-4">
-      <form [formGroup]="tripForm" (ngSubmit)="onSubmit()">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="vehicleId" class="form-label">{{ t('common.vehicle') }}</label>
+  <div class="card border-0 shadow-sm resource-form-card trip-form-card">
+    <div class="card-body">
+      <form class="resource-form" [formGroup]="tripForm" (ngSubmit)="onSubmit()">
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">01</span>
 
-            <select
-              id="vehicleId"
-              class="form-select"
-              formControlName="vehicleId"
-              [class.is-invalid]="vehicleId.invalid && vehicleId.touched"
-            >
-              <option value="">{{ t('trips.form.selectVehicle') }}</option>
+            <div>
+              <h2 class="form-panel-title">{{ t('common.vehicle') }} · {{ t('common.driver') }}</h2>
+              <p class="form-panel-subtitle">
+                Selecciona los recursos operativos que participarán en el viaje.
+              </p>
+            </div>
+          </div>
 
-              @for (vehicle of availableVehicles; track vehicle.id) {
-                <option [value]="vehicle.id">
-                  {{ vehicle.unitNumber }} - {{ vehicle.brand }} {{ vehicle.model }}
-                </option>
+          <div class="row g-3">
+            <div class="col-md-6 field-group">
+              <label for="vehicleId" class="form-label">{{ t('common.vehicle') }}</label>
+
+              <select
+                id="vehicleId"
+                class="form-select"
+                formControlName="vehicleId"
+                [class.is-invalid]="vehicleId.invalid && vehicleId.touched"
+              >
+                <option value="">{{ t('trips.form.selectVehicle') }}</option>
+
+                @for (vehicle of availableVehicles; track vehicle.id) {
+                  <option [value]="vehicle.id">
+                    {{ vehicle.unitNumber }} - {{ vehicle.brand }} {{ vehicle.model }}
+                  </option>
+                }
+              </select>
+
+              <small class="field-hint">
+                Solo aparecen unidades disponibles para operación.
+              </small>
+
+              @if (vehicleId.hasError('required') && vehicleId.touched) {
+                <div class="invalid-feedback">{{ t('trips.validation.vehicleRequired') }}</div>
               }
-            </select>
+            </div>
 
-            @if (vehicleId.hasError('required') && vehicleId.touched) {
-              <div class="invalid-feedback">{{ t('trips.validation.vehicleRequired') }}</div>
-            }
-          </div>
+            <div class="col-md-6 field-group">
+              <label for="driverId" class="form-label">{{ t('common.driver') }}</label>
 
-          <div class="col-md-6">
-            <label for="driverId" class="form-label">{{ t('common.driver') }}</label>
+              <select
+                id="driverId"
+                class="form-select"
+                formControlName="driverId"
+                [class.is-invalid]="driverId.invalid && driverId.touched"
+              >
+                <option value="">{{ t('trips.form.selectDriver') }}</option>
 
-            <select
-              id="driverId"
-              class="form-select"
-              formControlName="driverId"
-              [class.is-invalid]="driverId.invalid && driverId.touched"
-            >
-              <option value="">{{ t('trips.form.selectDriver') }}</option>
+                @for (driver of activeDrivers; track driver.id) {
+                  <option [value]="driver.id">
+                    {{ driver.firstName }} {{ driver.lastName }} - {{ driver.licenseNumber }}
+                  </option>
+                }
+              </select>
 
-              @for (driver of activeDrivers; track driver.id) {
-                <option [value]="driver.id">
-                  {{ driver.firstName }} {{ driver.lastName }} - {{ driver.licenseNumber }}
-                </option>
+              <small class="field-hint">
+                Solo aparecen conductores activos.
+              </small>
+
+              @if (driverId.hasError('required') && driverId.touched) {
+                <div class="invalid-feedback">{{ t('trips.validation.driverRequired') }}</div>
               }
-            </select>
+            </div>
+          </div>
+        </section>
 
-            @if (driverId.hasError('required') && driverId.touched) {
-              <div class="invalid-feedback">{{ t('trips.validation.driverRequired') }}</div>
-            }
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">02</span>
+
+            <div>
+              <h2 class="form-panel-title">{{ t('common.route') }}</h2>
+              <p class="form-panel-subtitle">
+                Define la ruta y la salida programada del viaje.
+              </p>
+            </div>
           </div>
 
-          <div class="col-md-8">
-            <label for="routeId" class="form-label">{{ t('common.route') }}</label>
+          <div class="row g-3">
+            <div class="col-md-8 field-group">
+              <label for="routeId" class="form-label">{{ t('common.route') }}</label>
 
-            <select
-              id="routeId"
-              class="form-select"
-              formControlName="routeId"
-              [class.is-invalid]="routeId.invalid && routeId.touched"
-            >
-              <option value="">{{ t('trips.form.selectRoute') }}</option>
+              <select
+                id="routeId"
+                class="form-select"
+                formControlName="routeId"
+                [class.is-invalid]="routeId.invalid && routeId.touched"
+              >
+                <option value="">{{ t('trips.form.selectRoute') }}</option>
 
-              @for (route of activeRoutes; track route.id) {
-                <option [value]="route.id">
-                  {{ route.name }}: {{ route.origin }} -> {{ route.destination }}
-                </option>
+                @for (route of activeRoutes; track route.id) {
+                  <option [value]="route.id">
+                    {{ route.name }}: {{ route.origin }} -> {{ route.destination }}
+                  </option>
+                }
+              </select>
+
+              <small class="field-hint">
+                Solo aparecen rutas activas disponibles para programación.
+              </small>
+
+              @if (routeId.hasError('required') && routeId.touched) {
+                <div class="invalid-feedback">{{ t('trips.validation.routeRequired') }}</div>
               }
-            </select>
+            </div>
 
-            @if (routeId.hasError('required') && routeId.touched) {
-              <div class="invalid-feedback">{{ t('trips.validation.routeRequired') }}</div>
-            }
+            <div class="col-md-4 field-group">
+              <label for="scheduledDeparture" class="form-label">
+                {{ t('trips.form.scheduledDeparture') }}
+              </label>
+
+              <input
+                id="scheduledDeparture"
+                type="datetime-local"
+                class="form-control"
+                formControlName="scheduledDeparture"
+                [class.is-invalid]="scheduledDeparture.invalid && scheduledDeparture.touched"
+              />
+
+              <small class="field-hint">
+                Fecha y hora en que debe iniciar el viaje.
+              </small>
+
+              @if (scheduledDeparture.hasError('required') && scheduledDeparture.touched) {
+                <div class="invalid-feedback">{{ t('trips.validation.departureRequired') }}</div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">03</span>
+
+            <div>
+              <h2 class="form-panel-title">{{ t('common.notes') }}</h2>
+              <p class="form-panel-subtitle">
+                Agrega instrucciones internas o contexto operativo si es necesario.
+              </p>
+            </div>
           </div>
 
-          <div class="col-md-4">
-            <label for="scheduledDeparture" class="form-label">
-              {{ t('trips.form.scheduledDeparture') }}
-            </label>
+          <div class="row g-3">
+            <div class="col-12 field-group">
+              <label for="notes" class="form-label">{{ t('common.notes') }}</label>
 
-            <input
-              id="scheduledDeparture"
-              type="datetime-local"
-              class="form-control"
-              formControlName="scheduledDeparture"
-              [class.is-invalid]="scheduledDeparture.invalid && scheduledDeparture.touched"
-            />
+              <textarea
+                id="notes"
+                class="form-control"
+                rows="4"
+                formControlName="notes"
+                [placeholder]="t('trips.form.notesPlaceholder')"
+              ></textarea>
 
-            @if (scheduledDeparture.hasError('required') && scheduledDeparture.touched) {
-              <div class="invalid-feedback">{{ t('trips.validation.departureRequired') }}</div>
-            }
+              <small class="field-hint">
+                Opcional. Este campo puede usarse para observaciones de operación.
+              </small>
+            </div>
           </div>
 
-          <div class="col-12">
-            <label for="notes" class="form-label">{{ t('common.notes') }}</label>
+          <div class="business-rules-box">
+            <h2>{{ t('trips.form.businessRules.title') }}</h2>
 
-            <textarea
-              id="notes"
-              class="form-control"
-              rows="4"
-              formControlName="notes"
-              [placeholder]="t('trips.form.notesPlaceholder')"
-            ></textarea>
+            <ul>
+              <li>{{ t('trips.form.businessRules.vehicle') }}</li>
+              <li>{{ t('trips.form.businessRules.driver') }}</li>
+              <li>{{ t('trips.form.businessRules.route') }}</li>
+              <li>{{ t('trips.form.businessRules.backend') }}</li>
+            </ul>
           </div>
-        </div>
+        </section>
 
-        <div class="business-rules-box">
-          <h2>{{ t('trips.form.businessRules.title') }}</h2>
-
-          <ul>
-            <li>{{ t('trips.form.businessRules.vehicle') }}</li>
-            <li>{{ t('trips.form.businessRules.driver') }}</li>
-            <li>{{ t('trips.form.businessRules.route') }}</li>
-            <li>{{ t('trips.form.businessRules.backend') }}</li>
-          </ul>
-        </div>
-
-        <div class="form-actions">
+        <div class="form-footer">
           <a routerLink="/trips" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
           <button

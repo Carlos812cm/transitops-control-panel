@@ -526,3 +526,149 @@ a:hover {
     min-width: 760px;
   }
 }
+
+.resource-form-card {
+  border-radius: var(--app-radius-xl);
+  overflow: hidden;
+}
+
+.resource-form-card .card-body {
+  padding: 0;
+}
+
+.resource-form {
+  display: grid;
+  gap: 0;
+}
+
+.form-panel {
+  border-bottom: 1px solid var(--app-border);
+  padding: clamp(1.25rem, 2vw, 1.65rem);
+}
+
+.form-panel:last-of-type {
+  border-bottom: 0;
+}
+
+.form-panel-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
+}
+
+.form-panel-index {
+  align-items: center;
+  background: var(--app-primary-soft);
+  border: 1px solid var(--app-primary-soft-border);
+  border-radius: var(--app-radius-lg);
+  color: var(--app-primary-soft-text);
+  display: inline-flex;
+  flex: 0 0 2.4rem;
+  font-size: 0.82rem;
+  font-weight: 950;
+  height: 2.4rem;
+  justify-content: center;
+  width: 2.4rem;
+}
+
+.form-panel-title {
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: -0.018em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.form-panel-subtitle {
+  color: var(--app-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin: 0.25rem 0 0;
+}
+
+.field-group {
+  min-width: 0;
+}
+
+.field-hint {
+  color: var(--app-text-soft);
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  margin-top: 0.4rem;
+}
+
+.form-footer {
+  align-items: center;
+  background: var(--app-surface-muted);
+  border-top: 1px solid var(--app-border);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem clamp(1.25rem, 2vw, 1.65rem);
+}
+
+.form-footer .btn {
+  min-width: 8rem;
+}
+
+.form-error-banner {
+  margin: clamp(1.25rem, 2vw, 1.65rem) clamp(1.25rem, 2vw, 1.65rem) 0;
+}
+
+.resource-readiness-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+  max-width: 860px;
+}
+
+.resource-readiness-card {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.06), transparent 58%),
+    var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.resource-readiness-card span {
+  color: var(--app-text-muted);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.resource-readiness-card strong {
+  color: var(--app-text);
+  font-size: 1.5rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .form-panel-header {
+    flex-direction: column;
+  }
+
+  .form-footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .form-footer .btn {
+    width: 100%;
+  }
+
+  .resource-readiness-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,159 +1,199 @@
 <app-page-header [title]="t('drivers.form.title')" [subtitle]="t('drivers.form.subtitle')" />
 
-<div class="card border-0 shadow-sm driver-form-card">
-  <div class="card-body p-4">
+<div class="card border-0 shadow-sm resource-form-card driver-form-card">
+  <div class="card-body">
     @if (errorMessage) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger form-error-banner" role="alert">
         {{ errorMessage }}
       </div>
     }
 
-    <form [formGroup]="driverForm" (ngSubmit)="onSubmit()">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label for="firstName" class="form-label">{{ t('drivers.form.firstName') }}</label>
+    <form class="resource-form" [formGroup]="driverForm" (ngSubmit)="onSubmit()">
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">01</span>
 
-          <input
-            id="firstName"
-            type="text"
-            class="form-control"
-            formControlName="firstName"
-            placeholder="Ana"
-            [class.is-invalid]="firstName.invalid && firstName.touched"
-          />
-
-          @if (firstName.hasError('required') && firstName.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.firstNameRequired') }}</div>
-          }
-
-          @if (firstName.hasError('minlength') && firstName.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.firstNameMin') }}</div>
-          }
-
-          @if (firstName.hasError('maxlength') && firstName.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.firstNameMax') }}</div>
-          }
+          <div>
+            <h2 class="form-panel-title">{{ t('common.name') }}</h2>
+            <p class="form-panel-subtitle">
+              Captura la identidad principal del conductor.
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label for="lastName" class="form-label">{{ t('drivers.form.lastName') }}</label>
+        <div class="row g-3">
+          <div class="col-md-6 field-group">
+            <label for="firstName" class="form-label">{{ t('drivers.form.firstName') }}</label>
 
-          <input
-            id="lastName"
-            type="text"
-            class="form-control"
-            formControlName="lastName"
-            placeholder="Torres"
-            [class.is-invalid]="lastName.invalid && lastName.touched"
-          />
+            <input
+              id="firstName"
+              type="text"
+              class="form-control"
+              formControlName="firstName"
+              placeholder="Ana"
+              [class.is-invalid]="firstName.invalid && firstName.touched"
+            />
 
-          @if (lastName.hasError('required') && lastName.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.lastNameRequired') }}</div>
-          }
+            <small class="field-hint">Nombre del conductor registrado para operación.</small>
 
-          @if (lastName.hasError('minlength') && lastName.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.lastNameMin') }}</div>
-          }
+            @if (firstName.hasError('required') && firstName.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.firstNameRequired') }}</div>
+            }
 
-          @if (lastName.hasError('maxlength') && lastName.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.lastNameMax') }}</div>
-          }
+            @if (firstName.hasError('minlength') && firstName.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.firstNameMin') }}</div>
+            }
+
+            @if (firstName.hasError('maxlength') && firstName.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.firstNameMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-6 field-group">
+            <label for="lastName" class="form-label">{{ t('drivers.form.lastName') }}</label>
+
+            <input
+              id="lastName"
+              type="text"
+              class="form-control"
+              formControlName="lastName"
+              placeholder="Torres"
+              [class.is-invalid]="lastName.invalid && lastName.touched"
+            />
+
+            <small class="field-hint">Apellido del conductor registrado.</small>
+
+            @if (lastName.hasError('required') && lastName.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.lastNameRequired') }}</div>
+            }
+
+            @if (lastName.hasError('minlength') && lastName.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.lastNameMin') }}</div>
+            }
+
+            @if (lastName.hasError('maxlength') && lastName.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.lastNameMax') }}</div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">02</span>
+
+          <div>
+            <h2 class="form-panel-title">{{ t('drivers.form.licenseNumber') }}</h2>
+            <p class="form-panel-subtitle">
+              Información de licencia y contacto operativo.
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label for="licenseNumber" class="form-label">
-            {{ t('drivers.form.licenseNumber') }}
-          </label>
+        <div class="row g-3">
+          <div class="col-md-6 field-group">
+            <label for="licenseNumber" class="form-label">
+              {{ t('drivers.form.licenseNumber') }}
+            </label>
 
-          <input
-            id="licenseNumber"
-            type="text"
-            class="form-control"
-            formControlName="licenseNumber"
-            placeholder="LIC-2026-001"
-            [class.is-invalid]="licenseNumber.invalid && licenseNumber.touched"
-          />
+            <input
+              id="licenseNumber"
+              type="text"
+              class="form-control"
+              formControlName="licenseNumber"
+              placeholder="LIC-2026-001"
+              [class.is-invalid]="licenseNumber.invalid && licenseNumber.touched"
+            />
 
-          @if (licenseNumber.hasError('required') && licenseNumber.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.licenseRequired') }}</div>
-          }
+            <small class="field-hint">Debe ser única dentro del sistema.</small>
 
-          @if (licenseNumber.hasError('minlength') && licenseNumber.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.licenseMin') }}</div>
-          }
+            @if (licenseNumber.hasError('required') && licenseNumber.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.licenseRequired') }}</div>
+            }
 
-          @if (licenseNumber.hasError('maxlength') && licenseNumber.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.licenseMax') }}</div>
-          }
+            @if (licenseNumber.hasError('minlength') && licenseNumber.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.licenseMin') }}</div>
+            }
+
+            @if (licenseNumber.hasError('maxlength') && licenseNumber.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.licenseMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-6 field-group">
+            <label for="phone" class="form-label">{{ t('common.phone') }}</label>
+
+            <input
+              id="phone"
+              type="tel"
+              class="form-control"
+              formControlName="phone"
+              placeholder="5512345678"
+              [class.is-invalid]="phone.invalid && phone.touched"
+            />
+
+            <small class="field-hint">Teléfono de contacto operativo.</small>
+
+            @if (phone.hasError('required') && phone.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.phoneRequired') }}</div>
+            }
+
+            @if ((phone.hasError('minlength') || phone.hasError('maxlength')) && phone.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.phoneValid') }}</div>
+            }
+          </div>
+
+          <div class="col-md-8 field-group">
+            <label for="email" class="form-label">{{ t('common.email') }}</label>
+
+            <input
+              id="email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              placeholder="ana.torres@transitops.com"
+              [class.is-invalid]="email.invalid && email.touched"
+            />
+
+            <small class="field-hint">Correo para notificaciones administrativas.</small>
+
+            @if (email.hasError('required') && email.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.emailRequired') }}</div>
+            }
+
+            @if (email.hasError('email') && email.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.emailValid') }}</div>
+            }
+
+            @if (email.hasError('maxlength') && email.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.emailMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-4 field-group">
+            <label for="status" class="form-label">{{ t('common.status') }}</label>
+
+            <select
+              id="status"
+              class="form-select"
+              formControlName="status"
+              [class.is-invalid]="status.invalid && status.touched"
+            >
+              <option value="ACTIVE">{{ t('status.active') }}</option>
+              <option value="SUSPENDED">{{ t('status.suspended') }}</option>
+              <option value="INACTIVE">{{ t('status.inactive') }}</option>
+            </select>
+
+            <small class="field-hint">Solo conductores activos pueden asignarse a viajes.</small>
+
+            @if (status.hasError('required') && status.touched) {
+              <div class="invalid-feedback">{{ t('drivers.validation.statusRequired') }}</div>
+            }
+          </div>
         </div>
+      </section>
 
-        <div class="col-md-6">
-          <label for="phone" class="form-label">{{ t('common.phone') }}</label>
-
-          <input
-            id="phone"
-            type="tel"
-            class="form-control"
-            formControlName="phone"
-            placeholder="5512345678"
-            [class.is-invalid]="phone.invalid && phone.touched"
-          />
-
-          @if (phone.hasError('required') && phone.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.phoneRequired') }}</div>
-          }
-
-          @if ((phone.hasError('minlength') || phone.hasError('maxlength')) && phone.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.phoneValid') }}</div>
-          }
-        </div>
-
-        <div class="col-md-8">
-          <label for="email" class="form-label">{{ t('common.email') }}</label>
-
-          <input
-            id="email"
-            type="email"
-            class="form-control"
-            formControlName="email"
-            placeholder="ana.torres@transitops.com"
-            [class.is-invalid]="email.invalid && email.touched"
-          />
-
-          @if (email.hasError('required') && email.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.emailRequired') }}</div>
-          }
-
-          @if (email.hasError('email') && email.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.emailValid') }}</div>
-          }
-
-          @if (email.hasError('maxlength') && email.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.emailMax') }}</div>
-          }
-        </div>
-
-        <div class="col-md-4">
-          <label for="status" class="form-label">{{ t('common.status') }}</label>
-
-          <select
-            id="status"
-            class="form-select"
-            formControlName="status"
-            [class.is-invalid]="status.invalid && status.touched"
-          >
-            <option value="ACTIVE">{{ t('status.active') }}</option>
-            <option value="SUSPENDED">{{ t('status.suspended') }}</option>
-            <option value="INACTIVE">{{ t('status.inactive') }}</option>
-          </select>
-
-          @if (status.hasError('required') && status.touched) {
-            <div class="invalid-feedback">{{ t('drivers.validation.statusRequired') }}</div>
-          }
-        </div>
-      </div>
-
-      <div class="form-actions">
+      <div class="form-footer">
         <a routerLink="/drivers" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
         <button
