@@ -1,70 +1,136 @@
 .navbar-panel {
-  min-height: 76px;
-  background: var(--app-surface);
-  border-bottom: 1px solid var(--app-border);
-  padding: 0.85rem 1.5rem;
-  display: flex;
   align-items: center;
-  justify-content: space-between;
+  backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  border-bottom: 1px solid var(--app-border);
+  display: flex;
   gap: 1rem;
+  justify-content: space-between;
+  min-height: 78px;
+  padding: 0.9rem clamp(1rem, 2vw, 1.5rem);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
-.navbar-left {
-  display: flex;
+.navbar-main {
   align-items: center;
+  display: flex;
   gap: 1rem;
   min-width: 0;
 }
 
-.navbar-left > div:last-child {
+.navbar-title-block {
   min-width: 0;
-  flex: 1 1 auto;
+}
+
+.navbar-eyebrow {
+  color: var(--app-primary);
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.075em;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
 }
 
 .navbar-panel h2 {
-  font-size: 1.1rem;
-  margin: 0;
-  font-weight: 800;
   color: var(--app-text);
+  font-size: 1.08rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0;
 }
 
 .navbar-panel p {
-  margin: 0;
-  font-size: 0.85rem;
   color: var(--app-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  margin: 0.25rem 0 0;
 }
 
 .navbar-user {
-  display: flex;
   align-items: center;
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  display: flex;
+  flex: 0 0 auto;
   gap: 0.75rem;
+  padding: 0.45rem;
   white-space: nowrap;
 }
 
-.mobile-sidebar-toggle {
-  display: none;
+.user-avatar {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent),
+    var(--app-primary);
+  border-radius: var(--app-radius-lg);
+  color: #ffffff;
+  display: inline-flex;
+  flex: 0 0 2.35rem;
+  font-size: 0.95rem;
+  font-weight: 900;
+  height: 2.35rem;
+  justify-content: center;
+  width: 2.35rem;
 }
 
-.mobile-sidebar-toggle:hover {
-  background: var(--app-hover);
-  color: var(--app-primary);
-}
-
-.user-role {
-  font-size: 0.75rem;
-  font-weight: 800;
-  background: var(--app-primary-soft);
-  color: var(--app-primary-soft-text);
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+.user-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
 }
 
 .user-name {
-  font-weight: 700;
   color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.1;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  color: var(--app-primary-soft-text);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.065em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.logout-button {
+  min-height: 2.35rem;
+}
+
+.mobile-sidebar-toggle {
+  align-items: center;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-md);
+  color: var(--app-text);
+  display: none;
+  font-size: 1.15rem;
+  font-weight: 900;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.mobile-sidebar-toggle:hover {
+  background: var(--app-hover, var(--app-surface-muted));
+  color: var(--app-primary);
+}
+
+.mobile-sidebar-toggle.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @media (max-width: 992px) {
@@ -74,37 +140,30 @@
 
   .mobile-sidebar-toggle {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    left: 1rem;
     position: fixed;
     top: 1rem;
-    left: 1rem;
     z-index: 1001;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--app-border);
-    background: var(--app-surface);
-    border-radius: 0.75rem;
-    color: var(--app-text);
-    font-size: 1.2rem;
-    font-weight: 800;
-    box-shadow: 0 0.5rem 1.5rem var(--app-shadow-lg);
   }
 }
 
 @media (max-width: 768px) {
   .navbar-panel {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
   }
 
-  .navbar-left {
+  .navbar-main {
     width: 100%;
   }
 
   .navbar-user {
-    width: 100%;
     justify-content: space-between;
+    width: 100%;
+  }
+
+  .user-copy {
+    margin-right: auto;
   }
 }
 
@@ -113,13 +172,16 @@
     padding: 0.85rem 1rem 0.85rem 4.75rem;
   }
 
+  .navbar-eyebrow,
   .navbar-panel p {
     display: none;
   }
 
   .user-name {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-width: 8rem;
+  }
+
+  .logout-button {
+    padding-inline: 0.65rem;
   }
 }

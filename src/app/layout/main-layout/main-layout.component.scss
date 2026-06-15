@@ -1,17 +1,24 @@
 .admin-layout {
-  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 34rem),
+    var(--app-bg);
   display: flex;
-  background-color: var(--app-bg);
+  min-height: 100dvh;
 }
 
 .admin-content {
+  display: flex;
   flex: 1;
-  min-width: 0;
+  flex-direction: column;
   margin-left: 260px;
+  min-height: 100dvh;
+  min-width: 0;
+  width: calc(100% - 260px);
 }
 
 .admin-main {
-  padding: 1.5rem;
+  flex: 1;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
 }
 
 .layout-backdrop {
@@ -21,6 +28,7 @@
 @media (max-width: 992px) {
   .admin-content {
     margin-left: 0;
+    width: 100%;
   }
 
   .admin-main {
@@ -28,10 +36,10 @@
   }
 
   .layout-backdrop.show {
-    display: block;
-    position: fixed;
-    inset: 0;
     background: var(--app-backdrop);
+    display: block;
+    inset: 0;
+    position: fixed;
     z-index: 998;
   }
 }
