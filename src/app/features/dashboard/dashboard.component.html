@@ -7,50 +7,94 @@
     {{ errorMessage }}
   </div>
 } @else {
-  <section class="dashboard-grid mb-4">
-    <div class="dashboard-card">
-      <div>
-        <p>{{ t('dashboard.metric.totalVehicles') }}</p>
-        <h2>{{ stats.totalVehicles }}</h2>
-      </div>
-
-      <a routerLink="/vehicles" class="card-link"> {{ t('common.view') }} </a>
+  <section class="command-hero mb-4">
+    <div class="command-hero-copy">
+      <span class="command-eyebrow">TransitOps Command Center</span>
+      <h2>{{ t('navbar.title') }}</h2>
+      <p>{{ t('dashboard.operationalRule.text') }}</p>
     </div>
 
-    <div class="dashboard-card">
+    <div class="command-hero-stats" aria-label="Operational summary">
       <div>
-        <p>{{ t('dashboard.metric.availableVehicles') }}</p>
-        <h2>{{ stats.availableVehicles }}</h2>
+        <strong>{{ stats.totalTrips }}</strong>
+        <span>{{ t('trips.summary.label') }}</span>
       </div>
 
-      <span class="metric-success"> {{ t('dashboard.metric.ready') }} </span>
-    </div>
-
-    <div class="dashboard-card">
       <div>
-        <p>{{ t('dashboard.metric.activeDrivers') }}</p>
-        <h2>{{ stats.activeDrivers }}</h2>
+        <strong>{{ stats.inProgressTrips }}</strong>
+        <span>{{ t('status.inProgress') }}</span>
       </div>
 
-      <a routerLink="/drivers" class="card-link"> {{ t('common.view') }} </a>
-    </div>
-
-    <div class="dashboard-card">
       <div>
-        <p>{{ t('dashboard.metric.activeRoutes') }}</p>
-        <h2>{{ stats.activeRoutes }}</h2>
+        <strong>{{ stats.availableVehicles }}</strong>
+        <span>{{ t('status.available') }}</span>
       </div>
-
-      <a routerLink="/routes" class="card-link"> {{ t('common.view') }} </a>
     </div>
   </section>
 
-  <section class="row g-4 mb-4">
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <h3 class="section-title">{{ t('dashboard.fleetStatus') }}</h3>
+  <section class="dashboard-grid mb-4">
+    <article class="dashboard-card metric-card metric-card-primary">
+      <div class="metric-icon" aria-hidden="true">▣</div>
 
+      <div class="metric-content">
+        <p>{{ t('dashboard.metric.totalVehicles') }}</p>
+        <h2>{{ stats.totalVehicles }}</h2>
+        <span>{{ stats.availableVehicles }} {{ t('status.available') }}</span>
+      </div>
+
+      <a routerLink="/vehicles" class="card-link"> {{ t('common.view') }} </a>
+    </article>
+
+    <article class="dashboard-card metric-card">
+      <div class="metric-icon" aria-hidden="true">✓</div>
+
+      <div class="metric-content">
+        <p>{{ t('dashboard.metric.availableVehicles') }}</p>
+        <h2>{{ stats.availableVehicles }}</h2>
+        <span>{{ stats.maintenanceVehicles }} {{ t('status.maintenance') }}</span>
+      </div>
+
+      <span class="metric-success"> {{ t('dashboard.metric.ready') }} </span>
+    </article>
+
+    <article class="dashboard-card metric-card">
+      <div class="metric-icon" aria-hidden="true">●</div>
+
+      <div class="metric-content">
+        <p>{{ t('dashboard.metric.activeDrivers') }}</p>
+        <h2>{{ stats.activeDrivers }}</h2>
+        <span>{{ stats.suspendedDrivers }} {{ t('status.suspended') }}</span>
+      </div>
+
+      <a routerLink="/drivers" class="card-link"> {{ t('common.view') }} </a>
+    </article>
+
+    <article class="dashboard-card metric-card">
+      <div class="metric-icon" aria-hidden="true">↔</div>
+
+      <div class="metric-content">
+        <p>{{ t('dashboard.metric.activeRoutes') }}</p>
+        <h2>{{ stats.activeRoutes }}</h2>
+        <span>{{ stats.inactiveRoutes }} {{ t('status.inactive') }}</span>
+      </div>
+
+      <a routerLink="/routes" class="card-link"> {{ t('common.view') }} </a>
+    </article>
+  </section>
+
+  <section class="operations-grid mb-4">
+    <article class="card border-0 shadow-sm operations-card">
+      <div class="card-body">
+        <div class="section-heading">
+          <div>
+            <h3 class="section-title">{{ t('dashboard.fleetStatus') }}</h3>
+            <p class="section-subtitle">{{ t('vehicles.subtitle') }}</p>
+          </div>
+
+          <span class="section-chip">{{ stats.totalVehicles }}</span>
+        </div>
+
+        <div class="status-list">
           <div class="status-row">
             <span>{{ t('status.available') }}</span>
             <strong>{{ stats.availableVehicles }}</strong>
@@ -67,13 +111,20 @@
           </div>
         </div>
       </div>
-    </div>
+    </article>
 
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <h3 class="section-title">{{ t('dashboard.driverStatus') }}</h3>
+    <article class="card border-0 shadow-sm operations-card">
+      <div class="card-body">
+        <div class="section-heading">
+          <div>
+            <h3 class="section-title">{{ t('dashboard.driverStatus') }}</h3>
+            <p class="section-subtitle">{{ t('drivers.subtitle') }}</p>
+          </div>
 
+          <span class="section-chip">{{ stats.totalDrivers }}</span>
+        </div>
+
+        <div class="status-list">
           <div class="status-row">
             <span>{{ t('status.active') }}</span>
             <strong>{{ stats.activeDrivers }}</strong>
@@ -90,13 +141,20 @@
           </div>
         </div>
       </div>
-    </div>
+    </article>
 
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <h3 class="section-title">{{ t('dashboard.tripStatus') }}</h3>
+    <article class="card border-0 shadow-sm operations-card">
+      <div class="card-body">
+        <div class="section-heading">
+          <div>
+            <h3 class="section-title">{{ t('dashboard.tripStatus') }}</h3>
+            <p class="section-subtitle">{{ t('trips.subtitle') }}</p>
+          </div>
 
+          <span class="section-chip">{{ stats.totalTrips }}</span>
+        </div>
+
+        <div class="status-list">
           <div class="status-row">
             <span>{{ t('status.scheduled') }}</span>
             <strong>{{ stats.scheduledTrips }}</strong>
@@ -118,98 +176,114 @@
           </div>
         </div>
       </div>
-    </div>
+    </article>
   </section>
 
-  <section class="row g-4">
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <div class="section-header">
-            <div>
-              <h3 class="section-title mb-1">{{ t('dashboard.latestTrips.title') }}</h3>
-              <p class="section-subtitle mb-0">{{ t('dashboard.latestTrips.subtitle') }}</p>
-            </div>
-
-            <a routerLink="/trips" class="btn btn-sm btn-outline-primary">
-              {{ t('common.viewAll') }}
-            </a>
+  <section class="dashboard-main-grid">
+    <article class="card border-0 shadow-sm latest-trips-card">
+      <div class="card-body">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title mb-1">{{ t('dashboard.latestTrips.title') }}</h3>
+            <p class="section-subtitle mb-0">{{ t('dashboard.latestTrips.subtitle') }}</p>
           </div>
 
-          @if (latestTrips.length === 0) {
-            <app-empty-state
-              [title]="t('dashboard.emptyTrips.title')"
-              [message]="t('dashboard.emptyTrips.message')"
-              [actionLabel]="t('trips.create')"
-              actionLink="/trips/new"
-              [actionRoles]="['ADMIN', 'OPERATOR', 'SUPERVISOR']"
-            />
-          } @else {
-            <div class="table-responsive mt-3">
-              <table class="table align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>{{ t('common.vehicle') }}</th>
-                    <th>{{ t('common.driver') }}</th>
-                    <th>{{ t('common.route') }}</th>
-                    <th>{{ t('trips.form.scheduledDeparture') }}</th>
-                    <th>{{ t('common.status') }}</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  @for (trip of latestTrips; track trip.id) {
-                    <tr>
-                      <td class="fw-semibold">
-                        {{ getVehicleLabel(trip) }}
-                      </td>
-
-                      <td>
-                        {{ getDriverName(trip) }}
-                      </td>
-
-                      <td>
-                        {{ getRouteLabel(trip) }}
-                      </td>
-
-                      <td>
-                        {{ trip.scheduledDeparture | date: 'medium' }}
-                      </td>
-
-                      <td>
-                        <app-status-badge [status]="trip.status" />
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
+          <a routerLink="/trips" class="btn btn-sm btn-outline-primary">
+            {{ t('common.viewAll') }}
+          </a>
         </div>
-      </div>
-    </div>
 
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
+        @if (latestTrips.length === 0) {
+          <app-empty-state
+            [title]="t('dashboard.emptyTrips.title')"
+            [message]="t('dashboard.emptyTrips.message')"
+            [actionLabel]="t('trips.create')"
+            actionLink="/trips/new"
+            [actionRoles]="['ADMIN', 'OPERATOR', 'SUPERVISOR']"
+          />
+        } @else {
+          <div class="table-responsive mt-3">
+            <table class="table align-middle mb-0 command-table">
+              <thead>
+                <tr>
+                  <th>{{ t('common.vehicle') }}</th>
+                  <th>{{ t('common.driver') }}</th>
+                  <th>{{ t('common.route') }}</th>
+                  <th>{{ t('trips.form.scheduledDeparture') }}</th>
+                  <th>{{ t('common.status') }}</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (trip of latestTrips; track trip.id) {
+                  <tr>
+                    <td>
+                      <span class="table-primary-text">{{ getVehicleLabel(trip) }}</span>
+                    </td>
+
+                    <td>
+                      {{ getDriverName(trip) }}
+                    </td>
+
+                    <td>
+                      <span class="route-label">{{ getRouteLabel(trip) }}</span>
+                    </td>
+
+                    <td>
+                      <span class="date-cell">
+                        {{ trip.scheduledDeparture | date: 'medium' }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <app-status-badge [status]="trip.status" />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </article>
+
+    <aside class="dashboard-side-panel">
+      <article class="card border-0 shadow-sm quick-actions-card">
         <div class="card-body">
           <h3 class="section-title">{{ t('dashboard.quickActions') }}</h3>
 
           <div class="quick-actions">
-            <a routerLink="/vehicles" class="quick-action"> {{ t('sidebar.vehicles') }} </a>
+            <a routerLink="/vehicles" class="quick-action">
+              <span aria-hidden="true">▣</span>
+              <strong>{{ t('sidebar.vehicles') }}</strong>
+            </a>
 
-            <a routerLink="/drivers" class="quick-action"> {{ t('sidebar.drivers') }} </a>
+            <a routerLink="/drivers" class="quick-action">
+              <span aria-hidden="true">●</span>
+              <strong>{{ t('sidebar.drivers') }}</strong>
+            </a>
 
-            <a routerLink="/routes" class="quick-action"> {{ t('sidebar.routes') }} </a>
+            <a routerLink="/routes" class="quick-action">
+              <span aria-hidden="true">↔</span>
+              <strong>{{ t('sidebar.routes') }}</strong>
+            </a>
 
-            <a routerLink="/trips" class="quick-action"> {{ t('sidebar.trips') }} </a>
-          </div>
-
-          <div class="dashboard-note mt-4">
-            <strong>{{ t('dashboard.operationalRule.label') }}</strong>
-            {{ t('dashboard.operationalRule.text') }}
+            <a routerLink="/trips" class="quick-action">
+              <span aria-hidden="true">↗</span>
+              <strong>{{ t('sidebar.trips') }}</strong>
+            </a>
           </div>
         </div>
-      </div>
-    </div>
+      </article>
+
+      <article class="dashboard-note">
+        <span class="note-icon" aria-hidden="true">!</span>
+
+        <div>
+          <strong>{{ t('dashboard.operationalRule.label') }}</strong>
+          <p>{{ t('dashboard.operationalRule.text') }}</p>
+        </div>
+      </article>
+    </aside>
   </section>
 }
