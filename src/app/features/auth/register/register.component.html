@@ -1,10 +1,12 @@
 @if (isRegistrationSuccessful) {
   <div class="card border-0 shadow-sm register-card register-success-card">
-    <div class="card-body p-4 p-md-5 text-center">
+    <div class="card-body">
       <span class="register-brand">TransitOps</span>
+
       <div class="register-success-icon" aria-hidden="true">✓</div>
-      <h1 class="h4 fw-bold mb-2">{{ t('auth.register.successTitle') }}</h1>
-      <p class="text-muted mb-4">{{ t(registrationSuccessMessageKey) }}</p>
+
+      <h1>{{ t('auth.register.successTitle') }}</h1>
+      <p>{{ t(registrationSuccessMessageKey) }}</p>
 
       <a routerLink="/login" class="btn btn-primary">
         {{ t('auth.register.goToLogin') }}
@@ -12,29 +14,43 @@
     </div>
   </div>
 } @else {
-  <div class="card border-0 shadow-sm register-card">
-    <div class="card-body p-4 p-md-5">
-      <div class="register-heading mb-4">
-        <span class="register-brand">TransitOps</span>
-        <div>
-          <h1 class="h4 fw-bold mb-1">{{ t('auth.register.title') }}</h1>
-          <p class="text-muted mb-0">{{ t('auth.register.subtitle') }}</p>
+  <div class="card border-0 shadow-sm resource-form-card register-card">
+    <div class="card-body">
+      <div class="register-hero">
+        <div class="register-heading">
+          <span class="register-brand">TransitOps</span>
+
+          <div>
+            <span class="register-kicker">Access request</span>
+            <h1>{{ t('auth.register.title') }}</h1>
+            <p>{{ t('auth.register.subtitle') }}</p>
+          </div>
         </div>
       </div>
 
       @if (errorMessage) {
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger form-error-banner" role="alert">
           {{ errorMessage }}
         </div>
       }
 
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-        <section class="register-section">
-          <h2>{{ t('auth.register.personalInfo') }}</h2>
+      <form class="resource-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">01</span>
+
+            <div>
+              <h2 class="form-panel-title">{{ t('auth.register.personalInfo') }}</h2>
+              <p class="form-panel-subtitle">
+                Captura el nombre del usuario que solicitará acceso.
+              </p>
+            </div>
+          </div>
 
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="firstName" class="form-label">{{ t('auth.register.firstName') }}</label>
+
               <input
                 id="firstName"
                 type="text"
@@ -51,8 +67,9 @@
               }
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="lastName" class="form-label">{{ t('auth.register.lastName') }}</label>
+
               <input
                 id="lastName"
                 type="text"
@@ -71,12 +88,22 @@
           </div>
         </section>
 
-        <section class="register-section">
-          <h2>{{ t('auth.register.accountAccess') }}</h2>
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">02</span>
+
+            <div>
+              <h2 class="form-panel-title">{{ t('auth.register.accountAccess') }}</h2>
+              <p class="form-panel-subtitle">
+                Define las credenciales y canales de verificación.
+              </p>
+            </div>
+          </div>
 
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="email" class="form-label">{{ t('auth.login.email') }}</label>
+
               <div class="register-action-field">
                 <input
                   id="email"
@@ -87,6 +114,7 @@
                   placeholder="name@transitops.com"
                   [class.is-invalid]="isInvalid(email)"
                 />
+
                 <button
                   type="button"
                   class="btn btn-outline-primary"
@@ -119,8 +147,9 @@
               }
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="phone" class="form-label">{{ t('auth.register.phone') }}</label>
+
               <div class="register-action-field">
                 <input
                   id="phone"
@@ -131,6 +160,7 @@
                   placeholder="+1 555 010 1004"
                   [class.is-invalid]="isInvalid(phone)"
                 />
+
                 <button
                   type="button"
                   class="btn btn-outline-primary"
@@ -163,8 +193,9 @@
               }
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="password" class="form-label">{{ t('auth.login.password') }}</label>
+
               <input
                 id="password"
                 type="password"
@@ -187,10 +218,11 @@
               }
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="confirmPassword" class="form-label">
                 {{ t('auth.register.confirmPassword') }}
               </label>
+
               <input
                 id="confirmPassword"
                 type="password"
@@ -215,13 +247,20 @@
           </div>
         </section>
 
-        <section class="register-section">
-          <h2>{{ t('auth.register.verification') }}</h2>
-          <p class="register-note mb-3">{{ t('auth.register.mockCodesNote') }}</p>
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">03</span>
+
+            <div>
+              <h2 class="form-panel-title">{{ t('auth.register.verification') }}</h2>
+              <p class="form-panel-subtitle">{{ t('auth.register.mockCodesNote') }}</p>
+            </div>
+          </div>
 
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="emailCode" class="form-label">{{ t('auth.register.emailCode') }}</label>
+
               <input
                 id="emailCode"
                 type="text"
@@ -239,8 +278,9 @@
               }
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 field-group">
               <label for="phoneCode" class="form-label">{{ t('auth.register.phoneCode') }}</label>
+
               <input
                 id="phoneCode"
                 type="text"
@@ -260,45 +300,67 @@
           </div>
         </section>
 
-        <section class="register-section">
-          <h2>{{ t('auth.register.requestedRole') }}</h2>
+        <section class="form-panel">
+          <div class="form-panel-header">
+            <span class="form-panel-index" aria-hidden="true">04</span>
 
-          <label for="requestedRole" class="form-label">{{ t('auth.register.roleLabel') }}</label>
-          <select
-            id="requestedRole"
-            class="form-select"
-            formControlName="requestedRole"
-            [class.is-invalid]="isInvalid(requestedRole)"
-          >
-            @for (role of requestedRoles; track role) {
-              <option [value]="role">{{ t(roleLabelKey(role)) }}</option>
-            }
-          </select>
-
-          @if (requestedRole.hasError('required') && requestedRole.touched) {
-            <div class="invalid-feedback">
-              {{ t('auth.validation.requestedRoleRequired') }}
+            <div>
+              <h2 class="form-panel-title">{{ t('auth.register.requestedRole') }}</h2>
+              <p class="form-panel-subtitle">
+                La cuenta quedará pendiente hasta que un administrador la apruebe.
+              </p>
             </div>
-          }
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6 field-group">
+              <label for="requestedRole" class="form-label">
+                {{ t('auth.register.roleLabel') }}
+              </label>
+
+              <select
+                id="requestedRole"
+                class="form-select"
+                formControlName="requestedRole"
+                [class.is-invalid]="isInvalid(requestedRole)"
+              >
+                @for (role of requestedRoles; track role) {
+                  <option [value]="role">{{ t(roleLabelKey(role)) }}</option>
+                }
+              </select>
+
+              @if (requestedRole.hasError('required') && requestedRole.touched) {
+                <div class="invalid-feedback">
+                  {{ t('auth.validation.requestedRoleRequired') }}
+                </div>
+              }
+            </div>
+          </div>
         </section>
 
-        <button
-          type="submit"
-          class="btn btn-primary w-100"
-          [disabled]="registerForm.invalid || isSubmitting"
-        >
-          @if (isSubmitting) {
-            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-            {{ t('auth.register.registering') }}
-          } @else {
-            {{ t('auth.register.registerAccount') }}
-          }
-        </button>
+        <div class="form-footer">
+          <a routerLink="/login" class="btn btn-outline-secondary">
+            {{ t('auth.register.signIn') }}
+          </a>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="registerForm.invalid || isSubmitting"
+          >
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              {{ t('auth.register.registering') }}
+            } @else {
+              {{ t('auth.register.registerAccount') }}
+            }
+          </button>
+        </div>
       </form>
 
-      <div class="register-login-link mt-4 text-center">
-        <span class="text-muted">{{ t('auth.register.haveAccount') }}</span>
-        <a routerLink="/login" class="fw-semibold ms-1">{{ t('auth.register.signIn') }}</a>
+      <div class="register-login-link">
+        <span>{{ t('auth.register.haveAccount') }}</span>
+        <a routerLink="/login">{{ t('auth.register.signIn') }}</a>
       </div>
     </div>
   </div>
