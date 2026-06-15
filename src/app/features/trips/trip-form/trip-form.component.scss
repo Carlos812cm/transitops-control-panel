@@ -1,83 +1,38 @@
-.trip-form-card {
-  max-width: 1080px;
-  border-radius: 1rem;
+:host {
+  display: block;
 }
 
-.form-label {
-  font-weight: 600;
-  color: var(--app-text);
+.trip-form-card {
+  max-width: 1120px;
 }
 
 .business-rules-box {
-  margin-top: 1.75rem;
-  background: var(--app-surface-muted);
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.075), transparent 58%),
+    var(--app-surface-muted);
   border: 1px solid var(--app-border);
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
+  border-left: 4px solid var(--app-primary);
+  border-radius: var(--app-radius-xl);
+  margin-top: 1.25rem;
+  padding: 1rem 1.15rem;
 }
 
 .business-rules-box h2 {
-  font-size: 0.95rem;
-  font-weight: 700;
   color: var(--app-text);
-  margin-bottom: 0.65rem;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.65rem;
 }
 
 .business-rules-box ul {
-  margin: 0;
-  padding-left: 1.25rem;
   color: var(--app-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 1.2rem;
 }
 
 .business-rules-box li + li {
   margin-top: 0.25rem;
-}
-
-.resource-summary {
-  max-width: 720px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.resource-item {
-  background: var(--app-surface);
-  border-radius: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--app-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.resource-item span {
-  color: var(--app-text-muted);
-  font-size: 0.9rem;
-}
-
-.resource-item strong {
-  font-size: 1.3rem;
-  color: var(--app-text);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.75rem;
-}
-
-@media (max-width: 768px) {
-  .resource-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .form-actions .btn {
-    width: 100%;
-  }
 }

@@ -1,158 +1,213 @@
 <app-page-header [title]="t('routes.form.title')" [subtitle]="t('routes.form.subtitle')" />
 
-<div class="card border-0 shadow-sm route-form-card">
-  <div class="card-body p-4">
+<div class="card border-0 shadow-sm resource-form-card route-form-card">
+  <div class="card-body">
     @if (errorMessage) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger form-error-banner" role="alert">
         {{ errorMessage }}
       </div>
     }
 
-    <form [formGroup]="routeForm" (ngSubmit)="onSubmit()">
-      <div class="row g-3">
-        <div class="col-md-8">
-          <label for="name" class="form-label">{{ t('routes.form.name') }}</label>
+    <form class="resource-form" [formGroup]="routeForm" (ngSubmit)="onSubmit()">
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">01</span>
 
-          <input
-            id="name"
-            type="text"
-            class="form-control"
-            formControlName="name"
-            placeholder="CDMX Norte - Polanco"
-            [class.is-invalid]="name.invalid && name.touched"
-          />
-
-          @if (name.hasError('required') && name.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.nameRequired') }}</div>
-          }
-
-          @if (name.hasError('minlength') && name.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.nameMin') }}</div>
-          }
-
-          @if (name.hasError('maxlength') && name.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.nameMax') }}</div>
-          }
+          <div>
+            <h2 class="form-panel-title">{{ t('routes.form.name') }}</h2>
+            <p class="form-panel-subtitle">
+              Define el nombre operativo y el estado inicial de la ruta.
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-4">
-          <label for="status" class="form-label">{{ t('common.status') }}</label>
+        <div class="row g-3">
+          <div class="col-md-8 field-group">
+            <label for="name" class="form-label">{{ t('routes.form.name') }}</label>
 
-          <select
-            id="status"
-            class="form-select"
-            formControlName="status"
-            [class.is-invalid]="status.invalid && status.touched"
-          >
-            <option value="ACTIVE">{{ t('status.active') }}</option>
-            <option value="INACTIVE">{{ t('status.inactive') }}</option>
-          </select>
+            <input
+              id="name"
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="CDMX Norte - Polanco"
+              [class.is-invalid]="name.invalid && name.touched"
+            />
 
-          @if (status.hasError('required') && status.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.statusRequired') }}</div>
-          }
+            <small class="field-hint">Usa un nombre claro para identificar la ruta en operación.</small>
+
+            @if (name.hasError('required') && name.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.nameRequired') }}</div>
+            }
+
+            @if (name.hasError('minlength') && name.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.nameMin') }}</div>
+            }
+
+            @if (name.hasError('maxlength') && name.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.nameMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-4 field-group">
+            <label for="status" class="form-label">{{ t('common.status') }}</label>
+
+            <select
+              id="status"
+              class="form-select"
+              formControlName="status"
+              [class.is-invalid]="status.invalid && status.touched"
+            >
+              <option value="ACTIVE">{{ t('status.active') }}</option>
+              <option value="INACTIVE">{{ t('status.inactive') }}</option>
+            </select>
+
+            <small class="field-hint">Solo rutas activas pueden utilizarse para nuevos viajes.</small>
+
+            @if (status.hasError('required') && status.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.statusRequired') }}</div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">02</span>
+
+          <div>
+            <h2 class="form-panel-title">{{ t('common.origin') }} → {{ t('common.destination') }}</h2>
+            <p class="form-panel-subtitle">
+              Captura los puntos principales del recorrido.
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label for="origin" class="form-label">{{ t('common.origin') }}</label>
+        <div class="row g-3">
+          <div class="col-md-6 field-group">
+            <label for="origin" class="form-label">{{ t('common.origin') }}</label>
 
-          <input
-            id="origin"
-            type="text"
-            class="form-control"
-            formControlName="origin"
-            placeholder="Terminal Norte"
-            [class.is-invalid]="origin.invalid && origin.touched"
-          />
+            <input
+              id="origin"
+              type="text"
+              class="form-control"
+              formControlName="origin"
+              placeholder="Terminal Norte"
+              [class.is-invalid]="origin.invalid && origin.touched"
+            />
 
-          @if (origin.hasError('required') && origin.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.originRequired') }}</div>
-          }
+            <small class="field-hint">Punto de salida o terminal inicial.</small>
 
-          @if (origin.hasError('minlength') && origin.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.originMin') }}</div>
-          }
+            @if (origin.hasError('required') && origin.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.originRequired') }}</div>
+            }
 
-          @if (origin.hasError('maxlength') && origin.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.originMax') }}</div>
-          }
+            @if (origin.hasError('minlength') && origin.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.originMin') }}</div>
+            }
+
+            @if (origin.hasError('maxlength') && origin.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.originMax') }}</div>
+            }
+          </div>
+
+          <div class="col-md-6 field-group">
+            <label for="destination" class="form-label">{{ t('common.destination') }}</label>
+
+            <input
+              id="destination"
+              type="text"
+              class="form-control"
+              formControlName="destination"
+              placeholder="Polanco"
+              [class.is-invalid]="destination.invalid && destination.touched"
+            />
+
+            <small class="field-hint">Punto final o zona de llegada.</small>
+
+            @if (destination.hasError('required') && destination.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.destinationRequired') }}</div>
+            }
+
+            @if (destination.hasError('minlength') && destination.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.destinationMin') }}</div>
+            }
+
+            @if (destination.hasError('maxlength') && destination.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.destinationMax') }}</div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <div class="form-panel-header">
+          <span class="form-panel-index" aria-hidden="true">03</span>
+
+          <div>
+            <h2 class="form-panel-title">{{ t('common.distance') }}</h2>
+            <p class="form-panel-subtitle">
+              Registra distancia y duración estimada para planeación operativa.
+            </p>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label for="destination" class="form-label">{{ t('common.destination') }}</label>
+        <div class="row g-3">
+          <div class="col-md-6 field-group">
+            <label for="distanceKm" class="form-label">{{ t('routes.form.distanceKm') }}</label>
 
-          <input
-            id="destination"
-            type="text"
-            class="form-control"
-            formControlName="destination"
-            placeholder="Polanco"
-            [class.is-invalid]="destination.invalid && destination.touched"
-          />
+            <input
+              id="distanceKm"
+              type="number"
+              class="form-control"
+              formControlName="distanceKm"
+              [class.is-invalid]="distanceKm.invalid && distanceKm.touched"
+            />
 
-          @if (destination.hasError('required') && destination.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.destinationRequired') }}</div>
-          }
+            <small class="field-hint">Distancia aproximada en kilómetros.</small>
 
-          @if (destination.hasError('minlength') && destination.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.destinationMin') }}</div>
-          }
+            @if (distanceKm.hasError('required') && distanceKm.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.distanceRequired') }}</div>
+            }
 
-          @if (destination.hasError('maxlength') && destination.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.destinationMax') }}</div>
-          }
+            @if ((distanceKm.hasError('min') || distanceKm.hasError('max')) && distanceKm.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.distanceRange') }}</div>
+            }
+          </div>
+
+          <div class="col-md-6 field-group">
+            <label for="estimatedDurationMinutes" class="form-label">
+              {{ t('routes.form.estimatedDurationMinutes') }}
+            </label>
+
+            <input
+              id="estimatedDurationMinutes"
+              type="number"
+              class="form-control"
+              formControlName="estimatedDurationMinutes"
+              [class.is-invalid]="
+                estimatedDurationMinutes.invalid && estimatedDurationMinutes.touched
+              "
+            />
+
+            <small class="field-hint">Duración estimada del recorrido en minutos.</small>
+
+            @if (estimatedDurationMinutes.hasError('required') && estimatedDurationMinutes.touched) {
+              <div class="invalid-feedback">{{ t('routes.validation.durationRequired') }}</div>
+            }
+
+            @if (
+              (estimatedDurationMinutes.hasError('min') ||
+                estimatedDurationMinutes.hasError('max')) &&
+              estimatedDurationMinutes.touched
+            ) {
+              <div class="invalid-feedback">{{ t('routes.validation.durationRange') }}</div>
+            }
+          </div>
         </div>
+      </section>
 
-        <div class="col-md-6">
-          <label for="distanceKm" class="form-label">{{ t('routes.form.distanceKm') }}</label>
-
-          <input
-            id="distanceKm"
-            type="number"
-            class="form-control"
-            formControlName="distanceKm"
-            [class.is-invalid]="distanceKm.invalid && distanceKm.touched"
-          />
-
-          @if (distanceKm.hasError('required') && distanceKm.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.distanceRequired') }}</div>
-          }
-
-          @if ((distanceKm.hasError('min') || distanceKm.hasError('max')) && distanceKm.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.distanceRange') }}</div>
-          }
-        </div>
-
-        <div class="col-md-6">
-          <label for="estimatedDurationMinutes" class="form-label">
-            {{ t('routes.form.estimatedDurationMinutes') }}
-          </label>
-
-          <input
-            id="estimatedDurationMinutes"
-            type="number"
-            class="form-control"
-            formControlName="estimatedDurationMinutes"
-            [class.is-invalid]="
-              estimatedDurationMinutes.invalid && estimatedDurationMinutes.touched
-            "
-          />
-
-          @if (estimatedDurationMinutes.hasError('required') && estimatedDurationMinutes.touched) {
-            <div class="invalid-feedback">{{ t('routes.validation.durationRequired') }}</div>
-          }
-
-          @if (
-            (estimatedDurationMinutes.hasError('min') ||
-              estimatedDurationMinutes.hasError('max')) &&
-            estimatedDurationMinutes.touched
-          ) {
-            <div class="invalid-feedback">{{ t('routes.validation.durationRange') }}</div>
-          }
-        </div>
-      </div>
-
-      <div class="form-actions">
+      <div class="form-footer">
         <a routerLink="/routes" class="btn btn-outline-secondary"> {{ t('common.cancel') }} </a>
 
         <button
