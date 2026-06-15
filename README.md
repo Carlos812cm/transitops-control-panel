@@ -28,6 +28,27 @@ The project can be explained as a Full-Stack system, or separated into Front-End
 
 ---
 
+## Portfolio Review
+
+Use these documents to validate and present the project:
+
+| Document | Purpose |
+| --- | --- |
+| [`docs/final-qa-and-demo-checklist.md`](docs/final-qa-and-demo-checklist.md) | Final QA, responsive checks, theme checks and interview demo flow |
+| [`docs/real-api-smoke-test.md`](docs/real-api-smoke-test.md) | Full local validation guide for PostgreSQL, API and Angular |
+| [`README.es.md`](README.es.md) | Spanish version for local portfolio and interview preparation |
+
+Recommended portfolio flow:
+
+```txt
+1. Read the project purpose and tech stack.
+2. Run the Real API Smoke Test.
+3. Complete the Final QA and Demo Checklist.
+4. Use the Demo Flow section during interviews.
+```
+
+---
+
 ## Tech Stack
 
 | Technology | Purpose |
@@ -293,6 +314,27 @@ npm run api:real:build
 
 ---
 
+## Final QA and Demo Checklist
+
+Before using the project in a portfolio, recruiter review or interview, validate the full experience with:
+
+```txt
+docs/final-qa-and-demo-checklist.md
+```
+
+This checklist covers:
+
+- Local environment setup.
+- Quality gate commands.
+- UI smoke test routes.
+- Functional validation by module.
+- Responsive checks.
+- Light and dark theme checks.
+- Recommended live demo flow.
+- Short interview explanation.
+
+---
+
 ## Demo Flow
 
 Recommended order for a live demo:
@@ -338,6 +380,7 @@ Before presenting the project:
 [ ] Drivers list loads records
 [ ] Routes list loads records
 [ ] Trips list loads records with relations
+[ ] Final QA and Demo Checklist was completed
 [ ] README and smoke test guide are updated
 ```
 
@@ -376,6 +419,7 @@ Implemented:
 - Back-End route tests
 - Local mock API fallback
 - Full local smoke test guide
+- Final QA and demo checklist
 - Demo flow and interview checklist
 
 Possible future improvements:
