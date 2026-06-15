@@ -15,7 +15,7 @@
 @if (vm$ | async; as vm) {
   <div class="filters-card" [formGroup]="filtersForm">
     <div class="row g-3 align-items-end">
-      <div class="col-md-6">
+      <div class="col-lg-6">
         <label class="form-label" for="tripsSearch">{{ t('trips.search.label') }}</label>
         <input
           id="tripsSearch"
@@ -28,7 +28,7 @@
         />
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-6 col-lg-4">
         <label class="form-label" for="tripsStatusFilter">{{ t('common.status') }}</label>
         <select
           id="tripsStatusFilter"
@@ -44,7 +44,7 @@
         </select>
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-6 col-lg-2">
         <button
           type="button"
           class="btn btn-outline-secondary w-100"
@@ -74,12 +74,13 @@
       [message]="t('trips.empty.message')"
       [actionLabel]="t('trips.create')"
       actionLink="/trips/new"
+      [actionRoles]="['ADMIN', 'OPERATOR', 'SUPERVISOR']"
     />
   } @else {
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm resource-table-card">
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
+        <div class="resource-table-shell">
+          <table class="table align-middle resource-table">
             <thead>
               <tr>
                 <th>{{ t('common.vehicle') }}</th>
@@ -95,20 +96,25 @@
             <tbody>
               @for (trip of vm.filteredTrips; track trip.id) {
                 <tr>
-                  <td class="fw-semibold">
-                    {{ getVehicleLabel(trip) }}
+                  <td>
+                    <span class="resource-primary-cell">
+                      {{ getVehicleLabel(trip) }}
+                      <small>{{ getRouteLabel(trip) }}</small>
+                    </span>
                   </td>
 
                   <td>
-                    {{ getDriverName(trip) }}
+                    <span class="resource-muted-cell">{{ getDriverName(trip) }}</span>
                   </td>
 
                   <td>
-                    {{ getRouteLabel(trip) }}
+                    <span class="resource-muted-cell">{{ getRouteLabel(trip) }}</span>
                   </td>
 
                   <td>
-                    {{ trip.scheduledDeparture | date: 'medium' }}
+                    <span class="resource-metric-cell">
+                      {{ trip.scheduledDeparture | date: 'medium' }}
+                    </span>
                   </td>
 
                   <td>
@@ -116,16 +122,18 @@
                   </td>
 
                   <td>
-                    {{ trip.notes || '-' }}
+                    <span class="resource-note-cell">
+                      {{ trip.notes || '-' }}
+                    </span>
                   </td>
 
                   <td class="text-end">
                     <ng-container *appHasRole="['ADMIN', 'OPERATOR', 'SUPERVISOR']">
-                      <div class="btn-group btn-group-sm">
+                      <div class="resource-actions">
                         @if (canStart(trip)) {
                           <button
                             type="button"
-                            class="btn btn-outline-primary"
+                            class="btn btn-outline-primary btn-sm"
                             [disabled]="isUpdating(trip)"
                             (click)="updateTripStatus(trip, 'IN_PROGRESS')"
                           >
@@ -140,7 +148,7 @@
                         @if (canComplete(trip)) {
                           <button
                             type="button"
-                            class="btn btn-outline-success"
+                            class="btn btn-outline-success btn-sm"
                             [disabled]="isUpdating(trip)"
                             (click)="updateTripStatus(trip, 'COMPLETED')"
                           >
@@ -155,7 +163,7 @@
                         @if (canCancel(trip)) {
                           <button
                             type="button"
-                            class="btn btn-outline-danger"
+                            class="btn btn-outline-danger btn-sm"
                             [disabled]="isUpdating(trip)"
                             (click)="updateTripStatus(trip, 'CANCELLED')"
                           >
@@ -168,13 +176,13 @@
                         }
 
                         @if (!canStart(trip) && !canComplete(trip) && !canCancel(trip)) {
-                          <span class="text-muted small"> {{ t('common.noActions') }} </span>
+                          <span class="resource-readonly"> {{ t('common.noActions') }} </span>
                         }
                       </div>
                     </ng-container>
 
                     <ng-container *appHasRole="['VIEWER']">
-                      <span class="text-muted small"> {{ t('common.viewOnly') }} </span>
+                      <span class="resource-readonly"> {{ t('common.viewOnly') }} </span>
                     </ng-container>
                   </td>
                 </tr>

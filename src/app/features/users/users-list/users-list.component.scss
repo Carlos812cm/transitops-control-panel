@@ -1,53 +1,83 @@
+:host {
+  display: block;
+}
+
 .users-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-bottom: 1rem;
 }
 
 .users-summary-card {
-  display: flex;
-  min-height: 6.25rem;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.06), transparent 58%),
+    var(--app-surface);
   border: 1px solid var(--app-border);
-  border-radius: 0.75rem;
-  background: var(--app-surface);
-  box-shadow: 0 0.125rem 0.5rem var(--app-shadow);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-sm);
+  display: flex;
+  gap: 0.9rem;
+  min-height: 6.25rem;
   padding: 1rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.users-summary-card span {
+.users-summary-card-primary {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.13), transparent 62%),
+    var(--app-surface);
+}
+
+.users-summary-icon {
+  align-items: center;
+  background: var(--app-primary-soft);
+  border: 1px solid var(--app-primary-soft-border);
+  border-radius: var(--app-radius-lg);
+  color: var(--app-primary-soft-text);
+  display: inline-flex;
+  flex: 0 0 2.6rem;
+  font-size: 0.95rem;
+  font-weight: 950;
+  height: 2.6rem;
+  justify-content: center;
+  width: 2.6rem;
+}
+
+.users-summary-card div {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.users-summary-card span:not(.users-summary-icon) {
   color: var(--app-text-muted);
-  font-size: 0.85rem;
-  font-weight: 700;
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.045em;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   text-transform: uppercase;
+  word-break: break-word;
 }
 
 .users-summary-card strong {
   color: var(--app-text);
   font-size: 2rem;
+  font-weight: 950;
+  letter-spacing: -0.05em;
   line-height: 1;
 }
 
-.table th {
-  color: var(--app-text-muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+.users-resource-table {
+  min-width: 1040px;
 }
 
-.btn-group {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.35rem;
-}
-
-.btn-group .btn {
-  border-radius: 0.5rem !important;
-}
-
-@media (max-width: 992px) {
+@media (max-width: 1200px) {
   .users-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -56,5 +86,9 @@
 @media (max-width: 576px) {
   .users-summary {
     grid-template-columns: 1fr;
+  }
+
+  .users-summary-card {
+    min-height: auto;
   }
 }

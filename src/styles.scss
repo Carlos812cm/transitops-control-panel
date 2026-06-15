@@ -402,3 +402,127 @@ a:hover {
     flex-wrap: wrap;
   }
 }
+
+.resource-table-card {
+  overflow: hidden;
+}
+
+.resource-table-card .card-body {
+  padding: 0;
+}
+
+.resource-table-shell {
+  overflow-x: auto;
+}
+
+.resource-table {
+  margin: 0;
+}
+
+.resource-table thead {
+  background: var(--app-surface-muted);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.resource-table tbody tr {
+  border-bottom: 1px solid var(--app-border);
+}
+
+.resource-table tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.resource-primary-cell {
+  color: var(--app-text);
+  display: grid;
+  gap: 0.2rem;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.resource-primary-cell small,
+.resource-muted-cell {
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.resource-metric-cell {
+  align-items: center;
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-pill);
+  color: var(--app-text);
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 800;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  white-space: nowrap;
+}
+
+.resource-actions {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.resource-actions .btn {
+  border-radius: var(--app-radius-sm) !important;
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.resource-readonly {
+  background: var(--app-neutral-bg);
+  border: 1px solid var(--app-neutral-border);
+  border-radius: var(--app-radius-pill);
+  color: var(--app-neutral-text);
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 850;
+  padding: 0.35rem 0.65rem;
+  white-space: nowrap;
+}
+
+.resource-note-cell {
+  color: var(--app-text-muted);
+  display: inline-flex;
+  font-size: 0.86rem;
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filters-card {
+  position: relative;
+}
+
+.filters-card::before {
+  background: var(--app-primary);
+  border-radius: var(--app-radius-pill);
+  content: '';
+  height: calc(100% - 2rem);
+  left: 0;
+  opacity: 0.85;
+  position: absolute;
+  top: 1rem;
+  width: 0.22rem;
+}
+
+@media (max-width: 768px) {
+  .resource-table-card .card-body {
+    padding: 0;
+  }
+
+  .resource-actions {
+    justify-content: flex-start;
+  }
+
+  .resource-table {
+    min-width: 760px;
+  }
+}
