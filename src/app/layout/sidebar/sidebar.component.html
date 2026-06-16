@@ -83,6 +83,7 @@
       <button
         type="button"
         class="theme-toggle"
+        [class.is-dark]="theme === 'dark'"
         (click)="toggleTheme()"
         [attr.aria-pressed]="theme === 'dark'"
         [attr.aria-label]="
@@ -93,7 +94,7 @@
           @if (theme === 'dark') {
             ☀
           } @else {
-            ◐
+            ☾
           }
         </span>
 
@@ -106,6 +107,10 @@
                 : t('sidebar.theme.switchToDark')
             }}
           </small>
+        </span>
+
+        <span class="theme-toggle-switch" aria-hidden="true">
+          <span class="theme-toggle-switch-thumb"></span>
         </span>
       </button>
     }
