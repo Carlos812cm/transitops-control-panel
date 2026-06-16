@@ -104,28 +104,28 @@ async function main(): Promise<void> {
   });
 
   const activeDriver = await prisma.driver.create({
-    data: {
-      firstName: 'Lucía',
-      lastName: 'Rojas',
-      licenseNumber: 'LIC-TR-001',
-      phone: '+525511110001',
-      email: 'lucia.rojas@transitops.com',
-      status: 'ACTIVE',
+  data: {
+    firstName: 'Luc\u00eda',
+    lastName: 'Rojas',
+    licenseNumber: 'LIC-TR-001',
+    phone: '+525511110001',
+    email: 'lucia.rojas@transitops.com',
+    status: 'ACTIVE',
     },
   });
 
   await prisma.driver.createMany({
     data: [
       {
-        firstName: 'Martín',
-        lastName: 'López',
+        firstName: 'Mart\u00edn',
+        lastName: 'L\u00f3pez',
         licenseNumber: 'LIC-TR-002',
         phone: '+525511110002',
         email: 'martin.lopez@transitops.com',
         status: 'SUSPENDED',
       },
       {
-        firstName: 'Sofía',
+        firstName: 'Sof\u00eda',
         lastName: 'Herrera',
         licenseNumber: 'LIC-TR-003',
         phone: '+525511110003',
@@ -138,7 +138,7 @@ async function main(): Promise<void> {
   const airportRoute = await prisma.transitRoute.create({
     data: {
       name: 'Centro - Aeropuerto',
-      origin: 'Centro Histórico',
+      origin: 'Centro Hist\u00f3rico',
       destination: 'Aeropuerto Internacional',
       distanceKm: 12.5,
       estimatedDurationMinutes: 35,
