@@ -2,13 +2,11 @@
   <div class="sidebar-header">
     <div class="sidebar-brand">
       <span class="brand-icon" aria-hidden="true">T</span>
-
       <div class="brand-copy">
         <h1>TransitOps</h1>
         <p>{{ t('sidebar.brand.subtitle') }}</p>
       </div>
     </div>
-
     <button
       type="button"
       class="sidebar-close"
@@ -24,28 +22,43 @@
   <nav class="sidebar-nav" [attr.aria-label]="t('sidebar.brand.subtitle')">
     <div class="sidebar-nav-group">
       <span class="sidebar-nav-label">{{ t('sidebar.brand.subtitle') }}</span>
-
-      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">⌂</span>
         <span>{{ t('sidebar.dashboard') }}</span>
       </a>
-
-      <a routerLink="/vehicles" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/vehicles"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">▣</span>
         <span>{{ t('sidebar.vehicles') }}</span>
       </a>
-
-      <a routerLink="/drivers" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/drivers"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">●</span>
         <span>{{ t('sidebar.drivers') }}</span>
       </a>
-
-      <a routerLink="/routes" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/routes"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">↔</span>
         <span>{{ t('sidebar.routes') }}</span>
       </a>
-
-      <a routerLink="/trips" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/trips"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">↗</span>
         <span>{{ t('sidebar.trips') }}</span>
       </a>
@@ -53,13 +66,19 @@
 
     <div class="sidebar-nav-group" *appHasRole="'ADMIN'">
       <span class="sidebar-nav-label">{{ t('sidebar.admin') }}</span>
-
-      <a routerLink="/admin" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/admin"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">◆</span>
         <span>{{ t('sidebar.admin') }}</span>
       </a>
-
-      <a routerLink="/users" routerLinkActive="active" (click)="closeOnNavigation()">
+      <a
+        routerLink="/users"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
         <span class="nav-icon" aria-hidden="true">◉</span>
         <span>{{ t('sidebar.users') }}</span>
       </a>
@@ -80,39 +99,26 @@
     </nav>
 
     @if (currentTheme(); as theme) {
-      <button
-        type="button"
-        class="theme-toggle"
-        [class.is-dark]="theme === 'dark'"
-        (click)="toggleTheme()"
-        [attr.aria-pressed]="theme === 'dark'"
-        [attr.aria-label]="
-          theme === 'dark' ? t('sidebar.theme.switchToLight') : t('sidebar.theme.switchToDark')
-        "
-      >
-        <span class="theme-toggle-icon" aria-hidden="true">
-          @if (theme === 'dark') {
-            ☀
-          } @else {
-            ☾
-          }
-        </span>
-
-        <span class="theme-toggle-copy">
-          <strong>{{ theme === 'dark' ? t('sidebar.theme.light') : t('sidebar.theme.dark') }}</strong>
-          <small>
-            {{
-              theme === 'dark'
-                ? t('sidebar.theme.switchToLight')
-                : t('sidebar.theme.switchToDark')
-            }}
-          </small>
-        </span>
-
-        <span class="theme-toggle-switch" aria-hidden="true">
-          <span class="theme-toggle-switch-thumb"></span>
-        </span>
-      </button>
+      <div class="theme-control">
+        <span class="theme-control-label">{{ themeLabel(theme) }}</span>
+        <button
+          type="button"
+          class="figma-theme-switch"
+          [class.is-dark]="theme === 'dark'"
+          (click)="toggleTheme()"
+          [attr.aria-pressed]="theme === 'dark'"
+          [attr.aria-label]="
+            theme === 'dark'
+              ? t('sidebar.theme.switchToLight')
+              : t('sidebar.theme.switchToDark')
+          "
+        >
+          <span class="figma-theme-switch-thumb" aria-hidden="true">
+            <span class="theme-switch-icon theme-switch-icon-sun">☀</span>
+            <span class="theme-switch-icon theme-switch-icon-moon">☾</span>
+          </span>
+        </button>
+      </div>
     }
 
     <div class="sidebar-meta">

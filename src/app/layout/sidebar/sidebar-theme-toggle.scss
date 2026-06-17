@@ -1,0 +1,193 @@
+.theme-control {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.15rem 0;
+}
+
+.theme-control-label {
+  color: var(--app-sidebar-text);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  line-height: 1;
+  text-align: center;
+  transition: color 220ms ease;
+}
+
+.figma-theme-switch {
+  --toggle-duration: 460ms;
+  --toggle-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --thumb-travel: 2.88rem;
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--app-radius-pill);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08), 0 0.35rem 0.85rem rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  display: flex;
+  height: 2.5rem;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 0.22rem;
+  position: relative;
+  transition: border-color var(--toggle-duration) var(--toggle-ease), box-shadow var(--toggle-duration) var(--toggle-ease), transform 160ms ease;
+  width: 5.4rem;
+}
+
+.figma-theme-switch::before,
+.figma-theme-switch::after {
+  border-radius: inherit;
+  content: '';
+  inset: 0;
+  position: absolute;
+  transition: opacity var(--toggle-duration) ease;
+}
+
+.figma-theme-switch::before {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  opacity: 1;
+  z-index: -2;
+}
+
+.figma-theme-switch::after {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  opacity: 0;
+  z-index: -1;
+}
+
+.figma-theme-switch:hover {
+  border-color: rgba(245, 158, 11, 0.82);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06), 0 0.5rem 1.05rem rgba(245, 158, 11, 0.22);
+}
+
+.figma-theme-switch:active {
+  transform: scale(0.94);
+}
+
+.figma-theme-switch:focus-visible {
+  border-color: var(--app-primary);
+  box-shadow: var(--app-focus-ring), 0 0.5rem 1rem rgba(37, 99, 235, 0.22);
+}
+
+.figma-theme-switch.is-dark {
+  border-color: #6366f1;
+  box-shadow: inset 0 0 0.9rem rgba(79, 70, 229, 0.18), 0 0.45rem 1rem rgba(79, 70, 229, 0.28);
+}
+
+.figma-theme-switch.is-dark::before {
+  opacity: 0;
+}
+
+.figma-theme-switch.is-dark::after {
+  opacity: 1;
+}
+
+.figma-theme-switch.is-dark:hover {
+  border-color: #818cf8;
+  box-shadow: inset 0 0 0.9rem rgba(99, 102, 241, 0.22), 0 0.55rem 1.15rem rgba(99, 102, 241, 0.32);
+}
+
+.figma-theme-switch-thumb {
+  align-items: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 50%;
+  box-shadow: 0 0 0.75rem rgba(251, 191, 36, 0.58), 0 0.2rem 0.45rem rgba(120, 53, 15, 0.3);
+  display: inline-flex;
+  height: 1.9rem;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  transform: translate3d(var(--thumb-travel), 0, 0);
+  transition: box-shadow var(--toggle-duration) ease, filter 220ms ease, transform var(--toggle-duration) var(--toggle-ease);
+  width: 1.9rem;
+  will-change: transform;
+}
+
+.figma-theme-switch-thumb::before,
+.figma-theme-switch-thumb::after {
+  border-radius: inherit;
+  content: '';
+  inset: 0;
+  position: absolute;
+  transition: opacity var(--toggle-duration) ease;
+}
+
+.figma-theme-switch-thumb::before {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  opacity: 1;
+}
+
+.figma-theme-switch-thumb::after {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  opacity: 0;
+}
+
+.figma-theme-switch:hover .figma-theme-switch-thumb {
+  filter: brightness(1.08);
+}
+
+.figma-theme-switch.is-dark .figma-theme-switch-thumb {
+  box-shadow: 0 0 0.85rem rgba(124, 58, 237, 0.64), 0 0.2rem 0.5rem rgba(30, 27, 75, 0.45);
+  transform: translate3d(0, 0, 0);
+}
+
+.figma-theme-switch.is-dark .figma-theme-switch-thumb::before {
+  opacity: 0;
+}
+
+.figma-theme-switch.is-dark .figma-theme-switch-thumb::after {
+  opacity: 1;
+}
+
+.theme-switch-icon {
+  align-items: center;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.95rem;
+  font-weight: 900;
+  inset: 0;
+  justify-content: center;
+  line-height: 1;
+  position: absolute;
+  transition: opacity 320ms ease, transform var(--toggle-duration) var(--toggle-ease);
+  will-change: opacity, transform;
+  z-index: 2;
+}
+
+.theme-switch-icon-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.theme-switch-icon-moon {
+  color: #ede9fe;
+  opacity: 0;
+  transform: rotate(100deg) scale(0.45);
+}
+
+.figma-theme-switch.is-dark .theme-switch-icon-sun {
+  opacity: 0;
+  transform: rotate(-100deg) scale(0.45);
+}
+
+.figma-theme-switch.is-dark .theme-switch-icon-moon {
+  opacity: 1;
+  transform: rotate(-12deg) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-control-label,
+  .figma-theme-switch,
+  .figma-theme-switch::before,
+  .figma-theme-switch::after,
+  .figma-theme-switch-thumb,
+  .figma-theme-switch-thumb::before,
+  .figma-theme-switch-thumb::after,
+  .theme-switch-icon {
+    transition: none;
+  }
+}

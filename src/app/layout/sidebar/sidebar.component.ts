@@ -11,7 +11,7 @@ import { HasRoleDirective } from '../../shared/directives/has-role.directive';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, HasRoleDirective],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
+  styleUrls: ['./sidebar.component.scss', './sidebar-theme-toggle.scss'],
 })
 export class SidebarComponent {
   private readonly languageService = inject(LanguageService);
@@ -36,6 +36,14 @@ export class SidebarComponent {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  themeLabel(theme: 'light' | 'dark'): string {
+    if (this.currentLanguage() === 'es') {
+      return theme === 'dark' ? 'Tema oscuro' : 'Tema claro';
+    }
+
+    return theme === 'dark' ? 'Dark theme' : 'Light theme';
   }
 
   t(key: TranslationKey): string {
