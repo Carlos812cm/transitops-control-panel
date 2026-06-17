@@ -6,5 +6,9 @@ export const sidebarMetadata = {
   standalone: true,
   imports: [RouterLink, RouterLinkActive, HasRoleDirective],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss', './sidebar-theme-toggle.scss'],
+  styleUrls: [
+    './sidebar.component.scss',
+    './sidebar-theme-toggle.scss',
+    './sidebar-theme-toggle-overrides.css',
+  ],
 };
