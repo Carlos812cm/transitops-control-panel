@@ -1,0 +1,1 @@
+export const themeLabel = (language: 'en' | 'es', theme: 'light' | 'dark'): string => language === 'es' ? (theme === 'dark' ? 'Tema oscuro' : 'Tema claro') : (theme === 'dark' ? 'Dark theme' : 'Light theme');
