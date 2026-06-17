@@ -10,5 +10,5 @@ export const sidebarMetadata = {
     './sidebar.component.scss',
     './sidebar-theme-toggle.scss',
     './sidebar-theme-toggle-overrides.css',
-  ],
+  ]
 };

@@ -1,1 +1,129 @@
-<aside class="sidebar" [class.open]="isOpen"><div class="sidebar-header"><div class="sidebar-brand"><span class="brand-icon" aria-hidden="true">T</span><div class="brand-copy"><h1>TransitOps</h1><p>{{ t('sidebar.brand.subtitle') }}</p></div></div><button type="button" class="sidebar-close" [attr.aria-label]="t('sidebar.close')" (pointerup)="closeOnNavigation()" (keydown.enter)="closeOnNavigation()" (keydown.space)="closeOnNavigation(); $event.preventDefault()"><span aria-hidden="true">&times;</span></button></div><nav class="sidebar-nav" [attr.aria-label]="t('sidebar.brand.subtitle')"><div class="sidebar-nav-group"><span class="sidebar-nav-label">{{ t('sidebar.brand.subtitle') }}</span><a routerLink="/dashboard" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">⌂</span><span>{{ t('sidebar.dashboard') }}</span></a><a routerLink="/vehicles" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">▣</span><span>{{ t('sidebar.vehicles') }}</span></a><a routerLink="/drivers" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">●</span><span>{{ t('sidebar.drivers') }}</span></a><a routerLink="/routes" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">↔</span><span>{{ t('sidebar.routes') }}</span></a><a routerLink="/trips" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">↗</span><span>{{ t('sidebar.trips') }}</span></a></div><div class="sidebar-nav-group" *appHasRole="'ADMIN'"><span class="sidebar-nav-label">{{ t('sidebar.admin') }}</span><a routerLink="/admin" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">◆</span><span>{{ t('sidebar.admin') }}</span></a><a routerLink="/users" routerLinkActive="active" (click)="closeOnNavigation()"><span class="nav-icon" aria-hidden="true">◉</span><span>{{ t('sidebar.users') }}</span></a></div></nav><div class="sidebar-footer"><nav class="sidebar-footer-nav" [attr.aria-label]="t('sidebar.settings')"><a routerLink="/settings" routerLinkActive="active" (click)="closeOnNavigation()" *appHasRole="settingsRoles"><span class="nav-icon" aria-hidden="true">⚙</span><span>{{ t('sidebar.settings') }}</span></a></nav>@if (currentTheme(); as theme) {<div class="theme-control"><span class="theme-control-label">{{ themeLabel(theme) }}</span><button type="button" class="figma-theme-switch" [class.is-dark]="theme === 'dark'" (click)="toggleTheme()" [attr.aria-pressed]="theme === 'dark'" [attr.aria-label]="theme === 'dark' ? t('sidebar.theme.switchToLight') : t('sidebar.theme.switchToDark')"><span class="figma-theme-switch-thumb" aria-hidden="true"><span class="theme-switch-icon theme-switch-icon-sun">☀</span><span class="theme-switch-icon theme-switch-icon-moon">☾</span></span></button></div>}<div class="sidebar-meta"><p>{{ t('sidebar.meta.project') }}</p><span>{{ t('sidebar.meta.description') }}</span></div></div></aside>
+<aside class="sidebar" [class.open]="isOpen">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <span class="brand-icon" aria-hidden="true">T</span>
+      <div class="brand-copy">
+        <h1>TransitOps</h1>
+        <p>{{ t('sidebar.brand.subtitle') }}</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="sidebar-close"
+      [attr.aria-label]="t('sidebar.close')"
+      (pointerup)="closeOnNavigation()"
+      (keydown.enter)="closeOnNavigation()"
+      (keydown.space)="closeOnNavigation(); $event.preventDefault()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav" [attr.aria-label]="t('sidebar.brand.subtitle')">
+    <div class="sidebar-nav-group">
+      <span class="sidebar-nav-label">{{ t('sidebar.brand.subtitle') }}</span>
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">⌂</span>
+        <span>{{ t('sidebar.dashboard') }}</span>
+      </a>
+      <a
+        routerLink="/vehicles"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">▣</span>
+        <span>{{ t('sidebar.vehicles') }}</span>
+      </a>
+      <a
+        routerLink="/drivers"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">●</span>
+        <span>{{ t('sidebar.drivers') }}</span>
+      </a>
+      <a
+        routerLink="/routes"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">↔</span>
+        <span>{{ t('sidebar.routes') }}</span>
+      </a>
+      <a
+        routerLink="/trips"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">↗</span>
+        <span>{{ t('sidebar.trips') }}</span>
+      </a>
+    </div>
+
+    <div class="sidebar-nav-group" *appHasRole="'ADMIN'">
+      <span class="sidebar-nav-label">{{ t('sidebar.admin') }}</span>
+      <a
+        routerLink="/admin"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">◆</span>
+        <span>{{ t('sidebar.admin') }}</span>
+      </a>
+      <a
+        routerLink="/users"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+      >
+        <span class="nav-icon" aria-hidden="true">◉</span>
+        <span>{{ t('sidebar.users') }}</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <nav class="sidebar-footer-nav" [attr.aria-label]="t('sidebar.settings')">
+      <a
+        routerLink="/settings"
+        routerLinkActive="active"
+        (click)="closeOnNavigation()"
+        *appHasRole="settingsRoles"
+      >
+        <span class="nav-icon" aria-hidden="true">⚙</span>
+        <span>{{ t('sidebar.settings') }}</span>
+      </a>
+    </nav>
+
+    @if (currentTheme(); as theme) {
+      <div class="theme-control">
+        <span class="theme-control-label">{{ themeLabel(theme) }}</span>
+        <button
+          type="button"
+          class="figma-theme-switch"
+          [class.is-dark]="theme === 'dark'"
+          (click)="toggleTheme()"
+          [attr.aria-pressed]="theme === 'dark'"
+          [attr.aria-label]="
+            theme === 'dark'
+              ? t('sidebar.theme.switchToLight')
+              : t('sidebar.theme.switchToDark')
+          "
+        >
+          <span class="figma-theme-switch-thumb" aria-hidden="true">
+            <span class="theme-switch-icon theme-switch-icon-sun">☀</span>
+            <span class="theme-switch-icon theme-switch-icon-moon">☾</span>
+          </span>
+        </button>
+      </div>
+    }
+
+    <div class="sidebar-meta">
+      <p>{{ t('sidebar.meta.project') }}</p>
+      <span>{{ t('sidebar.meta.description') }}</span>
+    </div>
+  </div>
+</aside>
