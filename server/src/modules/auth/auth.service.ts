@@ -4,7 +4,12 @@ import { buildUserFullName } from '../../common/utils/user-name.js';
 
 import { prisma } from '../../config/prisma.js';
 import { AppError } from '../../common/errors/app-error.js';
-import { AuthUser, LoginResponseData, UpdateProfileInput } from './auth.types.js';
+import {
+  AuthUser,
+  ChangePasswordInput,
+  LoginResponseData,
+  UpdateProfileInput,
+} from './auth.types.js';
 import { signAuthToken } from './token.service.js';
 
 function normalizeName(value: string): string {
@@ -211,4 +216,49 @@ export async function updateAuthUserProfile(
 
     throw error;
   }
+}
+
+export async function changeAuthUserPassword(
+  userId: string,
+  input: ChangePasswordInput,
+): Promise<void> {
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!currentUser) {
+    throw new AppError('Authenticated user was not found.', 401);
+  }
+
+  if (currentUser.status !== 'ACTIVE') {
+    throw new AppError('User account is not active.', 403);
+  }
+
+  const currentPasswordMatches = await bcrypt.compare(
+    input.currentPassword,
+    currentUser.passwordHash,
+  );
+
+  if (!currentPasswordMatches) {
+    throw new AppError('Current password is incorrect.', 401);
+  }
+
+  if (input.newPassword === input.currentPassword) {
+    throw new AppError('New password must be different from current password.', 400, {
+      newPassword: ['New password must be different from current password.'],
+    });
+  }
+
+  const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      passwordHash: newPasswordHash,
+    },
+  });
 }

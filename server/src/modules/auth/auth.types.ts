@@ -21,6 +21,12 @@ export interface UpdateProfileInput {
   phone: string;
   currentPassword?: string;
 }
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface LoginResponseData {
   token: string;
   user: AuthUser;

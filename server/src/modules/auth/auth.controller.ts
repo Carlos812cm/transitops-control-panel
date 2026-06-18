@@ -2,8 +2,13 @@ import { Request, Response } from 'express';
 
 import { AppError } from '../../common/errors/app-error.js';
 import { sendSuccess } from '../../common/responses/api-response.js';
-import { LoginBody, UpdateProfileBody } from './auth.schemas.js';
-import { getAuthUserById, loginUser, updateAuthUserProfile } from './auth.service.js';
+import { ChangePasswordBody, LoginBody, UpdateProfileBody } from './auth.schemas.js';
+import {
+  changeAuthUserPassword,
+  getAuthUserById,
+  loginUser,
+  updateAuthUserProfile,
+} from './auth.service.js';
 
 export async function login(request: Request, response: Response): Promise<Response> {
   const { email, password } = request.body as LoginBody;
@@ -39,4 +44,19 @@ export async function updateProfile(request: Request, response: Response): Promi
   });
 
   return sendSuccess(response, 'Profile updated successfully.', user);
+}
+
+export async function changePassword(request: Request, response: Response): Promise<Response> {
+  if (!request.authUser) {
+    throw new AppError('Authentication token is required.', 401);
+  }
+
+  const body = request.body as ChangePasswordBody;
+
+  await changeAuthUserPassword(request.authUser.id, {
+    currentPassword: body.currentPassword,
+    newPassword: body.newPassword,
+  });
+
+  return sendSuccess(response, 'Password changed successfully.');
 }

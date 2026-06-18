@@ -17,6 +17,13 @@ const phoneSchema = z
     'Phone number must contain between 8 and 20 digits.',
   );
 
+const newPasswordSchema = z
+  .string()
+  .min(8, 'New password must contain at least 8 characters.')
+  .max(72, 'New password must contain at most 72 characters.')
+  .regex(/\p{L}/u, 'New password must contain at least one letter.')
+  .regex(/\d/, 'New password must contain at least one number.');
+
 export const loginSchema = z.object({
   body: z.object({
     email: z.string().trim().email('Email must be valid.'),
@@ -44,5 +51,39 @@ export const updateProfileSchema = z.object({
     .strict(),
 });
 
+export const changePasswordSchema = z.object({
+  body: z
+    .object({
+      currentPassword: z
+        .string()
+        .min(1, 'Current password is required.')
+        .max(72, 'Current password must contain at most 72 characters.'),
+      newPassword: newPasswordSchema,
+      confirmPassword: z
+        .string()
+        .min(1, 'Password confirmation is required.')
+        .max(72, 'Password confirmation must contain at most 72 characters.'),
+    })
+    .strict()
+    .superRefine((body, context) => {
+      if (body.newPassword !== body.confirmPassword) {
+        context.addIssue({
+          code: 'custom',
+          path: ['confirmPassword'],
+          message: 'Password confirmation does not match.',
+        });
+      }
+
+      if (body.newPassword === body.currentPassword) {
+        context.addIssue({
+          code: 'custom',
+          path: ['newPassword'],
+          message: 'New password must be different from current password.',
+        });
+      }
+    }),
+});
+
 export type LoginBody = z.infer<typeof loginSchema>['body'];
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>['body'];
+export type ChangePasswordBody = z.infer<typeof changePasswordSchema>['body'];
