@@ -235,7 +235,7 @@ export class UsersListComponent implements OnInit {
     return this.updatingUserId === user.id;
   }
 
-  roleLabel(role?: UserRole | string): string {
+  roleLabel(role?: UserRole | string | null): string {
     if (!role) {
       return this.t('users.table.notRequested');
     }
