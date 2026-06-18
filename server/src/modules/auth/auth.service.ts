@@ -1,26 +1,21 @@
+import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { buildUserFullName } from '../../common/utils/user-name.js';
 
 import { prisma } from '../../config/prisma.js';
 import { AppError } from '../../common/errors/app-error.js';
 import { AuthUser, LoginResponseData } from './auth.types.js';
 import { signAuthToken } from './token.service.js';
 
-function toAuthUser(user: {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  role: AuthUser['role'];
-  requestedRole: AuthUser['requestedRole'];
-  status: AuthUser['status'];
-  createdAt: Date;
-  updatedAt: Date;
-}): AuthUser {
+function toAuthUser(user: User): AuthUser {
   return {
     id: user.id,
-    name: user.name,
+    name: buildUserFullName(user.firstName, user.lastName),
+    firstName: user.firstName,
+    lastName: user.lastName,
     email: user.email,
     phone: user.phone,
+    avatarUrl: user.avatarUrl,
     role: user.role,
     requestedRole: user.requestedRole,
     status: user.status,

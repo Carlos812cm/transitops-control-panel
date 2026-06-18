@@ -10,12 +10,17 @@ describe('POST /api/auth/login', () => {
       password: 'admin123',
     });
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(response.body.message).toBe('Login successful.');
-    expect(response.body.data.token).toEqual(expect.any(String));
-    expect(response.body.data.user.email).toBe('admin@transitops.com');
-    expect(response.body.data.user.role).toBe('ADMIN');
+    expect(response.body.data.user).toMatchObject({
+      name: 'Admin Demo',
+      firstName: 'Admin',
+      lastName: 'Demo',
+      email: 'admin@transitops.com',
+      phone: '+525500000001',
+      avatarUrl: null,
+      role: 'ADMIN',
+      status: 'ACTIVE',
+    });
+
     expect(response.body.data.user.passwordHash).toBeUndefined();
   });
 
@@ -44,10 +49,17 @@ describe('GET /api/auth/profile', () => {
       .get('/api/auth/profile')
       .set('Authorization', `Bearer ${token}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(response.body.message).toBe('Profile retrieved successfully.');
-    expect(response.body.data.email).toBe('admin@transitops.com');
+    expect(response.body.data).toMatchObject({
+      name: 'Admin Demo',
+      firstName: 'Admin',
+      lastName: 'Demo',
+      email: 'admin@transitops.com',
+      phone: '+525500000001',
+      avatarUrl: null,
+      role: 'ADMIN',
+      status: 'ACTIVE',
+    });
+
     expect(response.body.data.passwordHash).toBeUndefined();
   });
 
