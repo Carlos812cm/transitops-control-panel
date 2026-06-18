@@ -11,6 +11,7 @@ import {
   UpdateProfileInput,
 } from './auth.types.js';
 import { signAuthToken } from './token.service.js';
+import { deleteAvatarFile, saveAvatarFile } from '../../common/storage/avatar-storage.service.js';
 
 function normalizeName(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
@@ -41,6 +42,14 @@ function getUniqueConstraintField(error: unknown): 'email' | 'phone' | null {
   }
 
   return null;
+}
+
+async function removeStoredAvatarSafely(avatarUrl: string | null | undefined): Promise<void> {
+  try {
+    await deleteAvatarFile(avatarUrl);
+  } catch (error) {
+    console.error('Failed to remove stored avatar file.', error);
+  }
 }
 
 function toAuthUser(user: User): AuthUser {
@@ -261,4 +270,73 @@ export async function changeAuthUserPassword(
       passwordHash: newPasswordHash,
     },
   });
+}
+
+export async function updateAuthUserAvatar(userId: string, fileBuffer: Buffer): Promise<AuthUser> {
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!currentUser) {
+    throw new AppError('Authenticated user was not found.', 401);
+  }
+
+  if (currentUser.status !== 'ACTIVE') {
+    throw new AppError('User account is not active.', 403);
+  }
+
+  const newAvatarUrl = await saveAvatarFile(currentUser.id, fileBuffer);
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: currentUser.id,
+      },
+      data: {
+        avatarUrl: newAvatarUrl,
+      },
+    });
+
+    await removeStoredAvatarSafely(currentUser.avatarUrl);
+
+    return toAuthUser(updatedUser);
+  } catch (error) {
+    await removeStoredAvatarSafely(newAvatarUrl);
+    throw error;
+  }
+}
+
+export async function deleteAuthUserAvatar(userId: string): Promise<AuthUser> {
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!currentUser) {
+    throw new AppError('Authenticated user was not found.', 401);
+  }
+
+  if (currentUser.status !== 'ACTIVE') {
+    throw new AppError('User account is not active.', 403);
+  }
+
+  if (!currentUser.avatarUrl) {
+    return toAuthUser(currentUser);
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: currentUser.id,
+    },
+    data: {
+      avatarUrl: null,
+    },
+  });
+
+  await removeStoredAvatarSafely(currentUser.avatarUrl);
+
+  return toAuthUser(updatedUser);
 }

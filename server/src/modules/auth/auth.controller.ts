@@ -5,8 +5,10 @@ import { sendSuccess } from '../../common/responses/api-response.js';
 import { ChangePasswordBody, LoginBody, UpdateProfileBody } from './auth.schemas.js';
 import {
   changeAuthUserPassword,
+  deleteAuthUserAvatar,
   getAuthUserById,
   loginUser,
+  updateAuthUserAvatar,
   updateAuthUserProfile,
 } from './auth.service.js';
 
@@ -59,4 +61,30 @@ export async function changePassword(request: Request, response: Response): Prom
   });
 
   return sendSuccess(response, 'Password changed successfully.');
+}
+
+export async function updateAvatar(request: Request, response: Response): Promise<Response> {
+  if (!request.authUser) {
+    throw new AppError('Authentication token is required.', 401);
+  }
+
+  if (!request.file) {
+    throw new AppError('Avatar file is required.', 400, {
+      avatar: ['Avatar file is required.'],
+    });
+  }
+
+  const user = await updateAuthUserAvatar(request.authUser.id, request.file.buffer);
+
+  return sendSuccess(response, 'Avatar updated successfully.', user);
+}
+
+export async function deleteAvatar(request: Request, response: Response): Promise<Response> {
+  if (!request.authUser) {
+    throw new AppError('Authentication token is required.', 401);
+  }
+
+  const user = await deleteAuthUserAvatar(request.authUser.id);
+
+  return sendSuccess(response, 'Avatar deleted successfully.', user);
 }
