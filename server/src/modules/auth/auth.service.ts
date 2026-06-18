@@ -1,11 +1,42 @@
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { buildUserFullName } from '../../common/utils/user-name.js';
 
 import { prisma } from '../../config/prisma.js';
 import { AppError } from '../../common/errors/app-error.js';
-import { AuthUser, LoginResponseData } from './auth.types.js';
+import { AuthUser, LoginResponseData, UpdateProfileInput } from './auth.types.js';
 import { signAuthToken } from './token.service.js';
+
+function normalizeName(value: string): string {
+  return value.trim().replace(/\s+/g, ' ');
+}
+
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function normalizePhone(value: string): string {
+  return value.trim().replace(/[\s()-]/g, '');
+}
+
+function getUniqueConstraintField(error: unknown): 'email' | 'phone' | null {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') {
+    return null;
+  }
+
+  const target = error.meta?.['target'];
+  const serializedTarget = Array.isArray(target) ? target.join(',') : String(target ?? '');
+
+  if (serializedTarget.includes('email')) {
+    return 'email';
+  }
+
+  if (serializedTarget.includes('phone')) {
+    return 'phone';
+  }
+
+  return null;
+}
 
 function toAuthUser(user: User): AuthUser {
   return {
@@ -72,4 +103,112 @@ export async function getAuthUserById(userId: string): Promise<AuthUser> {
   }
 
   return toAuthUser(user);
+}
+
+export async function updateAuthUserProfile(
+  userId: string,
+  input: UpdateProfileInput,
+): Promise<AuthUser> {
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!currentUser) {
+    throw new AppError('Authenticated user was not found.', 401);
+  }
+
+  if (currentUser.status !== 'ACTIVE') {
+    throw new AppError('User account is not active.', 403);
+  }
+
+  const firstName = normalizeName(input.firstName);
+  const lastName = normalizeName(input.lastName);
+  const email = normalizeEmail(input.email);
+  const phone = normalizePhone(input.phone);
+
+  const emailChanged = email !== normalizeEmail(currentUser.email);
+
+  if (emailChanged) {
+    if (!input.currentPassword) {
+      throw new AppError('Current password is required to change email.', 400, {
+        currentPassword: ['Current password is required to change email.'],
+      });
+    }
+
+    const passwordMatches = await bcrypt.compare(input.currentPassword, currentUser.passwordHash);
+
+    if (!passwordMatches) {
+      throw new AppError('Current password is incorrect.', 401);
+    }
+  }
+
+  const conflictingUser = await prisma.user.findFirst({
+    where: {
+      id: {
+        not: userId,
+      },
+      OR: [
+        {
+          email: {
+            equals: email,
+            mode: 'insensitive',
+          },
+        },
+        {
+          phone,
+        },
+      ],
+    },
+    select: {
+      email: true,
+      phone: true,
+    },
+  });
+
+  if (conflictingUser?.email.toLowerCase() === email) {
+    throw new AppError('Email is already in use.', 409, {
+      email: ['Email is already in use.'],
+    });
+  }
+
+  if (conflictingUser?.phone === phone) {
+    throw new AppError('Phone number is already in use.', 409, {
+      phone: ['Phone number is already in use.'],
+    });
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: buildUserFullName(firstName, lastName),
+        firstName,
+        lastName,
+        email,
+        phone,
+      },
+    });
+
+    return toAuthUser(updatedUser);
+  } catch (error) {
+    const conflictingField = getUniqueConstraintField(error);
+
+    if (conflictingField === 'email') {
+      throw new AppError('Email is already in use.', 409, {
+        email: ['Email is already in use.'],
+      });
+    }
+
+    if (conflictingField === 'phone') {
+      throw new AppError('Phone number is already in use.', 409, {
+        phone: ['Phone number is already in use.'],
+      });
+    }
+
+    throw error;
+  }
 }

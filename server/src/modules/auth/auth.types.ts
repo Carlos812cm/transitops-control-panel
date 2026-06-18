@@ -14,7 +14,13 @@ export interface AuthUser {
   createdAt: Date;
   updatedAt: Date;
 }
-
+export interface UpdateProfileInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  currentPassword?: string;
+}
 export interface LoginResponseData {
   token: string;
   user: AuthUser;
