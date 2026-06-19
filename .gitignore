@@ -57,3 +57,9 @@ server/.vite/
 **/node_modules/
 **/dist/
 **/.vite/
+
+# Local profile uploads
+server/uploads/*
+!server/uploads/avatars/
+server/uploads/avatars/*
+!server/uploads/avatars/.gitkeep

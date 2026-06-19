@@ -9,10 +9,13 @@ export type PublicRegistrationRole = Exclude<UserRole, 'ADMIN'>;
 export interface User {
   id: string;
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone?: string;
+  phone?: string | null;
+  avatarUrl?: string | null;
   role: UserRole;
-  requestedRole?: UserRole | PublicRegistrationRole;
+  requestedRole?: UserRole | PublicRegistrationRole | null;
   status: UserStatus;
   createdAt?: string | Date;
   updatedAt?: string | Date;
@@ -62,5 +65,3 @@ export interface RegisterResponseData {
   requestedRole: PublicRegistrationRole;
   status: UserStatus;
 }
-
-

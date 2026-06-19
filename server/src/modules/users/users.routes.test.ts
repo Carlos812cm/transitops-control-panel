@@ -25,16 +25,30 @@ describe('GET /api/users', () => {
   it('returns users for admin users', async () => {
     const token = await getAdminToken();
 
-    const response = await request(app)
-      .get('/api/users')
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).get('/api/users').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Users retrieved successfully.');
     expect(Array.isArray(response.body.data)).toBe(true);
     expect(response.body.data.length).toBeGreaterThanOrEqual(4);
-    expect(response.body.data[0].passwordHash).toBeUndefined();
+
+    const admin = response.body.data.find(
+      (user: { email: string }) => user.email === 'admin@transitops.com',
+    );
+
+    expect(admin).toMatchObject({
+      name: 'Admin Demo',
+      firstName: 'Admin',
+      lastName: 'Demo',
+      email: 'admin@transitops.com',
+      phone: '+525500000001',
+      avatarUrl: null,
+      role: 'ADMIN',
+      status: 'ACTIVE',
+    });
+
+    expect(admin.passwordHash).toBeUndefined();
   });
 
   it('rejects users without token', async () => {
@@ -48,9 +62,7 @@ describe('GET /api/users', () => {
   it('rejects non-admin users', async () => {
     const token = await getViewerToken();
 
-    const response = await request(app)
-      .get('/api/users')
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).get('/api/users').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(403);
     expect(response.body.success).toBe(false);

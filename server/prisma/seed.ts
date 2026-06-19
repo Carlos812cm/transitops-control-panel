@@ -27,6 +27,8 @@ async function main(): Promise<void> {
   const admin = await prisma.user.create({
     data: {
       name: 'Admin Demo',
+      firstName: 'Admin',
+      lastName: 'Demo',
       email: 'admin@transitops.com',
       phone: '+525500000001',
       passwordHash,
@@ -38,6 +40,8 @@ async function main(): Promise<void> {
   const operator = await prisma.user.create({
     data: {
       name: 'Operator Demo',
+      firstName: 'Operator',
+      lastName: 'Demo',
       email: 'operator@transitops.com',
       phone: '+525500000002',
       passwordHash: operatorPasswordHash,
@@ -49,6 +53,8 @@ async function main(): Promise<void> {
   const supervisor = await prisma.user.create({
     data: {
       name: 'Supervisor Demo',
+      firstName: 'Supervisor',
+      lastName: 'Demo',
       email: 'supervisor@transitops.com',
       phone: '+525500000003',
       passwordHash: supervisorPasswordHash,
@@ -60,6 +66,8 @@ async function main(): Promise<void> {
   const viewer = await prisma.user.create({
     data: {
       name: 'Viewer Demo',
+      firstName: 'Viewer',
+      lastName: 'Demo',
       email: 'viewer@transitops.com',
       phone: '+525500000004',
       passwordHash: viewerPasswordHash,

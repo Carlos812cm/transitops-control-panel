@@ -3,13 +3,17 @@ import { Prisma, User, UserStatus } from '@prisma/client';
 import { AppError } from '../../common/errors/app-error.js';
 import { prisma } from '../../config/prisma.js';
 import { PublicUser, UserFilters } from './users.types.js';
+import { buildUserFullName } from '../../common/utils/user-name.js';
 
 function toPublicUser(user: User): PublicUser {
   return {
     id: user.id,
-    name: user.name,
+    name: buildUserFullName(user.firstName, user.lastName),
+    firstName: user.firstName,
+    lastName: user.lastName,
     email: user.email,
     phone: user.phone,
+    avatarUrl: user.avatarUrl,
     role: user.role,
     requestedRole: user.requestedRole,
     status: user.status,
@@ -31,6 +35,18 @@ function buildUsersWhere(filters: UserFilters): Prisma.UserWhereInput {
 
   if (filters.q) {
     where.OR = [
+      {
+        firstName: {
+          contains: filters.q,
+          mode: 'insensitive',
+        },
+      },
+      {
+        lastName: {
+          contains: filters.q,
+          mode: 'insensitive',
+        },
+      },
       {
         name: {
           contains: filters.q,

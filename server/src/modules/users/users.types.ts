@@ -3,10 +3,13 @@ import { UserRole, UserStatus } from '@prisma/client';
 export interface PublicUser {
   id: string;
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone?: string | null;
+  phone: string | null;
+  avatarUrl: string | null;
   role: UserRole;
-  requestedRole?: UserRole | null;
+  requestedRole: UserRole | null;
   status: UserStatus;
   createdAt: Date;
   updatedAt: Date;
