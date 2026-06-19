@@ -21,8 +21,7 @@
 .settings-overview {
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 36%),
-    linear-gradient(135deg, rgba(37, 99, 235, 0.07), transparent 62%),
-    var(--app-surface);
+    linear-gradient(135deg, rgba(37, 99, 235, 0.07), transparent 62%), var(--app-surface);
   display: grid;
   gap: 1.25rem;
   padding: clamp(1.25rem, 3vw, 1.75rem);
@@ -147,8 +146,7 @@
 
 .language-option.selected {
   background:
-    linear-gradient(135deg, rgba(37, 99, 235, 0.11), transparent 62%),
-    var(--app-primary-soft);
+    linear-gradient(135deg, rgba(37, 99, 235, 0.11), transparent 62%), var(--app-primary-soft);
   border-color: var(--app-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
@@ -244,5 +242,236 @@
 
   .language-option-current {
     align-self: flex-start;
+  }
+}
+
+.settings-panels {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.account-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.account-avatar {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent), var(--app-primary);
+  border-radius: var(--app-radius-xl);
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 1.35rem;
+  font-weight: 950;
+  height: 4.25rem;
+  justify-content: center;
+  overflow: hidden;
+  width: 4.25rem;
+}
+
+.account-avatar img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.account-meta-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-meta-grid span {
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem;
+}
+
+.account-meta-grid small {
+  color: var(--app-text-muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.account-meta-grid strong {
+  color: var(--app-text);
+  font-size: 0.84rem;
+  font-weight: 950;
+}
+
+.settings-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.settings-form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settings-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.settings-field span {
+  color: var(--app-text);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.settings-field input {
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  color: var(--app-text);
+  min-height: 2.85rem;
+  outline: none;
+  padding: 0.7rem 0.85rem;
+  transition:
+    background-color var(--app-transition-fast),
+    border-color var(--app-transition-fast),
+    box-shadow var(--app-transition-fast);
+  width: 100%;
+}
+
+.settings-field input:focus {
+  background: var(--app-surface);
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.settings-field small {
+  color: var(--app-danger-text);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.settings-field em {
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-actions .btn {
+  min-height: 2.75rem;
+  min-width: 10rem;
+}
+
+.settings-alert {
+  border-radius: var(--app-radius-lg);
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.45;
+  padding: 0.85rem 1rem;
+}
+
+.settings-alert.success {
+  background: var(--app-success-bg);
+  border: 1px solid var(--app-success-border);
+  color: var(--app-success-text);
+}
+
+.settings-alert.danger {
+  background: var(--app-danger-bg);
+  border: 1px solid var(--app-danger-border);
+  color: var(--app-danger-text);
+}
+
+@media (max-width: 768px) {
+  .settings-form-grid,
+  .account-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-actions {
+    justify-content: stretch;
+  }
+
+  .settings-actions .btn {
+    width: 100%;
+  }
+}
+
+.avatar-manager {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.avatar-manager-preview {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent), var(--app-primary);
+  border-radius: var(--app-radius-xl);
+  color: #ffffff;
+  display: inline-flex;
+  flex: 0 0 5.5rem;
+  font-size: 1.55rem;
+  font-weight: 950;
+  height: 5.5rem;
+  justify-content: center;
+  overflow: hidden;
+  width: 5.5rem;
+}
+
+.avatar-manager-preview img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.avatar-manager-copy {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.avatar-manager-copy h3 {
+  color: var(--app-text);
+  font-size: 1.05rem;
+  font-weight: 950;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.avatar-manager-copy p {
+  color: var(--app-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.avatar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.avatar-actions .btn {
+  min-height: 2.65rem;
+}
+
+@media (max-width: 576px) {
+  .avatar-manager {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .avatar-actions,
+  .avatar-actions .btn {
+    width: 100%;
   }
 }

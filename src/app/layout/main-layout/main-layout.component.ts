@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { SidebarComponent } from '../sidebar/sidebar.component';
+import { AuthService } from '../../core/services/auth.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -11,8 +12,22 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss'],
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+
   isSidebarOpen = signal(false);
+
+  ngOnInit(): void {
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
+
+    this.authService.getProfile().subscribe({
+      error: () => {
+        this.authService.logout();
+      },
+    });
+  }
 
   openSidebar(): void {
     this.isSidebarOpen.set(true);
