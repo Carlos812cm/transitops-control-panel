@@ -142,7 +142,31 @@ export const routes: Routes = [
           roles: ['ADMIN', 'OPERATOR', 'SUPERVISOR', 'VIEWER'],
         },
         loadComponent: () =>
-          import('./features/settings/settings.component').then((m) => m.SettingsComponent),
+          import('./features/settings/settings-home/settings-home.component').then(
+            (m) => m.SettingsHomeComponent,
+          ),
+      },
+      {
+        path: 'settings/profile',
+        canActivate: [roleGuard],
+        data: {
+          roles: ['ADMIN', 'OPERATOR', 'SUPERVISOR', 'VIEWER'],
+        },
+        loadComponent: () =>
+          import('./features/settings/settings-profile/settings-profile.component').then(
+            (m) => m.SettingsProfileComponent,
+          ),
+      },
+      {
+        path: 'settings/language',
+        canActivate: [roleGuard],
+        data: {
+          roles: ['ADMIN', 'OPERATOR', 'SUPERVISOR', 'VIEWER'],
+        },
+        loadComponent: () =>
+          import('./features/settings/settings-language/settings-language.component').then(
+            (m) => m.SettingsLanguageComponent,
+          ),
       },
       {
         path: 'access-denied',

@@ -1,0 +1,122 @@
+:host {
+  display: block;
+}
+
+.settings-home {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settings-home-card {
+  align-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34%),
+    var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-sm);
+  color: var(--app-text);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 10rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  text-decoration: none;
+  transition:
+    border-color var(--app-transition-fast),
+    box-shadow var(--app-transition-fast),
+    transform var(--app-transition-fast);
+}
+
+.settings-home-card:hover,
+.settings-home-card:focus-visible {
+  border-color: var(--app-primary);
+  box-shadow: var(--app-shadow-md);
+  color: var(--app-text);
+  transform: translateY(-2px);
+}
+
+.settings-home-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.22);
+  outline-offset: 3px;
+}
+
+.settings-home-card-icon {
+  align-items: center;
+  background: var(--app-primary-soft);
+  border: 1px solid var(--app-primary-soft-border);
+  border-radius: var(--app-radius-lg);
+  color: var(--app-primary-soft-text);
+  display: inline-flex;
+  font-size: 1.3rem;
+  height: 3.25rem;
+  justify-content: center;
+  width: 3.25rem;
+}
+
+.settings-home-card-content {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.settings-home-card-kicker {
+  color: var(--app-primary);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-home-card-content strong {
+  color: var(--app-text);
+  font-size: 1.15rem;
+  font-weight: 950;
+  letter-spacing: -0.035em;
+}
+
+.settings-home-card-content span:last-child {
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.settings-home-card-arrow {
+  align-items: center;
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-pill);
+  color: var(--app-primary);
+  display: inline-flex;
+  font-weight: 950;
+  height: 2.25rem;
+  justify-content: center;
+  transition:
+    background-color var(--app-transition-fast),
+    transform var(--app-transition-fast);
+  width: 2.25rem;
+}
+
+.settings-home-card:hover .settings-home-card-arrow,
+.settings-home-card:focus-visible .settings-home-card-arrow {
+  background: var(--app-primary-soft);
+  transform: translateX(2px);
+}
+
+@media (max-width: 768px) {
+  .settings-home {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-home-card {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .settings-home-card-arrow {
+    justify-self: flex-start;
+  }
+}

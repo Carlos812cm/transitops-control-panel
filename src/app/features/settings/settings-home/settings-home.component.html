@@ -1,0 +1,27 @@
+<app-page-header [title]="t('settings.title')" [subtitle]="t('settings.subtitle')" />
+
+<section class="settings-home">
+  <a class="settings-home-card" routerLink="/settings/profile">
+    <span class="settings-home-card-icon" aria-hidden="true">👤</span>
+
+    <span class="settings-home-card-content">
+      <span class="settings-home-card-kicker">{{ t('settings.profile.kicker') }}</span>
+      <strong>{{ t('settings.profile.title') }}</strong>
+      <span>{{ t('settings.profile.description') }}</span>
+    </span>
+
+    <span class="settings-home-card-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="settings-home-card" routerLink="/settings/language">
+    <span class="settings-home-card-icon" aria-hidden="true">🌐</span>
+
+    <span class="settings-home-card-content">
+      <span class="settings-home-card-kicker">{{ t('settings.language.kicker') }}</span>
+      <strong>{{ t('settings.language.title') }}</strong>
+      <span>{{ t('settings.language.description') }}</span>
+    </span>
+
+    <span class="settings-home-card-arrow" aria-hidden="true">→</span>
+  </a>
+</section>
