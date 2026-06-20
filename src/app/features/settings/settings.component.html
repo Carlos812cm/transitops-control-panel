@@ -22,21 +22,21 @@
 
         <div class="account-meta-grid">
           <span>
-            <small>Role</small>
+            <small>{{ t('settings.account.role') }}</small>
             <strong>{{ user.role }}</strong>
           </span>
 
           <span>
-            <small>Status</small>
+            <small>{{ t('settings.account.status') }}</small>
             <strong>{{ user.status }}</strong>
           </span>
         </div>
       </div>
     } @else {
       <div>
-        <span class="settings-kicker">Account center</span>
-        <h2>Profile</h2>
-        <p>Manage your personal information and security settings.</p>
+        <span class="settings-kicker">{{ t('settings.account.kicker') }}</span>
+        <h2>{{ t('settings.account.profileFallbackTitle') }}</h2>
+        <p>{{ t('settings.account.fallbackDescription') }}</p>
       </div>
     }
 
@@ -50,9 +50,9 @@
     <section class="settings-panel">
       <div class="settings-section-header">
         <div>
-          <span class="settings-section-kicker">Avatar</span>
-          <h2>Profile photo</h2>
-          <p>Upload a JPEG, PNG or WebP image to personalize your account.</p>
+          <span class="settings-section-kicker">{{ t('settings.avatar.kicker') }}</span>
+          <h2>{{ t('settings.avatar.title') }}</h2>
+          <p>{{ t('settings.avatar.description') }}</p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@
 
           <div class="avatar-manager-copy">
             <h3>{{ getDisplayName(user) }}</h3>
-            <p>Recommended: square image, maximum 2 MB. Allowed formats: JPEG, PNG and WebP.</p>
+            <p>{{ t('settings.avatar.recommended') }}</p>
 
             <div class="avatar-actions">
               <input
@@ -94,9 +94,9 @@
                 (click)="avatarInput.click()"
               >
                 @if (isUploadingAvatar()) {
-                  Uploading...
+                  {{ t('settings.avatar.uploading') }}
                 } @else {
-                  Upload photo
+                  {{ t('settings.avatar.upload') }}
                 }
               </button>
 
@@ -107,9 +107,9 @@
                 (click)="deleteAvatar()"
               >
                 @if (isDeletingAvatar()) {
-                  Removing...
+                  {{ t('settings.avatar.removing') }}
                 } @else {
-                  Remove photo
+                  {{ t('settings.avatar.remove') }}
                 }
               </button>
             </div>
@@ -120,9 +120,9 @@
     <section class="settings-panel">
       <div class="settings-section-header">
         <div>
-          <span class="settings-section-kicker">Profile</span>
-          <h2>Personal information</h2>
-          <p>Update your name, email and phone number used across TransitOps.</p>
+          <span class="settings-section-kicker">{{ t('settings.profile.kicker') }}</span>
+          <h2>{{ t('settings.profile.title') }}</h2>
+          <p>{{ t('settings.profile.description') }}</p>
         </div>
       </div>
 
@@ -137,52 +137,52 @@
       <form class="settings-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
         <div class="settings-form-grid">
           <label class="settings-field">
-            <span>First name</span>
+            <span>{{ t('settings.profile.firstName') }}</span>
             <input type="text" formControlName="firstName" autocomplete="given-name" />
 
             @if (profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid) {
-              <small>First name must contain between 2 and 60 characters.</small>
+              <small>{{ t('settings.profile.validation.name') }}</small>
             }
           </label>
 
           <label class="settings-field">
-            <span>Last name</span>
+            <span>{{ t('settings.profile.lastName') }}</span>
             <input type="text" formControlName="lastName" autocomplete="family-name" />
 
             @if (profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid) {
-              <small>Last name must contain between 2 and 60 characters.</small>
+              <small>{{ t('settings.profile.validation.name') }}</small>
             }
           </label>
 
           <label class="settings-field">
-            <span>Email</span>
+            <span>{{ t('settings.profile.email') }}</span>
             <input type="email" formControlName="email" autocomplete="email" />
 
             @if (profileForm.controls.email.touched && profileForm.controls.email.invalid) {
-              <small>Enter a valid email address.</small>
+              <small>{{ t('settings.profile.validation.email') }}</small>
             }
           </label>
 
           <label class="settings-field">
-            <span>Phone</span>
+            <span>{{ t('settings.profile.phone') }}</span>
             <input type="tel" formControlName="phone" autocomplete="tel" />
 
             @if (profileForm.controls.phone.touched && profileForm.controls.phone.invalid) {
-              <small>Phone must contain between 8 and 25 characters.</small>
+              <small>{{ t('settings.profile.validation.phone') }}</small>
             }
           </label>
         </div>
 
         <label class="settings-field">
-          <span>Current password</span>
+          <span>{{ t('settings.profile.currentPassword') }}</span>
           <input
             type="password"
             formControlName="currentPassword"
             autocomplete="current-password"
-            placeholder="Required only when changing email"
+            [placeholder]="t('settings.profile.currentPasswordPlaceholder')"
           />
 
-          <em>For security, email changes require your current password.</em>
+          <em>{{ t('settings.profile.currentPasswordHint') }}</em>
         </label>
 
         <div class="settings-actions">
@@ -192,9 +192,9 @@
             [disabled]="isSavingProfile() || profileForm.invalid"
           >
             @if (isSavingProfile()) {
-              Saving...
+              {{ t('settings.profile.saving') }}
             } @else {
-              Save profile
+              {{ t('settings.profile.save') }}
             }
           </button>
         </div>
@@ -204,9 +204,9 @@
     <section class="settings-panel">
       <div class="settings-section-header">
         <div>
-          <span class="settings-section-kicker">Security</span>
-          <h2>Password</h2>
-          <p>Change your password using your current credentials.</p>
+          <span class="settings-section-kicker">{{ t('settings.password.kicker') }}</span>
+          <h2>{{ t('settings.password.title') }}</h2>
+          <p>{{ t('settings.password.description') }}</p>
         </div>
       </div>
 
@@ -221,7 +221,7 @@
       <form class="settings-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
         <div class="settings-form-grid">
           <label class="settings-field">
-            <span>Current password</span>
+            <span>{{ t('settings.password.current') }}</span>
             <input
               type="password"
               formControlName="currentPassword"
@@ -232,46 +232,45 @@
               passwordForm.controls.currentPassword.touched &&
               passwordForm.controls.currentPassword.invalid
             ) {
-              <small>Current password is required.</small>
+              <small>{{ t('settings.password.validation.current') }}</small>
             }
           </label>
 
           <label class="settings-field">
-            <span>New password</span>
+            <span>{{ t('settings.password.new') }}</span>
             <input type="password" formControlName="newPassword" autocomplete="new-password" />
 
             @if (
               passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid
             ) {
-              <small>Use at least 8 characters, including letters and numbers.</small>
+              <small>{{ t('settings.password.validation.new') }}</small>
             }
           </label>
 
           <label class="settings-field">
-            <span>Confirm password</span>
+            <span>{{ t('settings.password.confirm') }}</span>
             <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
 
             @if (
               passwordForm.controls.confirmPassword.touched &&
               passwordForm.controls.confirmPassword.invalid
             ) {
-              <small>Password confirmation is required.</small>
+              <small>{{ t('settings.password.validation.confirm') }}</small>
             }
 
             @if (
               passwordForm.controls.confirmPassword.touched &&
               passwordForm.hasError('passwordMismatch')
             ) {
-              <small>Passwords do not match.</small>
+              <small>{{ t('settings.password.validation.match') }}</small>
             }
           </label>
         </div>
 
         <div class="settings-note">
-          <strong>Security behavior</strong>
+          <strong>{{ t('settings.password.note.title') }}</strong>
           <span>
-            After a successful password change, TransitOps closes the current session and asks you
-            to sign in again.
+            {{ t('settings.password.note.text') }}
           </span>
         </div>
 
@@ -282,9 +281,9 @@
             [disabled]="isChangingPassword() || passwordForm.invalid"
           >
             @if (isChangingPassword()) {
-              Updating...
+              {{ t('settings.password.updating') }}
             } @else {
-              Change password
+              {{ t('settings.password.change') }}
             }
           </button>
         </div>
@@ -294,7 +293,7 @@
     <section class="settings-panel">
       <div class="settings-section-header">
         <div>
-          <span class="settings-section-kicker">Localization</span>
+          <span class="settings-section-kicker">{{ t('settings.language.kicker') }}</span>
           <h2>{{ t('settings.language.title') }}</h2>
           <p>{{ t('settings.language.description') }}</p>
         </div>
@@ -337,11 +336,8 @@
       </div>
 
       <div class="settings-note">
-        <strong>UI preference</strong>
-        <span>
-          Este ajuste cambia los textos principales de la interfaz entre inglés y español sin
-          afectar datos, roles ni permisos.
-        </span>
+        <strong>{{ t('settings.language.note.title') }}</strong>
+        <span>{{ t('settings.language.note.text') }}</span>
       </div>
     </section>
   </div>

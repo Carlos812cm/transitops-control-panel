@@ -128,12 +128,12 @@ export class SettingsComponent implements OnDestroy {
     }
 
     if (!allowedAvatarMimeTypes.has(file.type)) {
-      this.avatarError.set('Avatar must be a JPEG, PNG, or WebP image.');
+      this.avatarError.set(this.t('settings.avatar.error.invalidType'));
       return;
     }
 
     if (file.size > avatarMaxFileSizeBytes) {
-      this.avatarError.set('Avatar file must not exceed 2 MB.');
+      this.avatarError.set(this.t('settings.avatar.error.tooLarge'));
       return;
     }
 
@@ -148,7 +148,7 @@ export class SettingsComponent implements OnDestroy {
     const user = this.currentUser();
 
     if (!user?.avatarUrl) {
-      this.avatarError.set('There is no avatar to delete.');
+      this.avatarError.set(this.t('settings.avatar.error.none'));
       return;
     }
 
@@ -164,10 +164,10 @@ export class SettingsComponent implements OnDestroy {
       .subscribe({
         next: (response) => {
           this.clearAvatarPreview();
-          this.avatarSuccess.set(response.message || 'Avatar deleted successfully.');
+          this.avatarSuccess.set(response.message || this.t('settings.avatar.success.delete'));
         },
         error: (error: unknown) => {
-          this.avatarError.set(this.getErrorMessage(error, 'Avatar could not be deleted.'));
+          this.avatarError.set(this.getErrorMessage(error, this.t('settings.avatar.error.delete')));
         },
       });
   }
@@ -202,7 +202,7 @@ export class SettingsComponent implements OnDestroy {
     const user = this.currentUser();
 
     if (!user) {
-      this.profileError.set('There is no authenticated user loaded.');
+      this.profileError.set(this.t('settings.profile.error.noUser'));
       return;
     }
 
@@ -211,7 +211,7 @@ export class SettingsComponent implements OnDestroy {
 
     if (emailChanged && !formValue.currentPassword.trim()) {
       this.profileForm.controls.currentPassword.markAsTouched();
-      this.profileError.set('Current password is required when changing your email.');
+      this.profileError.set(this.t('settings.profile.error.emailPasswordRequired'));
       return;
     }
 
@@ -233,10 +233,12 @@ export class SettingsComponent implements OnDestroy {
       .subscribe({
         next: (response) => {
           this.profileForm.controls.currentPassword.reset('');
-          this.profileSuccess.set(response.message || 'Profile updated successfully.');
+          this.profileSuccess.set(response.message || this.t('settings.profile.success'));
         },
         error: (error: unknown) => {
-          this.profileError.set(this.getErrorMessage(error, 'Profile could not be updated.'));
+          this.profileError.set(
+            this.getErrorMessage(error, this.t('settings.profile.error.update')),
+          );
         },
       });
   }
@@ -267,11 +269,13 @@ export class SettingsComponent implements OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.passwordSuccess.set('Password updated successfully. Please sign in again.');
+          this.passwordSuccess.set(this.t('settings.password.success'));
           this.passwordForm.reset();
         },
         error: (error: unknown) => {
-          this.passwordError.set(this.getErrorMessage(error, 'Password could not be updated.'));
+          this.passwordError.set(
+            this.getErrorMessage(error, this.t('settings.password.error.update')),
+          );
         },
       });
   }
@@ -346,11 +350,11 @@ export class SettingsComponent implements OnDestroy {
       .subscribe({
         next: (response) => {
           this.clearAvatarPreview();
-          this.avatarSuccess.set(response.message || 'Avatar updated successfully.');
+          this.avatarSuccess.set(response.message || this.t('settings.avatar.success.update'));
         },
         error: (error: unknown) => {
           this.clearAvatarPreview();
-          this.avatarError.set(this.getErrorMessage(error, 'Avatar could not be updated.'));
+          this.avatarError.set(this.getErrorMessage(error, this.t('settings.avatar.error.update')));
         },
       });
   }

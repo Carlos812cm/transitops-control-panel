@@ -48,16 +48,16 @@
           <button type="button" role="menuitem" class="profile-menu-item" (click)="goToProfile()">
             <span class="profile-menu-icon" aria-hidden="true">👤</span>
             <span>
-              <strong>Profile</strong>
-              <small>Manage your personal information</small>
+              <strong>{{ t('navbar.profile') }}</strong>
+              <small>{{ t('navbar.profile.description') }}</small>
             </span>
           </button>
 
           <button type="button" role="menuitem" class="profile-menu-item" (click)="goToSettings()">
             <span class="profile-menu-icon" aria-hidden="true">⚙</span>
             <span>
-              <strong>Settings</strong>
-              <small>Language and account preferences</small>
+              <strong>{{ t('navbar.settings') }}</strong>
+              <small>{{ t('navbar.settings.description') }}</small>
             </span>
           </button>
 
@@ -67,7 +67,7 @@
             <span class="profile-menu-icon" aria-hidden="true">↪</span>
             <span>
               <strong>{{ t('navbar.logout') }}</strong>
-              <small>Close this session</small>
+              <small>{{ t('navbar.logout.description') }}</small>
             </span>
           </button>
         </div>
