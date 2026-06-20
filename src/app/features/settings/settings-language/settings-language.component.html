@@ -1,1 +1,93 @@
-<p>Language settings section</p>
+<app-page-header
+  [title]="t('settings.home.language.title')"
+  [subtitle]="t('settings.language.panelDescription')"
+/>
+
+<a class="settings-back-link" routerLink="/settings">← {{ t('settings.title') }}</a>
+
+<section class="language-page" aria-labelledby="language-panel-title">
+  <article class="language-card">
+    <div class="language-card-glow" aria-hidden="true"></div>
+
+    <div class="language-card-header">
+      <span class="language-icon" aria-hidden="true">🌐</span>
+
+      <div>
+        <span class="language-kicker">{{ t('settings.language.kicker') }}</span>
+        <h2 id="language-panel-title">{{ t('settings.language.panelTitle') }}</h2>
+        <p>{{ t('settings.language.panelDescription') }}</p>
+      </div>
+    </div>
+
+    <div class="language-divider" aria-hidden="true"></div>
+
+    <div class="language-current">
+      <span>{{ t('settings.language.currentLabel') }}</span>
+
+      <strong>
+        {{ t(getCurrentLanguageOption().nativeNameKey) }}
+        <small>{{ getCurrentLanguageOption().code.toUpperCase() }}</small>
+      </strong>
+    </div>
+
+    <div class="language-selector" data-language-selector>
+      <span id="language-selector-label" class="language-selector-label">
+        {{ t('settings.language.selectLabel') }}
+      </span>
+
+      <button
+        type="button"
+        class="language-trigger"
+        [class.open]="isLanguageMenuOpen()"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="isLanguageMenuOpen()"
+        aria-labelledby="language-selector-label"
+        (click)="toggleLanguageMenu()"
+      >
+        <span class="language-trigger-main">
+          <span class="language-flag" aria-hidden="true">{{ getCurrentLanguageOption().flag }}</span>
+
+          <span>
+            <strong>{{ t(getCurrentLanguageOption().nativeNameKey) }}</strong>
+            <small>{{ t(getCurrentLanguageOption().regionKey) }}</small>
+          </span>
+        </span>
+
+        <span class="language-chevron" aria-hidden="true">⌄</span>
+      </button>
+
+      @if (isLanguageMenuOpen()) {
+        <div class="language-menu" role="listbox" aria-labelledby="language-selector-label">
+          @for (option of languageOptions; track option.code) {
+            <button
+              type="button"
+              class="language-menu-option"
+              role="option"
+              [class.selected]="isSelected(option.code)"
+              [attr.aria-selected]="isSelected(option.code)"
+              (click)="selectLanguage(option.code)"
+            >
+              <span class="language-trigger-main">
+                <span class="language-flag" aria-hidden="true">{{ option.flag }}</span>
+
+                <span>
+                  <strong>{{ t(option.nativeNameKey) }}</strong>
+                  <small>{{ t(option.regionKey) }}</small>
+                </span>
+              </span>
+
+              @if (isSelected(option.code)) {
+                <span class="language-check" aria-hidden="true">✓</span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="language-note">
+      <strong>{{ t('settings.language.appliedImmediately') }}</strong>
+      <span>{{ t('settings.language.note.text') }}</span>
+    </div>
+  </article>
+</section>

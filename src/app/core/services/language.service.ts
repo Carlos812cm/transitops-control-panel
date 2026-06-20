@@ -135,8 +135,19 @@ const enTranslations = {
 
   'settings.language.kicker': 'Localization',
   'settings.language.note.title': 'UI preference',
-  'settings.language.note.text':
-    'This setting changes the main interface text between English and Spanish without affecting data, roles or permissions.',
+  'settings.language.note.text': 'This setting changes the main interface text between English and Spanish without affecting data, roles or permissions.',
+
+  'settings.language.panelTitle': 'Language settings',
+  'settings.language.panelDescription':
+  'Select the language used across TransitOps. The interface updates immediately after choosing an option.',
+  'settings.language.selectLabel': 'Select interface language',
+  'settings.language.currentLabel': 'Current language',
+  'settings.language.appliedImmediately': 'Applies immediately',
+  'settings.language.active': 'Active',
+  'settings.language.spanishNative': 'Español',
+  'settings.language.englishNative': 'English',
+  'settings.language.spanishRegion': 'Spanish interface',
+  'settings.language.englishRegion': 'English interface',
 
   'navbar.openSidebar': 'Open sidebar',
   'navbar.title': 'TransitOps Control Panel',
@@ -574,6 +585,17 @@ const esTranslations: Record<TranslationKey, string> = {
   'settings.language.note.text':
     'Este ajuste cambia los textos principales de la interfaz entre inglés y español sin afectar datos, roles ni permisos.',
 
+  'settings.language.panelTitle': 'Configuración de idioma',
+  'settings.language.panelDescription':
+    'Selecciona el idioma usado en TransitOps. La interfaz se actualiza inmediatamente después de elegir una opción.',
+  'settings.language.selectLabel': 'Seleccionar idioma de interfaz',
+  'settings.language.currentLabel': 'Idioma actual',
+  'settings.language.appliedImmediately': 'Se aplica inmediatamente',
+  'settings.language.active': 'Activo',
+  'settings.language.spanishNative': 'Español',
+  'settings.language.englishNative': 'English',
+  'settings.language.spanishRegion': 'Interfaz en español',
+  'settings.language.englishRegion': 'Interfaz en inglés',
   'navbar.openSidebar': 'Abrir menú lateral',
   'navbar.title': 'Panel de control TransitOps',
   'navbar.subtitle': 'Panel administrativo para operaciones de transporte',
