@@ -1,27 +1,46 @@
 <app-page-header [title]="t('settings.title')" [subtitle]="t('settings.subtitle')" />
 
-<section class="settings-home">
-  <a class="settings-home-card" routerLink="/settings/profile">
+<section class="settings-home-hero" aria-labelledby="settings-home-title">
+  <span class="settings-home-kicker">{{ t('settings.home.kicker') }}</span>
+
+  <div class="settings-home-hero-content">
+    <div>
+      <h2 id="settings-home-title">{{ t('settings.home.title') }}</h2>
+      <p>{{ t('settings.home.description') }}</p>
+    </div>
+
+    <span class="settings-home-hero-badge" aria-hidden="true">2</span>
+  </div>
+</section>
+
+<section class="settings-home-grid" aria-label="Settings sections">
+  <a class="settings-home-card profile" routerLink="/settings/profile">
     <span class="settings-home-card-icon" aria-hidden="true">👤</span>
 
     <span class="settings-home-card-content">
       <span class="settings-home-card-kicker">{{ t('settings.profile.kicker') }}</span>
-      <strong>{{ t('settings.profile.title') }}</strong>
-      <span>{{ t('settings.profile.description') }}</span>
+      <strong>{{ t('settings.home.profile.title') }}</strong>
+      <span>{{ t('settings.home.profile.description') }}</span>
     </span>
 
-    <span class="settings-home-card-arrow" aria-hidden="true">→</span>
+    <span class="settings-home-card-action">
+      {{ t('settings.home.openSection') }}
+      <span aria-hidden="true">→</span>
+    </span>
   </a>
 
-  <a class="settings-home-card" routerLink="/settings/language">
+  <a class="settings-home-card language" routerLink="/settings/language">
     <span class="settings-home-card-icon" aria-hidden="true">🌐</span>
 
     <span class="settings-home-card-content">
       <span class="settings-home-card-kicker">{{ t('settings.language.kicker') }}</span>
-      <strong>{{ t('settings.language.title') }}</strong>
-      <span>{{ t('settings.language.description') }}</span>
+      <strong>{{ t('settings.home.language.title') }}</strong>
+      <span>{{ t('settings.home.language.description') }}</span>
     </span>
 
-    <span class="settings-home-card-arrow" aria-hidden="true">→</span>
+    <span class="settings-home-card-action">
+      {{ t('settings.home.openSection') }}
+      <span aria-hidden="true">→</span>
+    </span>
   </a>
 </section>
