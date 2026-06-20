@@ -15,6 +15,8 @@ import {
   User,
   UserRole,
   VerificationCodeResponseData,
+  ChangePasswordRequest,
+  UpdateProfileRequest,
 } from '../models/user.model';
 
 @Injectable({
@@ -38,6 +40,59 @@ export class AuthService {
       tap((response) => {
         if (response.success && response.data) {
           this.setSession(response.data);
+        }
+      }),
+    );
+  }
+
+  getProfile(): Observable<ApiResponse<User>> {
+    return this.http.get<ApiResponse<User>>(`${this.apiUrl}/profile`).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
+        }
+      }),
+    );
+  }
+
+  updateProfile(payload: UpdateProfileRequest): Observable<ApiResponse<User>> {
+    return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/profile`, payload).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
+        }
+      }),
+    );
+  }
+
+  changePassword(payload: ChangePasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.patch<ApiResponse<void>>(`${this.apiUrl}/profile/password`, payload).pipe(
+      tap((response) => {
+        if (response.success) {
+          this.logout();
+        }
+      }),
+    );
+  }
+
+  updateAvatar(file: File): Observable<ApiResponse<User>> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/profile/avatar`, formData).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
+        }
+      }),
+    );
+  }
+
+  deleteAvatar(): Observable<ApiResponse<User>> {
+    return this.http.delete<ApiResponse<User>>(`${this.apiUrl}/profile/avatar`).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
         }
       }),
     );
@@ -95,15 +150,35 @@ export class AuthService {
     return allowedRoles.includes(user.role);
   }
 
+  getAvatarUrl(avatarUrl: string | null | undefined): string | null {
+    if (!avatarUrl) {
+      return null;
+    }
+
+    if (/^https?:\/\//i.test(avatarUrl)) {
+      return avatarUrl;
+    }
+
+    const apiOrigin = new URL(environment.apiUrl).origin;
+
+    return `${apiOrigin}${avatarUrl}`;
+  }
+
   private setSession(loginResponse: LoginResponse): void {
     if (!this.isBrowser()) {
       return;
     }
 
     localStorage.setItem(this.tokenKey, loginResponse.token);
-    localStorage.setItem(this.userKey, JSON.stringify(loginResponse.user));
+    this.setCurrentUser(loginResponse.user);
+  }
 
-    this.currentUserSubject.next(loginResponse.user);
+  private setCurrentUser(user: User): void {
+    if (this.isBrowser()) {
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+    }
+
+    this.currentUserSubject.next(user);
   }
 
   private getStoredUser(): User | null {

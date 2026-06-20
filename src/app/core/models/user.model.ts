@@ -31,6 +31,20 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  currentPassword?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface VerificationCodeResponseData {
   destination: string;
   code: string;

@@ -18,19 +18,60 @@
   </div>
 
   @if (currentUser(); as user) {
-    <div class="navbar-user">
-      <div class="user-avatar" aria-hidden="true">
-        {{ user.name.charAt(0).toUpperCase() }}
-      </div>
+    <div class="navbar-user" (click)="keepProfileMenuOpen($event)">
+      <button
+        type="button"
+        class="profile-trigger"
+        [class.open]="isProfileMenuOpen()"
+        [attr.aria-expanded]="isProfileMenuOpen()"
+        aria-haspopup="menu"
+        (click)="toggleProfileMenu($event)"
+      >
+        <span class="user-avatar" aria-hidden="true">
+          @if (getAvatarUrl(user); as avatarUrl) {
+            <img [src]="avatarUrl" [alt]="getDisplayName(user)" />
+          } @else {
+            {{ getInitials(user) }}
+          }
+        </span>
 
-      <div class="user-copy">
-        <span class="user-name">{{ user.name }}</span>
-        <span class="user-role">{{ user.role }}</span>
-      </div>
+        <span class="user-copy">
+          <span class="user-name">{{ getDisplayName(user) }}</span>
+          <span class="user-role">{{ user.role }}</span>
+        </span>
 
-      <button type="button" class="btn btn-sm btn-outline-secondary logout-button" (click)="logout()">
-        {{ t('navbar.logout') }}
+        <span class="profile-chevron" aria-hidden="true">⌄</span>
       </button>
+
+      @if (isProfileMenuOpen()) {
+        <div class="profile-menu" role="menu">
+          <button type="button" role="menuitem" class="profile-menu-item" (click)="goToProfile()">
+            <span class="profile-menu-icon" aria-hidden="true">👤</span>
+            <span>
+              <strong>{{ t('navbar.profile') }}</strong>
+              <small>{{ t('navbar.profile.description') }}</small>
+            </span>
+          </button>
+
+          <button type="button" role="menuitem" class="profile-menu-item" (click)="goToSettings()">
+            <span class="profile-menu-icon" aria-hidden="true">⚙</span>
+            <span>
+              <strong>{{ t('navbar.settings') }}</strong>
+              <small>{{ t('navbar.settings.description') }}</small>
+            </span>
+          </button>
+
+          <span class="profile-menu-divider" aria-hidden="true"></span>
+
+          <button type="button" role="menuitem" class="profile-menu-item danger" (click)="logout()">
+            <span class="profile-menu-icon" aria-hidden="true">↪</span>
+            <span>
+              <strong>{{ t('navbar.logout') }}</strong>
+              <small>{{ t('navbar.logout.description') }}</small>
+            </span>
+          </button>
+        </div>
+      }
     </div>
   }
 </header>

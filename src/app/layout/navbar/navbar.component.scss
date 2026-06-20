@@ -52,31 +52,59 @@
 }
 
 .navbar-user {
-  align-items: center;
-  background: var(--app-surface-muted);
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-xl);
-  display: flex;
   flex: 0 0 auto;
+  position: relative;
+}
+
+.profile-trigger {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--app-radius-xl);
+  color: var(--app-text);
+  display: flex;
   gap: 0.75rem;
-  padding: 0.45rem;
+  min-height: 3.25rem;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  transition:
+    background-color var(--app-transition-fast),
+    border-color var(--app-transition-fast),
+    box-shadow var(--app-transition-fast),
+    transform var(--app-transition-fast);
   white-space: nowrap;
+}
+
+.profile-trigger:hover,
+.profile-trigger.open {
+  background: var(--app-surface-muted);
+  border-color: var(--app-border);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.profile-trigger:hover {
+  transform: translateY(-1px);
 }
 
 .user-avatar {
   align-items: center;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent),
-    var(--app-primary);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent), var(--app-primary);
   border-radius: var(--app-radius-lg);
   color: #ffffff;
   display: inline-flex;
   flex: 0 0 2.35rem;
-  font-size: 0.95rem;
-  font-weight: 900;
+  font-size: 0.9rem;
+  font-weight: 950;
   height: 2.35rem;
   justify-content: center;
+  overflow: hidden;
   width: 2.35rem;
+}
+
+.user-avatar img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .user-copy {
@@ -102,6 +130,108 @@
   letter-spacing: 0.065em;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.profile-chevron {
+  color: var(--app-text-muted);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  transition: transform var(--app-transition-fast);
+}
+
+.profile-trigger.open .profile-chevron {
+  transform: rotate(180deg);
+}
+
+.profile-menu {
+  animation: profileMenuIn 160ms ease-out;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-lg);
+  display: grid;
+  gap: 0.25rem;
+  min-width: 17rem;
+  padding: 0.45rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+  transform-origin: top right;
+  z-index: 80;
+}
+
+.profile-menu-item {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--app-radius-lg);
+  color: var(--app-text);
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  text-align: left;
+  transition:
+    background-color var(--app-transition-fast),
+    color var(--app-transition-fast);
+  width: 100%;
+}
+
+.profile-menu-item:hover {
+  background: var(--app-hover);
+}
+
+.profile-menu-item.danger:hover {
+  background: var(--app-danger-bg);
+  color: var(--app-danger-text);
+}
+
+.profile-menu-icon {
+  align-items: center;
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  display: inline-flex;
+  flex: 0 0 2.25rem;
+  height: 2.25rem;
+  justify-content: center;
+  width: 2.25rem;
+}
+
+.profile-menu-item span:last-child {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.profile-menu-item strong {
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.profile-menu-item small {
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.profile-menu-divider {
+  background: var(--app-border);
+  display: block;
+  height: 1px;
+  margin: 0.25rem;
+}
+
+@keyframes profileMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .logout-button {
@@ -157,9 +287,19 @@
     width: 100%;
   }
 
-  .navbar-user {
-    justify-content: space-between;
+  .navbar-user,
+  .profile-trigger {
     width: 100%;
+  }
+
+  .profile-trigger {
+    justify-content: space-between;
+  }
+
+  .profile-menu {
+    left: 0;
+    min-width: 100%;
+    right: 0;
   }
 
   .user-copy {
@@ -179,9 +319,5 @@
 
   .user-name {
     max-width: 8rem;
-  }
-
-  .logout-button {
-    padding-inline: 0.65rem;
   }
 }
