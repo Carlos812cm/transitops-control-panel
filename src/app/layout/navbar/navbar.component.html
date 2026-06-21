@@ -24,6 +24,7 @@
         class="profile-trigger"
         [class.open]="isProfileMenuOpen()"
         [attr.aria-expanded]="isProfileMenuOpen()"
+        [attr.aria-label]="t('navbar.profile') + ': ' + getDisplayName(user)"
         aria-haspopup="menu"
         (click)="toggleProfileMenu($event)"
       >
