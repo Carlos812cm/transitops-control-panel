@@ -1,6 +1,6 @@
 {
   "name": "transitops-control-panel",
-  "version": "0.0.0",
+  "version": "1.4.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --port 4200",
