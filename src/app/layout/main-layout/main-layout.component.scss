@@ -28,6 +28,7 @@
 @media (max-width: 992px) {
   .admin-content {
     margin-left: 0;
+    padding-top: 70px;
     width: 100%;
   }
 
@@ -45,6 +46,10 @@
 }
 
 @media (max-width: 576px) {
+  .admin-content {
+    padding-top: 64px;
+  }
+
   .admin-main {
     padding: 0.85rem;
   }
