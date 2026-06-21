@@ -1,9 +1,12 @@
 import { Response } from 'express';
 
+import type { PaginationMeta } from '../pagination/pagination.js';
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T;
+  meta?: PaginationMeta;
   errors?: Record<string, string[]>;
 }
 
@@ -12,6 +15,7 @@ export function sendSuccess<T>(
   message: string,
   data?: T,
   statusCode = 200,
+  meta?: PaginationMeta,
 ): Response<ApiResponse<T>> {
   const body: ApiResponse<T> = {
     success: true,
@@ -20,6 +24,10 @@ export function sendSuccess<T>(
 
   if (data !== undefined) {
     body.data = data;
+  }
+
+  if (meta !== undefined) {
+    body.meta = meta;
   }
 
   return response.status(statusCode).json(body);
