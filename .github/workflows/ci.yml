@@ -1,0 +1,89 @@
+name: TransitOps Quality Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  quality-gate:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: transitops_platform_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d transitops_platform_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      CI: true
+      NODE_ENV: test
+      PORT: 4000
+      API_PREFIX: /api
+      CLIENT_URL: http://localhost:4200
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/transitops_platform_db?schema=public
+      JWT_SECRET: transitops-ci-secret
+      JWT_EXPIRES_IN: 1d
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install Front-End dependencies
+        run: npm ci
+
+      - name: Build Angular application
+        run: npm run build
+
+      - name: Run mock API tests
+        run: npm run test:api
+
+      - name: Install Back-End dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: server
+        run: npx prisma generate
+
+      - name: Prepare CI database
+        working-directory: server
+        run: npx prisma db push
+
+      - name: Seed CI database
+        working-directory: server
+        run: npm run seed
+
+      - name: Typecheck Back-End
+        working-directory: server
+        run: npm run typecheck
+
+      - name: Run Back-End tests
+        working-directory: server
+        run: npm run test
+
+      - name: Build Back-End
+        working-directory: server
+        run: npm run build
