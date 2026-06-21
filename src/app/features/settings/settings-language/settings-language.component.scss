@@ -71,6 +71,14 @@
   z-index: 1;
 }
 
+.language-selector {
+  z-index: 30;
+}
+
+.language-note {
+  z-index: 1;
+}
+
 .language-card-header {
   align-items: flex-start;
   display: flex;
@@ -277,7 +285,7 @@
   position: absolute;
   right: 0;
   top: calc(100% + 0.5rem);
-  z-index: 20;
+  z-index: 40;
 }
 
 .language-menu-option {
