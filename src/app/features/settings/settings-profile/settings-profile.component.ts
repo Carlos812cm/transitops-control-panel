@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, OnDestroy, inject, signal } from '@angular/core';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,12 +11,11 @@ import {
 } from '@angular/forms';
 import { finalize } from 'rxjs';
 
-import { ApiErrorResponse } from '../../core/models/api-response.model';
-import { AppLanguage } from '../../core/models/language.model';
-import { User } from '../../core/models/user.model';
-import { AuthService } from '../../core/services/auth.service';
-import { LanguageService, TranslationKey } from '../../core/services/language.service';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { ApiErrorResponse } from '../../../core/models/api-response.model';
+import { User } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService, TranslationKey } from '../../../core/services/language.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 const avatarMaxFileSizeBytes = 2 * 1024 * 1024;
 
@@ -35,12 +35,12 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 }
 
 @Component({
-  selector: 'app-settings',
-  imports: [PageHeaderComponent, ReactiveFormsModule],
-  templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss',
+  selector: 'app-settings-profile',
+  imports: [PageHeaderComponent, ReactiveFormsModule, RouterLink],
+  templateUrl: './settings-profile.component.html',
+  styleUrl: './settings-profile.component.scss',
 })
-export class SettingsComponent implements OnDestroy {
+export class SettingsProfileComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
@@ -96,19 +96,19 @@ export class SettingsComponent implements OnDestroy {
     },
   );
 
-  readonly languageOptions: readonly {
-    code: AppLanguage;
-    labelKey: TranslationKey;
-  }[] = [
-    {
-      code: 'en',
-      labelKey: 'settings.language.english',
-    },
-    {
-      code: 'es',
-      labelKey: 'settings.language.spanish',
-    },
-  ];
+  constructor() {
+    this.authService.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
+      if (user && !this.isSavingProfile()) {
+        this.patchProfileForm(user);
+      }
+    });
+
+    const user = this.authService.getCurrentUser();
+
+    if (user) {
+      this.patchProfileForm(user);
+    }
+  }
 
   ngOnDestroy(): void {
     this.clearAvatarPreview();
@@ -170,24 +170,6 @@ export class SettingsComponent implements OnDestroy {
           this.avatarError.set(this.getErrorMessage(error, this.t('settings.avatar.error.delete')));
         },
       });
-  }
-
-  getVisibleAvatarUrl(user: User): string | null {
-    return this.avatarPreviewUrl() || this.getAvatarUrl(user);
-  }
-
-  constructor() {
-    this.authService.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
-      if (user && !this.isSavingProfile()) {
-        this.patchProfileForm(user);
-      }
-    });
-
-    const user = this.authService.getCurrentUser();
-
-    if (user) {
-      this.patchProfileForm(user);
-    }
   }
 
   saveProfile(): void {
@@ -280,8 +262,8 @@ export class SettingsComponent implements OnDestroy {
       });
   }
 
-  setLanguage(language: AppLanguage): void {
-    this.languageService.setLanguage(language);
+  getVisibleAvatarUrl(user: User): string | null {
+    return this.avatarPreviewUrl() || this.getAvatarUrl(user);
   }
 
   getDisplayName(user: User): string {

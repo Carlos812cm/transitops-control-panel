@@ -164,7 +164,7 @@
 .profile-menu-item {
   align-items: center;
   background: transparent;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--app-radius-lg);
   color: var(--app-text);
   display: flex;
@@ -173,17 +173,53 @@
   text-align: left;
   transition:
     background-color var(--app-transition-fast),
-    color var(--app-transition-fast);
+    border-color var(--app-transition-fast),
+    box-shadow var(--app-transition-fast),
+    color var(--app-transition-fast),
+    transform var(--app-transition-fast);
   width: 100%;
 }
 
-.profile-menu-item:hover {
+.profile-menu-item:hover,
+.profile-menu-item:focus-visible {
   background: var(--app-hover);
+  border-color: var(--app-border);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
 }
 
-.profile-menu-item.danger:hover {
+.profile-menu-item:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.22);
+  outline-offset: 2px;
+}
+
+.profile-menu-item:active {
+  box-shadow: none;
+  transform: translateY(0) scale(0.99);
+}
+
+.profile-menu-item.profile:hover,
+.profile-menu-item.profile:focus-visible {
+  background: var(--app-primary-soft);
+  border-color: var(--app-primary-soft-border);
+}
+
+.profile-menu-item.settings:hover,
+.profile-menu-item.settings:focus-visible {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), transparent 68%),
+    var(--app-surface-muted);
+  border-color: rgba(14, 165, 233, 0.28);
+}
+
+.profile-menu-item.danger:hover,
+.profile-menu-item.danger:focus-visible {
   background: var(--app-danger-bg);
+  border-color: var(--app-danger-border);
   color: var(--app-danger-text);
+}
+
+.profile-menu-item.danger:active {
+  background: color-mix(in srgb, var(--app-danger-bg) 82%, var(--app-danger-text));
 }
 
 .profile-menu-icon {
@@ -196,6 +232,37 @@
   height: 2.25rem;
   justify-content: center;
   width: 2.25rem;
+  transition:
+  background-color var(--app-transition-fast),
+  border-color var(--app-transition-fast),
+  color var(--app-transition-fast),
+  transform var(--app-transition-fast);
+}
+
+.profile-menu-item.profile:hover .profile-menu-icon,
+.profile-menu-item.profile:focus-visible .profile-menu-icon {
+  background: var(--app-primary);
+  border-color: var(--app-primary);
+  color: #ffffff;
+}
+
+.profile-menu-item.settings:hover .profile-menu-icon,
+.profile-menu-item.settings:focus-visible .profile-menu-icon {
+  background: var(--app-primary-soft);
+  border-color: var(--app-primary-soft-border);
+  color: var(--app-primary-soft-text);
+}
+
+.profile-menu-item.danger:hover .profile-menu-icon,
+.profile-menu-item.danger:focus-visible .profile-menu-icon {
+  background: var(--app-danger-text);
+  border-color: var(--app-danger-text);
+  color: #ffffff;
+}
+
+.profile-menu-item.danger:hover small,
+.profile-menu-item.danger:focus-visible small {
+  color: var(--app-danger-text);
 }
 
 .profile-menu-item span:last-child {

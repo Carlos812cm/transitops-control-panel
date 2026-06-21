@@ -63,7 +63,7 @@ export class NavbarComponent {
 
   goToProfile(): void {
     this.isProfileMenuOpen.set(false);
-    this.router.navigate(['/settings']);
+    this.router.navigate(['/settings/profile']);
   }
 
   goToSettings(): void {

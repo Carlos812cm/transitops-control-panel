@@ -52,6 +52,17 @@ const enTranslations = {
   'sidebar.meta.description': 'Angular Admin System',
   'settings.title': 'Settings',
   'settings.subtitle': 'Manage personal workspace preferences for TransitOps.',
+    'settings.home.kicker': 'Workspace preferences',
+  'settings.home.title': 'Choose what you want to configure',
+  'settings.home.description':
+    'Manage your account profile and interface language from focused sections designed to keep TransitOps simple and predictable.',
+  'settings.home.profile.title': 'Profile',
+  'settings.home.profile.description':
+    'Update your personal information, avatar, email, phone and password security settings.',
+  'settings.home.language.title': 'Language',
+  'settings.home.language.description':
+    'Choose the interface language used across navigation, settings and operational screens.',
+  'settings.home.openSection': 'Open section',
   'settings.language.title': 'Language',
   'settings.language.description': 'Choose the display language for navigation and settings.',
   'settings.language.english': 'English',
@@ -124,8 +135,19 @@ const enTranslations = {
 
   'settings.language.kicker': 'Localization',
   'settings.language.note.title': 'UI preference',
-  'settings.language.note.text':
-    'This setting changes the main interface text between English and Spanish without affecting data, roles or permissions.',
+  'settings.language.note.text': 'This setting changes the main interface text between English and Spanish without affecting data, roles or permissions.',
+
+  'settings.language.panelTitle': 'Language settings',
+  'settings.language.panelDescription':
+  'Select the language used across TransitOps. The interface updates immediately after choosing an option.',
+  'settings.language.selectLabel': 'Select interface language',
+  'settings.language.currentLabel': 'Current language',
+  'settings.language.appliedImmediately': 'Applies immediately',
+  'settings.language.active': 'Active',
+  'settings.language.spanishNative': 'Español',
+  'settings.language.englishNative': 'English',
+  'settings.language.spanishRegion': 'Spanish interface',
+  'settings.language.englishRegion': 'English interface',
 
   'navbar.openSidebar': 'Open sidebar',
   'navbar.title': 'TransitOps Control Panel',
@@ -477,6 +499,17 @@ const esTranslations: Record<TranslationKey, string> = {
   'sidebar.meta.description': 'Sistema administrativo Angular',
   'settings.title': 'Configuración',
   'settings.subtitle': 'Administra tus preferencias personales de TransitOps.',
+    'settings.home.kicker': 'Preferencias del espacio de trabajo',
+  'settings.home.title': 'Elige qué quieres configurar',
+  'settings.home.description':
+    'Administra tu perfil de cuenta y el idioma de la interfaz desde secciones enfocadas para mantener TransitOps simple y predecible.',
+  'settings.home.profile.title': 'Perfil',
+  'settings.home.profile.description':
+    'Actualiza tu información personal, avatar, correo, teléfono y configuración de seguridad de contraseña.',
+  'settings.home.language.title': 'Idioma',
+  'settings.home.language.description':
+    'Elige el idioma de la interfaz usado en navegación, configuración y pantallas operativas.',
+  'settings.home.openSection': 'Abrir sección',
   'settings.language.title': 'Idioma',
   'settings.language.description': 'Elige el idioma de navegación y configuración.',
   'settings.language.english': 'Inglés',
@@ -552,6 +585,17 @@ const esTranslations: Record<TranslationKey, string> = {
   'settings.language.note.text':
     'Este ajuste cambia los textos principales de la interfaz entre inglés y español sin afectar datos, roles ni permisos.',
 
+  'settings.language.panelTitle': 'Configuración de idioma',
+  'settings.language.panelDescription':
+    'Selecciona el idioma usado en TransitOps. La interfaz se actualiza inmediatamente después de elegir una opción.',
+  'settings.language.selectLabel': 'Seleccionar idioma de interfaz',
+  'settings.language.currentLabel': 'Idioma actual',
+  'settings.language.appliedImmediately': 'Se aplica inmediatamente',
+  'settings.language.active': 'Activo',
+  'settings.language.spanishNative': 'Español',
+  'settings.language.englishNative': 'English',
+  'settings.language.spanishRegion': 'Interfaz en español',
+  'settings.language.englishRegion': 'Interfaz en inglés',
   'navbar.openSidebar': 'Abrir menú lateral',
   'navbar.title': 'Panel de control TransitOps',
   'navbar.subtitle': 'Panel administrativo para operaciones de transporte',

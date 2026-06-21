@@ -45,7 +45,7 @@
 
       @if (isProfileMenuOpen()) {
         <div class="profile-menu" role="menu">
-          <button type="button" role="menuitem" class="profile-menu-item" (click)="goToProfile()">
+          <button type="button" role="menuitem" class="profile-menu-item profile" (click)="goToProfile()">
             <span class="profile-menu-icon" aria-hidden="true">👤</span>
             <span>
               <strong>{{ t('navbar.profile') }}</strong>
@@ -53,7 +53,7 @@
             </span>
           </button>
 
-          <button type="button" role="menuitem" class="profile-menu-item" (click)="goToSettings()">
+          <button type="button" role="menuitem" class="profile-menu-item settings" (click)="goToSettings()">
             <span class="profile-menu-icon" aria-hidden="true">⚙</span>
             <span>
               <strong>{{ t('navbar.settings') }}</strong>
