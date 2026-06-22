@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --port 4200",
+    "deploy:api:build": "cd server && npm install && npm run build",
+    "deploy:api:start": "cd server && npm start",
     "api": "node server/mock/index.cjs",
     "api:dev": "node --watch server/mock/index.cjs",
     "api:real": "cd server && npm run dev",
