@@ -9,6 +9,10 @@ async function getAdminToken(): Promise<string> {
     password: 'admin123',
   });
 
+  expect(loginResponse.status).toBe(200);
+  expect(loginResponse.body.success).toBe(true);
+  expect(loginResponse.body.data?.token).toBeDefined();
+
   return loginResponse.body.data.token as string;
 }
 
@@ -18,22 +22,80 @@ async function getViewerToken(): Promise<string> {
     password: 'viewer123',
   });
 
+  expect(loginResponse.status).toBe(200);
+  expect(loginResponse.body.success).toBe(true);
+  expect(loginResponse.body.data?.token).toBeDefined();
+
   return loginResponse.body.data.token as string;
 }
 
 describe('GET /api/routes', () => {
-  it('returns routes for authenticated users', async () => {
+  it('returns paginated routes for authenticated users', async () => {
     const token = await getViewerToken();
 
     const response = await request(app)
-      .get('/api/routes')
+      .get('/api/routes?page=1&limit=2')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Routes retrieved successfully.');
     expect(Array.isArray(response.body.data)).toBe(true);
-    expect(response.body.data.length).toBeGreaterThanOrEqual(2);
+    expect(response.body.data.length).toBeLessThanOrEqual(2);
+    expect(response.body.meta).toEqual(
+      expect.objectContaining({
+        page: 1,
+        limit: 2,
+      }),
+    );
+    expect(response.body.meta.total).toBeGreaterThanOrEqual(response.body.data.length);
+    expect(response.body.meta.totalPages).toBeGreaterThanOrEqual(1);
+    expect(typeof response.body.meta.hasNextPage).toBe('boolean');
+    expect(response.body.meta.hasPreviousPage).toBe(false);
+  });
+
+  it('supports pageSize as pagination alias', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/routes?page=1&pageSize=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(2);
+    expect(response.body.data.length).toBeLessThanOrEqual(2);
+  });
+
+  it('gives limit precedence over pageSize', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/routes?page=1&limit=1&pageSize=3')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.limit).toBe(1);
+    expect(response.body.data.length).toBeLessThanOrEqual(1);
+  });
+
+  it('keeps filters compatible with pagination', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/routes?status=ACTIVE&page=1&limit=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(2);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(
+      response.body.data.every((route: { status: string }) => route.status === 'ACTIVE'),
+    ).toBe(true);
   });
 
   it('rejects requests without token', async () => {

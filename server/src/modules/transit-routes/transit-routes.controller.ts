@@ -23,13 +23,16 @@ export async function getTransitRoutes(
 ): Promise<Response> {
   const query = request.query as GetTransitRoutesQuery;
 
-  const routes = await listTransitRoutes({
+  const result = await listTransitRoutes({
     search: query.search,
     q: query.q,
     status: query.status,
+    page: query.page,
+    limit: query.limit,
+    pageSize: query.pageSize,
   });
 
-  return sendSuccess(response, 'Routes retrieved successfully.', routes);
+  return sendSuccess(response, 'Routes retrieved successfully.', result.data, 200, result.meta);
 }
 
 export async function getTransitRoute(

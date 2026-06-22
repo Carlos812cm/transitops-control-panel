@@ -1,6 +1,11 @@
 import { Prisma, TransitRoute } from '@prisma/client';
 
 import { AppError } from '../../common/errors/app-error.js';
+import {
+  buildPaginationMeta,
+  getPaginationOptions,
+  PaginatedResult,
+} from '../../common/pagination/pagination.js';
 import { prisma } from '../../config/prisma.js';
 import {
   CreateTransitRouteBody,
@@ -76,15 +81,26 @@ async function findTransitRouteOrThrow(routeId: string): Promise<TransitRoute> {
 
 export async function listTransitRoutes(
   filters: TransitRouteFilters,
-): Promise<PublicTransitRoute[]> {
-  const routes = await prisma.transitRoute.findMany({
-    where: buildTransitRoutesWhere(filters),
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+): Promise<PaginatedResult<PublicTransitRoute>> {
+  const where = buildTransitRoutesWhere(filters);
+  const pagination = getPaginationOptions(filters);
 
-  return routes.map(toPublicTransitRoute);
+  const [total, routes] = await prisma.$transaction([
+    prisma.transitRoute.count({ where }),
+    prisma.transitRoute.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: pagination.skip,
+      take: pagination.take,
+    }),
+  ]);
+
+  return {
+    data: routes.map(toPublicTransitRoute),
+    meta: buildPaginationMeta(pagination, total),
+  };
 }
 
 export async function getTransitRouteById(routeId: string): Promise<PublicTransitRoute> {
