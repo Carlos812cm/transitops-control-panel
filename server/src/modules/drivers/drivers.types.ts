@@ -1,5 +1,7 @@
 import { DriverStatus } from '@prisma/client';
 
+import type { PaginationQuery } from '../../common/pagination/pagination.js';
+
 export interface PublicDriver {
   id: string;
   firstName: string;
@@ -12,7 +14,7 @@ export interface PublicDriver {
   updatedAt: Date;
 }
 
-export interface DriverFilters {
+export interface DriverFilters extends PaginationQuery {
   search?: string;
   q?: string;
   status?: DriverStatus;

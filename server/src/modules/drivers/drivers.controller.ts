@@ -20,13 +20,16 @@ import {
 export async function getDrivers(request: Request, response: Response): Promise<Response> {
   const query = request.query as GetDriversQuery;
 
-  const drivers = await listDrivers({
+  const result = await listDrivers({
     search: query.search,
     q: query.q,
     status: query.status,
+    page: query.page,
+    limit: query.limit,
+    pageSize: query.pageSize,
   });
 
-  return sendSuccess(response, 'Drivers retrieved successfully.', drivers);
+  return sendSuccess(response, 'Drivers retrieved successfully.', result.data, 200, result.meta);
 }
 
 export async function getDriver(request: Request, response: Response): Promise<Response> {

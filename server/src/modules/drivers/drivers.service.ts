@@ -1,6 +1,11 @@
 import { Driver, Prisma } from '@prisma/client';
 
 import { AppError } from '../../common/errors/app-error.js';
+import {
+  buildPaginationMeta,
+  getPaginationOptions,
+  PaginatedResult,
+} from '../../common/pagination/pagination.js';
 import { prisma } from '../../config/prisma.js';
 import {
   CreateDriverBody,
@@ -110,15 +115,28 @@ async function ensureEmailIsAvailable(email: string, driverId?: string): Promise
   }
 }
 
-export async function listDrivers(filters: DriverFilters): Promise<PublicDriver[]> {
-  const drivers = await prisma.driver.findMany({
-    where: buildDriversWhere(filters),
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+export async function listDrivers(
+  filters: DriverFilters,
+): Promise<PaginatedResult<PublicDriver>> {
+  const where = buildDriversWhere(filters);
+  const pagination = getPaginationOptions(filters);
 
-  return drivers.map(toPublicDriver);
+  const [total, drivers] = await prisma.$transaction([
+    prisma.driver.count({ where }),
+    prisma.driver.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: pagination.skip,
+      take: pagination.take,
+    }),
+  ]);
+
+  return {
+    data: drivers.map(toPublicDriver),
+    meta: buildPaginationMeta(pagination, total),
+  };
 }
 
 export async function getDriverById(driverId: string): Promise<PublicDriver> {
