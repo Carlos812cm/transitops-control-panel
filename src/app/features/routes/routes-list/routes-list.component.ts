@@ -1,6 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   BehaviorSubject,
@@ -13,15 +13,16 @@ import {
   shareReplay,
 } from 'rxjs';
 
+import { PaginationMeta } from '../../../core/models/api-response.model';
 import { RouteStatus, TransitRoute } from '../../../core/models/route.model';
 import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { RoutesService } from '../../../core/services/routes.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
-import { filterBySearch } from '../../../shared/utils/search.utils';
 
 interface RouteFilters {
   search: string;
@@ -30,12 +31,14 @@ interface RouteFilters {
 
 @Component({
   selector: 'app-routes-list',
+  standalone: true,
   imports: [
     AsyncPipe,
     EmptyStateComponent,
     HasRoleDirective,
     LoadingSpinnerComponent,
     PageHeaderComponent,
+    PaginationComponent,
     ReactiveFormsModule,
     StatusBadgeComponent,
   ],
@@ -43,21 +46,27 @@ interface RouteFilters {
   styleUrls: ['./routes-list.component.scss'],
 })
 export class RoutesListComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly routesService = inject(RoutesService);
   private readonly languageService = inject(LanguageService);
   private readonly routesSubject = new BehaviorSubject<TransitRoute[]>([]);
+  private readonly paginationMetaSubject = new BehaviorSubject<PaginationMeta | null>(null);
+
+  private currentPage = 1;
+  private currentLimit = 10;
 
   readonly filtersForm = new FormGroup({
     search: new FormControl('', { nonNullable: true }),
     status: new FormControl<RouteStatus | ''>('', { nonNullable: true }),
   });
 
-  readonly allRoutes$ = this.routesSubject.asObservable();
+  readonly routes$ = this.routesSubject.asObservable();
+  readonly paginationMeta$ = this.paginationMetaSubject.asObservable();
 
   private readonly filters$ = merge(
     of(this.filtersForm.getRawValue()),
     this.filtersForm.valueChanges.pipe(
-      debounceTime(100),
+      debounceTime(150),
       map(() => this.filtersForm.getRawValue()),
     ),
   ).pipe(
@@ -67,17 +76,13 @@ export class RoutesListComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly filteredRoutes$ = combineLatest([this.allRoutes$, this.filters$]).pipe(
-    map(([routes, filters]) => this.filterRoutes(routes, filters)),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  readonly vm$ = combineLatest([this.allRoutes$, this.filteredRoutes$, this.filters$]).pipe(
-    map(([allRoutes, filteredRoutes, filters]) => ({
-      filteredRoutes,
-      totalCount: allRoutes.length,
-      filteredCount: filteredRoutes.length,
-      hasRecords: filteredRoutes.length > 0,
+  readonly vm$ = combineLatest([this.routes$, this.paginationMeta$, this.filters$]).pipe(
+    map(([routes, meta, filters]) => ({
+      routes,
+      meta,
+      currentCount: routes.length,
+      totalCount: meta?.total ?? routes.length,
+      hasRecords: routes.length > 0,
       hasActiveFilters: this.hasActiveFilters(filters),
     })),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -93,30 +98,44 @@ export class RoutesListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadRoutes();
+    this.filters$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadRoutes();
+      });
   }
 
   loadRoutes(): void {
+    const filters = this.filtersForm.getRawValue();
+
     this.isLoading = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
-    this.routesService.getRoutes().subscribe({
-      next: (response) => {
-        this.isLoading = false;
+    this.routesService
+      .getRoutes({
+        page: this.currentPage,
+        limit: this.currentLimit,
+        search: filters.search.trim() || undefined,
+        status: filters.status || undefined,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
 
-        if (!response.success) {
-          this.errorMessage = response.message;
-          return;
-        }
+          if (!response.success) {
+            this.errorMessage = response.message;
+            return;
+          }
 
-        this.routesSubject.next(response.data ?? []);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error?.error?.message || this.t('routes.error.load');
-      },
-    });
+          this.routesSubject.next(response.data ?? []);
+          this.paginationMetaSubject.next(response.meta ?? null);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error?.error?.message || this.t('routes.error.load');
+        },
+      });
   }
 
   clearFilters(): void {
@@ -124,6 +143,17 @@ export class RoutesListComponent implements OnInit {
       search: '',
       status: '',
     });
+  }
+
+  changePage(page: number): void {
+    this.currentPage = page;
+    this.loadRoutes();
+  }
+
+  changeLimit(limit: number): void {
+    this.currentLimit = limit;
+    this.currentPage = 1;
+    this.loadRoutes();
   }
 
   updateRouteStatus(route: TransitRoute, status: RouteStatus): void {
@@ -140,13 +170,8 @@ export class RoutesListComponent implements OnInit {
           return;
         }
 
-        const updatedRoute = response.data ?? {
-          ...route,
-          status,
-        };
-
-        this.updateRouteInState(updatedRoute);
         this.successMessage = response.message || this.t('routes.success.update');
+        this.loadRoutes();
       },
       error: (error) => {
         this.updatingRouteId = null;
@@ -162,30 +187,6 @@ export class RoutesListComponent implements OnInit {
   t(key: TranslationKey): string {
     this.currentLanguage();
     return this.languageService.translate(key);
-  }
-
-  private filterRoutes(routes: TransitRoute[], filters: RouteFilters): TransitRoute[] {
-    const searchFilteredRoutes = filterBySearch(routes, filters.search, (route) => [
-      route.name,
-      route.origin,
-      route.destination,
-      `${route.origin} ${route.destination}`,
-      route.status,
-    ]);
-
-    if (!filters.status) {
-      return searchFilteredRoutes;
-    }
-
-    return searchFilteredRoutes.filter((route) => route.status === filters.status);
-  }
-
-  private updateRouteInState(updatedRoute: TransitRoute): void {
-    const routes = this.routesSubject.getValue();
-
-    this.routesSubject.next(
-      routes.map((route) => (route.id === updatedRoute.id ? updatedRoute : route)),
-    );
   }
 
   private hasActiveFilters(filters: RouteFilters): boolean {

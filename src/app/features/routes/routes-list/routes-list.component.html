@@ -55,7 +55,7 @@
     </div>
 
     <p class="filters-summary">
-      {{ t('common.showing') }} {{ vm.filteredCount }} {{ t('common.of') }}
+      {{ t('common.showing') }} {{ vm.currentCount }} {{ t('common.of') }}
       {{ vm.totalCount }} {{ t('routes.summary.label') }}.
     </p>
   </div>
@@ -92,7 +92,7 @@
             </thead>
 
             <tbody>
-              @for (route of vm.filteredRoutes; track route.id) {
+              @for (route of vm.routes; track route.id) {
                 <tr>
                   <td>
                     <span class="resource-primary-cell">
@@ -171,5 +171,12 @@
         </div>
       </div>
     </div>
+
+    <app-pagination
+      [meta]="vm.meta"
+      [disabled]="isLoading"
+      (pageChange)="changePage($event)"
+      (limitChange)="changeLimit($event)"
+    />
   }
 }

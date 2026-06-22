@@ -51,7 +51,7 @@
     </div>
 
     <p class="filters-summary">
-      {{ t('common.showing') }} {{ vm.filteredCount }} {{ t('common.of') }}
+      {{ t('common.showing') }} {{ vm.currentCount }} {{ t('common.of') }}
       {{ vm.totalCount }} {{ t('drivers.summary.label') }}.
     </p>
   </div>
@@ -87,7 +87,7 @@
             </thead>
 
             <tbody>
-              @for (driver of vm.filteredDrivers; track driver.id) {
+              @for (driver of vm.drivers; track driver.id) {
                 <tr>
                   <td>
                     <span class="resource-primary-cell">
@@ -175,5 +175,12 @@
         </div>
       </div>
     </div>
+
+    <app-pagination
+      [meta]="vm.meta"
+      [disabled]="isLoading"
+      (pageChange)="changePage($event)"
+      (limitChange)="changeLimit($event)"
+    />
   }
 }

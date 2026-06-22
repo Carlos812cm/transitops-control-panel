@@ -57,7 +57,7 @@
     </div>
 
     <p class="filters-summary">
-      {{ t('common.showing') }} {{ vm.filteredCount }} {{ t('common.of') }}
+      {{ t('common.showing') }} {{ vm.currentCount }} {{ t('common.of') }}
       {{ vm.totalCount }} {{ t('trips.summary.label') }}.
     </p>
   </div>
@@ -94,7 +94,7 @@
             </thead>
 
             <tbody>
-              @for (trip of vm.filteredTrips; track trip.id) {
+              @for (trip of vm.trips; track trip.id) {
                 <tr>
                   <td>
                     <span class="resource-primary-cell">
@@ -192,5 +192,12 @@
         </div>
       </div>
     </div>
+
+    <app-pagination
+      [meta]="vm.meta"
+      [disabled]="isLoading"
+      (pageChange)="changePage($event)"
+      (limitChange)="changeLimit($event)"
+    />
   }
 }

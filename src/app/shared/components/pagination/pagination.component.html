@@ -1,0 +1,56 @@
+@if (meta) {
+  <nav
+    class="pagination-shell"
+    aria-label="Resource pagination"
+  >
+    <div class="pagination-summary">
+      @if (total > 0) {
+        <span>Showing {{ firstItem }}-{{ lastItem }} of {{ total }}</span>
+      } @else {
+        <span>Showing 0 results</span>
+      }
+
+      <span class="pagination-page-indicator">
+        Page {{ currentPage }} of {{ totalPages || 1 }}
+      </span>
+    </div>
+
+    <div class="pagination-controls">
+      <label class="pagination-limit">
+        <span>Rows</span>
+
+        <select
+          class="form-select form-select-sm"
+          [disabled]="disabled"
+          [value]="currentLimit"
+          (change)="onLimitChange($event)"
+          aria-label="Rows per page"
+        >
+          @for (option of pageSizeOptions; track option) {
+            <option [value]="option">{{ option }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="pagination-buttons">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [disabled]="!canGoPrevious"
+          (click)="goToPreviousPage()"
+        >
+          Previous
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [disabled]="!canGoNext"
+          (click)="goToNextPage()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </nav>
+}
