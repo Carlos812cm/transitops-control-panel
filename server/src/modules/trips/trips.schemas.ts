@@ -10,6 +10,9 @@ export const getTripsSchema = z.object({
     vehicleId: z.string().trim().optional(),
     driverId: z.string().trim().optional(),
     routeId: z.string().trim().optional(),
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().positive().optional(),
   }),
 });
 

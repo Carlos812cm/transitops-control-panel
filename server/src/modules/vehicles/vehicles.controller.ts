@@ -20,13 +20,16 @@ import {
 export async function getVehicles(request: Request, response: Response): Promise<Response> {
   const query = request.query as GetVehiclesQuery;
 
-  const vehicles = await listVehicles({
+  const result = await listVehicles({
     search: query.search,
     q: query.q,
     status: query.status,
+    page: query.page,
+    limit: query.limit,
+    pageSize: query.pageSize,
   });
 
-  return sendSuccess(response, 'Vehicles retrieved successfully.', vehicles);
+  return sendSuccess(response, 'Vehicles retrieved successfully.', result.data, 200, result.meta);
 }
 
 export async function getVehicle(request: Request, response: Response): Promise<Response> {

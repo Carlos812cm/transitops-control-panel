@@ -7,6 +7,9 @@ export const getTransitRoutesSchema = z.object({
     search: z.string().trim().optional(),
     q: z.string().trim().optional(),
     status: routeStatusSchema.optional(),
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().positive().optional(),
   }),
 });
 

@@ -1,5 +1,7 @@
 import { RouteStatus } from '@prisma/client';
 
+import type { PaginationQuery } from '../../common/pagination/pagination.js';
+
 export interface PublicTransitRoute {
   id: string;
   name: string;
@@ -12,7 +14,7 @@ export interface PublicTransitRoute {
   updatedAt: Date;
 }
 
-export interface TransitRouteFilters {
+export interface TransitRouteFilters extends PaginationQuery {
   search?: string;
   q?: string;
   status?: RouteStatus;

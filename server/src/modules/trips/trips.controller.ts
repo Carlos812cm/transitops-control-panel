@@ -18,16 +18,19 @@ import {
 export async function getTrips(request: Request, response: Response): Promise<Response> {
   const query = request.query as GetTripsQuery;
 
-  const trips = await listTrips({
+  const result = await listTrips({
     search: query.search,
     q: query.q,
     status: query.status,
     vehicleId: query.vehicleId,
     driverId: query.driverId,
     routeId: query.routeId,
+    page: query.page,
+    limit: query.limit,
+    pageSize: query.pageSize,
   });
 
-  return sendSuccess(response, 'Trips retrieved successfully.', trips);
+  return sendSuccess(response, 'Trips retrieved successfully.', result.data, 200, result.meta);
 }
 
 export async function getTrip(request: Request, response: Response): Promise<Response> {

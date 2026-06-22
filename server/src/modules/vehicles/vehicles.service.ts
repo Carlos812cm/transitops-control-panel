@@ -1,6 +1,11 @@
 import { Prisma, Vehicle } from '@prisma/client';
 
 import { AppError } from '../../common/errors/app-error.js';
+import {
+  buildPaginationMeta,
+  getPaginationOptions,
+  PaginatedResult,
+} from '../../common/pagination/pagination.js';
 import { prisma } from '../../config/prisma.js';
 import {
   CreateVehicleBody,
@@ -84,15 +89,28 @@ async function ensureUnitNumberIsAvailable(unitNumber: string, vehicleId?: strin
   }
 }
 
-export async function listVehicles(filters: VehicleFilters): Promise<PublicVehicle[]> {
-  const vehicles = await prisma.vehicle.findMany({
-    where: buildVehiclesWhere(filters),
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+export async function listVehicles(
+  filters: VehicleFilters,
+): Promise<PaginatedResult<PublicVehicle>> {
+  const where = buildVehiclesWhere(filters);
+  const pagination = getPaginationOptions(filters);
 
-  return vehicles.map(toPublicVehicle);
+  const [total, vehicles] = await prisma.$transaction([
+    prisma.vehicle.count({ where }),
+    prisma.vehicle.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: pagination.skip,
+      take: pagination.take,
+    }),
+  ]);
+
+  return {
+    data: vehicles.map(toPublicVehicle),
+    meta: buildPaginationMeta(pagination, total),
+  };
 }
 
 export async function getVehicleById(vehicleId: string): Promise<PublicVehicle> {
