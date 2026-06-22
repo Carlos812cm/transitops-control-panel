@@ -22,18 +22,72 @@ async function getViewerToken(): Promise<string> {
 }
 
 describe('GET /api/vehicles', () => {
-  it('returns vehicles for authenticated users', async () => {
+  it('returns paginated vehicles for authenticated users', async () => {
     const token = await getViewerToken();
 
     const response = await request(app)
-      .get('/api/vehicles')
+      .get('/api/vehicles?page=1&limit=2')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Vehicles retrieved successfully.');
     expect(Array.isArray(response.body.data)).toBe(true);
-    expect(response.body.data.length).toBeGreaterThanOrEqual(3);
+    expect(response.body.data.length).toBeLessThanOrEqual(2);
+    expect(response.body.meta).toEqual(
+      expect.objectContaining({
+        page: 1,
+        limit: 2,
+      }),
+    );
+    expect(response.body.meta.total).toBeGreaterThanOrEqual(response.body.data.length);
+    expect(response.body.meta.totalPages).toBeGreaterThanOrEqual(1);
+    expect(typeof response.body.meta.hasNextPage).toBe('boolean');
+    expect(response.body.meta.hasPreviousPage).toBe(false);
+  });
+
+  it('supports pageSize as pagination alias', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/vehicles?page=1&pageSize=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(2);
+    expect(response.body.data.length).toBeLessThanOrEqual(2);
+  });
+
+  it('gives limit precedence over pageSize', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/vehicles?page=1&limit=1&pageSize=3')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.limit).toBe(1);
+    expect(response.body.data.length).toBeLessThanOrEqual(1);
+  });
+
+  it('keeps filters compatible with pagination', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/vehicles?status=AVAILABLE&page=1&limit=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(2);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(
+      response.body.data.every((vehicle: { status: string }) => vehicle.status === 'AVAILABLE'),
+    ).toBe(true);
   });
 
   it('rejects requests without token', async () => {

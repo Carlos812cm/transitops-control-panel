@@ -1,5 +1,7 @@
 import { VehicleStatus } from '@prisma/client';
 
+import type { PaginationQuery } from '../../common/pagination/pagination.js';
+
 export interface PublicVehicle {
   id: string;
   unitNumber: string;
@@ -13,7 +15,7 @@ export interface PublicVehicle {
   updatedAt: Date;
 }
 
-export interface VehicleFilters {
+export interface VehicleFilters extends PaginationQuery {
   search?: string;
   q?: string;
   status?: VehicleStatus;
