@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   BehaviorSubject,
   combineLatest,
@@ -13,15 +13,16 @@ import {
   shareReplay,
 } from 'rxjs';
 
+import { PaginationMeta } from '../../../core/models/api-response.model';
 import { Vehicle, VehicleStatus } from '../../../core/models/vehicle.model';
 import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { VehiclesService } from '../../../core/services/vehicles.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
-import { filterBySearch } from '../../../shared/utils/search.utils';
 
 interface VehicleFilters {
   search: string;
@@ -37,6 +38,7 @@ interface VehicleFilters {
     HasRoleDirective,
     LoadingSpinnerComponent,
     PageHeaderComponent,
+    PaginationComponent,
     ReactiveFormsModule,
     StatusBadgeComponent,
   ],
@@ -44,21 +46,27 @@ interface VehicleFilters {
   styleUrls: ['./vehicles-list.component.scss'],
 })
 export class VehiclesListComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly vehiclesService = inject(VehiclesService);
   private readonly languageService = inject(LanguageService);
   private readonly vehiclesSubject = new BehaviorSubject<Vehicle[]>([]);
+  private readonly paginationMetaSubject = new BehaviorSubject<PaginationMeta | null>(null);
+
+  private currentPage = 1;
+  private currentLimit = 10;
 
   readonly filtersForm = new FormGroup({
     search: new FormControl('', { nonNullable: true }),
     status: new FormControl<VehicleStatus | ''>('', { nonNullable: true }),
   });
 
-  readonly allVehicles$ = this.vehiclesSubject.asObservable();
+  readonly vehicles$ = this.vehiclesSubject.asObservable();
+  readonly paginationMeta$ = this.paginationMetaSubject.asObservable();
 
   private readonly filters$ = merge(
     of(this.filtersForm.getRawValue()),
     this.filtersForm.valueChanges.pipe(
-      debounceTime(100),
+      debounceTime(150),
       map(() => this.filtersForm.getRawValue()),
     ),
   ).pipe(
@@ -68,17 +76,13 @@ export class VehiclesListComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly filteredVehicles$ = combineLatest([this.allVehicles$, this.filters$]).pipe(
-    map(([vehicles, filters]) => this.filterVehicles(vehicles, filters)),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  readonly vm$ = combineLatest([this.allVehicles$, this.filteredVehicles$, this.filters$]).pipe(
-    map(([allVehicles, filteredVehicles, filters]) => ({
-      filteredVehicles,
-      totalCount: allVehicles.length,
-      filteredCount: filteredVehicles.length,
-      hasRecords: filteredVehicles.length > 0,
+  readonly vm$ = combineLatest([this.vehicles$, this.paginationMeta$, this.filters$]).pipe(
+    map(([vehicles, meta, filters]) => ({
+      vehicles,
+      meta,
+      currentCount: vehicles.length,
+      totalCount: meta?.total ?? vehicles.length,
+      hasRecords: vehicles.length > 0,
       hasActiveFilters: this.hasActiveFilters(filters),
     })),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -94,7 +98,12 @@ export class VehiclesListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadVehicles();
+    this.filters$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadVehicles();
+      });
   }
 
   clearFilters(): void {
@@ -104,27 +113,47 @@ export class VehiclesListComponent implements OnInit {
     });
   }
 
+  changePage(page: number): void {
+    this.currentPage = page;
+    this.loadVehicles();
+  }
+
+  changeLimit(limit: number): void {
+    this.currentLimit = limit;
+    this.currentPage = 1;
+    this.loadVehicles();
+  }
+
   loadVehicles(): void {
+    const filters = this.filtersForm.getRawValue();
+
     this.isLoading = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
-    this.vehiclesService.getVehicles().subscribe({
-      next: (response) => {
-        this.isLoading = false;
+    this.vehiclesService
+      .getVehicles({
+        page: this.currentPage,
+        limit: this.currentLimit,
+        search: filters.search.trim() || undefined,
+        status: filters.status || undefined,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
 
-        if (!response.success) {
-          this.errorMessage = response.message;
-          return;
-        }
+          if (!response.success) {
+            this.errorMessage = response.message;
+            return;
+          }
 
-        this.vehiclesSubject.next(response.data ?? []);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error?.error?.message || this.t('vehicles.error.load');
-      },
-    });
+          this.vehiclesSubject.next(response.data ?? []);
+          this.paginationMetaSubject.next(response.meta ?? null);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error?.error?.message || this.t('vehicles.error.load');
+        },
+      });
   }
 
   updateVehicleStatus(vehicle: Vehicle, status: VehicleStatus): void {
@@ -141,13 +170,8 @@ export class VehiclesListComponent implements OnInit {
           return;
         }
 
-        const updatedVehicle = response.data ?? {
-          ...vehicle,
-          status,
-        };
-
-        this.updateVehicleInState(updatedVehicle);
         this.successMessage = response.message || this.t('vehicles.success.update');
+        this.loadVehicles();
       },
       error: (error) => {
         this.updatingVehicleId = null;
@@ -163,31 +187,6 @@ export class VehiclesListComponent implements OnInit {
   t(key: TranslationKey): string {
     this.currentLanguage();
     return this.languageService.translate(key);
-  }
-
-  private filterVehicles(vehicles: Vehicle[], filters: VehicleFilters): Vehicle[] {
-    const searchFilteredVehicles = filterBySearch(vehicles, filters.search, (vehicle) => [
-      vehicle.unitNumber,
-      vehicle.brand,
-      vehicle.model,
-      vehicle.year,
-      vehicle.capacity,
-      vehicle.status,
-    ]);
-
-    if (!filters.status) {
-      return searchFilteredVehicles;
-    }
-
-    return searchFilteredVehicles.filter((vehicle) => vehicle.status === filters.status);
-  }
-
-  private updateVehicleInState(updatedVehicle: Vehicle): void {
-    const vehicles = this.vehiclesSubject.getValue();
-
-    this.vehiclesSubject.next(
-      vehicles.map((vehicle) => (vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle)),
-    );
   }
 
   private hasActiveFilters(filters: VehicleFilters): boolean {
