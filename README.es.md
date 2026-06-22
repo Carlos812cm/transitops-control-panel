@@ -6,6 +6,8 @@ TransitOps Control Panel es una plataforma Full-Stack para operaciones de transp
 
 El sistema permite gestionar usuarios, vehículos, conductores, rutas y viajes mediante una interfaz administrativa con autenticación, autorización por roles, API REST real y persistencia en base de datos relacional.
 
+Versión estable actual: `v1.6.0`
+
 ---
 
 ## Propósito del proyecto
@@ -74,8 +76,10 @@ Flujo recomendado de portafolio:
 - Gestión de rutas.
 - Gestión de viajes.
 - Reglas de negocio en Back-End.
-- Estados de carga, error y datos vacíos.
 - Filtros y búsqueda en tablas.
+- Metadata de paginación desde la API.
+- Controles de paginación en el Front-End para listas operativas.
+- Estados de carga, error y datos vacíos.
 - Tema claro y oscuro.
 - Idioma inglés y español.
 - Mock API local como respaldo para pruebas del Front-End.
@@ -135,6 +139,12 @@ La aplicación Angular consume una API REST local en el puerto 4000. La API real
 - Drivers
 - Routes
 - Trips
+
+Los endpoints de listas soportan paginación y filtros con query params como:
+
+```txt
+?page=1&limit=10&search=term&status=ACTIVE
+```
 
 El endpoint de Dashboard resume métricas reales desde la base de datos y devuelve los últimos viajes con sus relaciones principales.
 
@@ -218,7 +228,16 @@ Orden sugerido para presentar el proyecto:
 
 Explicación breve:
 
-TransitOps Platform es un sistema administrativo Full-Stack para operaciones de transporte. Usa Angular para el panel de control, Express para la API, Prisma para el acceso a datos y PostgreSQL para la persistencia. El sistema gestiona usuarios, vehículos, conductores, rutas y viajes con autenticación, roles y reglas de negocio.
+TransitOps Platform es un sistema administrativo Full-Stack para operaciones de transporte. Usa Angular para el panel de control, Express para la API, Prisma para el acceso a datos y PostgreSQL para la persistencia. El sistema gestiona usuarios, vehículos, conductores, rutas y viajes con autenticación, roles, listas paginadas y reglas de negocio aplicadas desde la API.
+
+Puntos clave para mostrar:
+
+- El Dashboard carga métricas desde la API real.
+- Vehicles, Drivers, Routes y Trips consumen respuestas paginadas.
+- Trips conecta vehículos, conductores y rutas.
+- La API rechaza viajes con recursos no disponibles.
+- Los usuarios VIEWER pueden consultar, pero no ejecutar acciones protegidas.
+- Los usuarios ADMIN pueden gestionar recursos operativos y usuarios.
 
 ---
 
@@ -233,6 +252,7 @@ Antes de presentar:
 - El login funciona.
 - El Dashboard carga datos reales.
 - Vehicles, Drivers, Routes y Trips cargan registros.
+- Las listas operativas muestran controles de paginación.
 - Trips muestra relaciones entre vehículo, conductor y ruta.
 - El Final QA and Demo Checklist fue completado.
 - README y smoke test están actualizados.
@@ -249,10 +269,12 @@ Este proyecto demuestra:
 - Guards de autenticación y autorización.
 - Interceptors HTTP.
 - Formularios reactivos.
+- Componentes UI reutilizables para comportamientos compartidos como paginación.
 - API REST real con Express y Prisma.
 - Modelo relacional con PostgreSQL.
 - Validación con Zod.
 - Autorización por roles en Back-End.
+- Contratos de API paginados con metadata de respuesta.
 - Pruebas de rutas con Vitest.
 
 ---
@@ -267,6 +289,8 @@ Implementado:
 - Dashboard real.
 - Endpoints reales para usuarios, vehículos, conductores, rutas y viajes.
 - Reglas de negocio para viajes.
+- Metadata de paginación en API.
+- Paginación visual en Front-End para listas operativas.
 - Mock API como respaldo.
 - Guía de smoke test.
 - Checklist final de QA y demo.
@@ -276,7 +300,6 @@ Mejoras futuras posibles:
 
 - Formularios de edición.
 - Páginas de detalle.
-- Paginación del lado del servidor.
 - Notificaciones tipo toast.
 - Pruebas E2E.
 - Gráficas en Dashboard.
