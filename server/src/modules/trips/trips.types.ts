@@ -5,6 +5,8 @@ import {
   Vehicle,
 } from '@prisma/client';
 
+import type { PaginationQuery } from '../../common/pagination/pagination.js';
+
 export interface PublicTrip {
   id: string;
   vehicleId: string;
@@ -20,7 +22,7 @@ export interface PublicTrip {
   route?: TransitRoute;
 }
 
-export interface TripFilters {
+export interface TripFilters extends PaginationQuery {
   search?: string;
   q?: string;
   status?: TripStatus;

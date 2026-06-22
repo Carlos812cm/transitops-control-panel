@@ -1,6 +1,11 @@
-import { Prisma, Trip } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { AppError } from '../../common/errors/app-error.js';
+import {
+  buildPaginationMeta,
+  getPaginationOptions,
+  PaginatedResult,
+} from '../../common/pagination/pagination.js';
 import { prisma } from '../../config/prisma.js';
 import {
   CreateTripBody,
@@ -160,16 +165,27 @@ async function ensureTripResourcesAreAvailable(payload: CreateTripBody): Promise
   }
 }
 
-export async function listTrips(filters: TripFilters): Promise<PublicTrip[]> {
-  const trips = await prisma.trip.findMany({
-    where: buildTripsWhere(filters),
-    include: tripInclude,
-    orderBy: {
-      scheduledDeparture: 'desc',
-    },
-  });
+export async function listTrips(filters: TripFilters): Promise<PaginatedResult<PublicTrip>> {
+  const where = buildTripsWhere(filters);
+  const pagination = getPaginationOptions(filters);
 
-  return trips.map(toPublicTrip);
+  const [total, trips] = await prisma.$transaction([
+    prisma.trip.count({ where }),
+    prisma.trip.findMany({
+      where,
+      include: tripInclude,
+      orderBy: {
+        scheduledDeparture: 'desc',
+      },
+      skip: pagination.skip,
+      take: pagination.take,
+    }),
+  ]);
+
+  return {
+    data: trips.map(toPublicTrip),
+    meta: buildPaginationMeta(pagination, total),
+  };
 }
 
 export async function getTripById(tripId: string): Promise<PublicTrip> {

@@ -9,6 +9,10 @@ async function getToken(email: string, password: string): Promise<string> {
     password,
   });
 
+  expect(loginResponse.status).toBe(200);
+  expect(loginResponse.body.success).toBe(true);
+  expect(loginResponse.body.data?.token).toBeDefined();
+
   return loginResponse.body.data.token as string;
 }
 
@@ -30,16 +34,23 @@ async function getAvailableResources(token: string): Promise<{
   routeId: string;
 }> {
   const vehiclesResponse = await request(app)
-    .get('/api/vehicles?status=AVAILABLE')
+    .get('/api/vehicles?status=AVAILABLE&page=1&limit=1')
     .set('Authorization', `Bearer ${token}`);
 
   const driversResponse = await request(app)
-    .get('/api/drivers?status=ACTIVE')
+    .get('/api/drivers?status=ACTIVE&page=1&limit=1')
     .set('Authorization', `Bearer ${token}`);
 
   const routesResponse = await request(app)
-    .get('/api/routes?status=ACTIVE')
+    .get('/api/routes?status=ACTIVE&page=1&limit=1')
     .set('Authorization', `Bearer ${token}`);
+
+  expect(vehiclesResponse.status).toBe(200);
+  expect(driversResponse.status).toBe(200);
+  expect(routesResponse.status).toBe(200);
+  expect(vehiclesResponse.body.data[0]?.id).toBeDefined();
+  expect(driversResponse.body.data[0]?.id).toBeDefined();
+  expect(routesResponse.body.data[0]?.id).toBeDefined();
 
   return {
     vehicleId: vehiclesResponse.body.data[0].id as string,
@@ -49,21 +60,78 @@ async function getAvailableResources(token: string): Promise<{
 }
 
 describe('GET /api/trips', () => {
-  it('returns trips for authenticated users', async () => {
+  it('returns paginated trips for authenticated users with relations', async () => {
     const token = await getViewerToken();
 
     const response = await request(app)
-      .get('/api/trips')
+      .get('/api/trips?page=1&limit=2')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Trips retrieved successfully.');
     expect(Array.isArray(response.body.data)).toBe(true);
-    expect(response.body.data.length).toBeGreaterThanOrEqual(2);
-    expect(response.body.data[0].vehicle).toBeDefined();
-    expect(response.body.data[0].driver).toBeDefined();
-    expect(response.body.data[0].route).toBeDefined();
+    expect(response.body.data.length).toBeLessThanOrEqual(2);
+    expect(response.body.meta).toEqual(
+      expect.objectContaining({
+        page: 1,
+        limit: 2,
+      }),
+    );
+    expect(response.body.meta.total).toBeGreaterThanOrEqual(response.body.data.length);
+    expect(response.body.meta.totalPages).toBeGreaterThanOrEqual(1);
+    expect(typeof response.body.meta.hasNextPage).toBe('boolean');
+    expect(response.body.meta.hasPreviousPage).toBe(false);
+
+    if (response.body.data.length > 0) {
+      expect(response.body.data[0].vehicle).toBeDefined();
+      expect(response.body.data[0].driver).toBeDefined();
+      expect(response.body.data[0].route).toBeDefined();
+    }
+  });
+
+  it('supports pageSize as pagination alias', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/trips?page=1&pageSize=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(2);
+    expect(response.body.data.length).toBeLessThanOrEqual(2);
+  });
+
+  it('gives limit precedence over pageSize', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/trips?page=1&limit=1&pageSize=3')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.limit).toBe(1);
+    expect(response.body.data.length).toBeLessThanOrEqual(1);
+  });
+
+  it('keeps filters compatible with pagination', async () => {
+    const token = await getViewerToken();
+
+    const response = await request(app)
+      .get('/api/trips?status=SCHEDULED&page=1&limit=2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.meta.page).toBe(1);
+    expect(response.body.meta.limit).toBe(2);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(
+      response.body.data.every((trip: { status: string }) => trip.status === 'SCHEDULED'),
+    ).toBe(true);
   });
 
   it('rejects requests without token', async () => {
@@ -168,16 +236,20 @@ describe('POST /api/trips', () => {
     const token = await getAdminToken();
 
     const vehiclesResponse = await request(app)
-      .get('/api/vehicles?status=MAINTENANCE')
+      .get('/api/vehicles?status=MAINTENANCE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
 
     const driversResponse = await request(app)
-      .get('/api/drivers?status=ACTIVE')
+      .get('/api/drivers?status=ACTIVE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
 
     const routesResponse = await request(app)
-      .get('/api/routes?status=ACTIVE')
+      .get('/api/routes?status=ACTIVE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
+
+    expect(vehiclesResponse.body.data[0]?.id).toBeDefined();
+    expect(driversResponse.body.data[0]?.id).toBeDefined();
+    expect(routesResponse.body.data[0]?.id).toBeDefined();
 
     const response = await request(app)
       .post('/api/trips')
@@ -198,16 +270,20 @@ describe('POST /api/trips', () => {
     const token = await getAdminToken();
 
     const vehiclesResponse = await request(app)
-      .get('/api/vehicles?status=AVAILABLE')
+      .get('/api/vehicles?status=AVAILABLE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
 
     const driversResponse = await request(app)
-      .get('/api/drivers?status=SUSPENDED')
+      .get('/api/drivers?status=SUSPENDED&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
 
     const routesResponse = await request(app)
-      .get('/api/routes?status=ACTIVE')
+      .get('/api/routes?status=ACTIVE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
+
+    expect(vehiclesResponse.body.data[0]?.id).toBeDefined();
+    expect(driversResponse.body.data[0]?.id).toBeDefined();
+    expect(routesResponse.body.data[0]?.id).toBeDefined();
 
     const response = await request(app)
       .post('/api/trips')
@@ -228,16 +304,20 @@ describe('POST /api/trips', () => {
     const token = await getAdminToken();
 
     const vehiclesResponse = await request(app)
-      .get('/api/vehicles?status=AVAILABLE')
+      .get('/api/vehicles?status=AVAILABLE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
 
     const driversResponse = await request(app)
-      .get('/api/drivers?status=ACTIVE')
+      .get('/api/drivers?status=ACTIVE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
 
     const routesResponse = await request(app)
-      .get('/api/routes?status=INACTIVE')
+      .get('/api/routes?status=INACTIVE&page=1&limit=1')
       .set('Authorization', `Bearer ${token}`);
+
+    expect(vehiclesResponse.body.data[0]?.id).toBeDefined();
+    expect(driversResponse.body.data[0]?.id).toBeDefined();
+    expect(routesResponse.body.data[0]?.id).toBeDefined();
 
     const response = await request(app)
       .post('/api/trips')
