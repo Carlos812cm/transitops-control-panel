@@ -1,6 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   BehaviorSubject,
@@ -13,15 +13,16 @@ import {
   shareReplay,
 } from 'rxjs';
 
+import { PaginationMeta } from '../../../core/models/api-response.model';
 import { Driver, DriverStatus } from '../../../core/models/driver.model';
 import { DriversService } from '../../../core/services/drivers.service';
 import { LanguageService, TranslationKey } from '../../../core/services/language.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { HasRoleDirective } from '../../../shared/directives/has-role.directive';
-import { filterBySearch } from '../../../shared/utils/search.utils';
 
 interface DriverFilters {
   search: string;
@@ -30,12 +31,14 @@ interface DriverFilters {
 
 @Component({
   selector: 'app-drivers-list',
+  standalone: true,
   imports: [
     AsyncPipe,
     EmptyStateComponent,
     HasRoleDirective,
     LoadingSpinnerComponent,
     PageHeaderComponent,
+    PaginationComponent,
     ReactiveFormsModule,
     StatusBadgeComponent,
   ],
@@ -43,21 +46,27 @@ interface DriverFilters {
   styleUrls: ['./drivers-list.component.scss'],
 })
 export class DriversListComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly driversService = inject(DriversService);
   private readonly languageService = inject(LanguageService);
   private readonly driversSubject = new BehaviorSubject<Driver[]>([]);
+  private readonly paginationMetaSubject = new BehaviorSubject<PaginationMeta | null>(null);
+
+  private currentPage = 1;
+  private currentLimit = 10;
 
   readonly filtersForm = new FormGroup({
     search: new FormControl('', { nonNullable: true }),
     status: new FormControl<DriverStatus | ''>('', { nonNullable: true }),
   });
 
-  readonly allDrivers$ = this.driversSubject.asObservable();
+  readonly drivers$ = this.driversSubject.asObservable();
+  readonly paginationMeta$ = this.paginationMetaSubject.asObservable();
 
   private readonly filters$ = merge(
     of(this.filtersForm.getRawValue()),
     this.filtersForm.valueChanges.pipe(
-      debounceTime(100),
+      debounceTime(150),
       map(() => this.filtersForm.getRawValue()),
     ),
   ).pipe(
@@ -67,17 +76,13 @@ export class DriversListComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly filteredDrivers$ = combineLatest([this.allDrivers$, this.filters$]).pipe(
-    map(([drivers, filters]) => this.filterDrivers(drivers, filters)),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  readonly vm$ = combineLatest([this.allDrivers$, this.filteredDrivers$, this.filters$]).pipe(
-    map(([allDrivers, filteredDrivers, filters]) => ({
-      filteredDrivers,
-      totalCount: allDrivers.length,
-      filteredCount: filteredDrivers.length,
-      hasRecords: filteredDrivers.length > 0,
+  readonly vm$ = combineLatest([this.drivers$, this.paginationMeta$, this.filters$]).pipe(
+    map(([drivers, meta, filters]) => ({
+      drivers,
+      meta,
+      currentCount: drivers.length,
+      totalCount: meta?.total ?? drivers.length,
+      hasRecords: drivers.length > 0,
       hasActiveFilters: this.hasActiveFilters(filters),
     })),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -93,30 +98,44 @@ export class DriversListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadDrivers();
+    this.filters$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadDrivers();
+      });
   }
 
   loadDrivers(): void {
+    const filters = this.filtersForm.getRawValue();
+
     this.isLoading = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
-    this.driversService.getDrivers().subscribe({
-      next: (response) => {
-        this.isLoading = false;
+    this.driversService
+      .getDrivers({
+        page: this.currentPage,
+        limit: this.currentLimit,
+        search: filters.search.trim() || undefined,
+        status: filters.status || undefined,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
 
-        if (!response.success) {
-          this.errorMessage = response.message;
-          return;
-        }
+          if (!response.success) {
+            this.errorMessage = response.message;
+            return;
+          }
 
-        this.driversSubject.next(response.data ?? []);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error?.error?.message || this.t('drivers.error.load');
-      },
-    });
+          this.driversSubject.next(response.data ?? []);
+          this.paginationMetaSubject.next(response.meta ?? null);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error?.error?.message || this.t('drivers.error.load');
+        },
+      });
   }
 
   clearFilters(): void {
@@ -124,6 +143,17 @@ export class DriversListComponent implements OnInit {
       search: '',
       status: '',
     });
+  }
+
+  changePage(page: number): void {
+    this.currentPage = page;
+    this.loadDrivers();
+  }
+
+  changeLimit(limit: number): void {
+    this.currentLimit = limit;
+    this.currentPage = 1;
+    this.loadDrivers();
   }
 
   updateDriverStatus(driver: Driver, status: DriverStatus): void {
@@ -140,13 +170,8 @@ export class DriversListComponent implements OnInit {
           return;
         }
 
-        const updatedDriver = response.data ?? {
-          ...driver,
-          status,
-        };
-
-        this.updateDriverInState(updatedDriver);
         this.successMessage = response.message || this.t('drivers.success.update');
+        this.loadDrivers();
       },
       error: (error) => {
         this.updatingDriverId = null;
@@ -162,32 +187,6 @@ export class DriversListComponent implements OnInit {
   t(key: TranslationKey): string {
     this.currentLanguage();
     return this.languageService.translate(key);
-  }
-
-  private filterDrivers(drivers: Driver[], filters: DriverFilters): Driver[] {
-    const searchFilteredDrivers = filterBySearch(drivers, filters.search, (driver) => [
-      driver.firstName,
-      driver.lastName,
-      `${driver.firstName} ${driver.lastName}`,
-      driver.licenseNumber,
-      driver.email,
-      driver.phone,
-      driver.status,
-    ]);
-
-    if (!filters.status) {
-      return searchFilteredDrivers;
-    }
-
-    return searchFilteredDrivers.filter((driver) => driver.status === filters.status);
-  }
-
-  private updateDriverInState(updatedDriver: Driver): void {
-    const drivers = this.driversSubject.getValue();
-
-    this.driversSubject.next(
-      drivers.map((driver) => (driver.id === updatedDriver.id ? updatedDriver : driver)),
-    );
   }
 
   private hasActiveFilters(filters: DriverFilters): boolean {
