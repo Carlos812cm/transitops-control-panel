@@ -6,6 +6,8 @@ TransitOps Control Panel is a Full-Stack transportation operations platform buil
 
 It provides a role-aware administrative interface to manage users, vehicles, drivers, routes and trips through a real REST API. The project also keeps a local mock API as a lightweight Front-End fallback.
 
+Current stable version: `v1.6.0`
+
 ---
 
 ## Project Purpose
@@ -20,6 +22,7 @@ This project presents a realistic administrative system for transportation opera
 - Vehicles, drivers, routes and trips operations
 - Dashboard metrics from real API data
 - Business rules for trip scheduling
+- Paginated API responses with Front-End pagination controls
 - Light and dark theme support
 - English and Spanish UI language support
 - Local mock API fallback
@@ -83,6 +86,8 @@ Recommended portfolio flow:
 - Trips management
 - Real Back-End business rules
 - Table search and status filters
+- API pagination metadata
+- Front-End pagination controls for operational lists
 - Loading, empty and error states
 - Light and dark theme
 - English and Spanish UI preference
@@ -153,6 +158,12 @@ src/environments/environment.ts
 ---
 
 ## Main API Endpoints
+
+List endpoints support pagination and filters through query parameters such as:
+
+```txt
+?page=1&limit=10&search=term&status=ACTIVE
+```
 
 ### Dashboard
 
@@ -353,11 +364,12 @@ Recommended order for a live demo:
 
 Suggested explanation:
 
-> TransitOps Platform is a Full-Stack administrative system for transportation operations. It uses Angular for the control panel, Express for the API, Prisma for database access and PostgreSQL for persistence. The system manages users, vehicles, drivers, routes and trips with authentication, role-based access and operational business rules.
+> TransitOps Platform is a Full-Stack administrative system for transportation operations. It uses Angular for the control panel, Express for the API, Prisma for database access and PostgreSQL for persistence. The system manages users, vehicles, drivers, routes and trips with authentication, role-based access, paginated operational lists and business rules enforced by the API.
 
 Key points to show:
 
 - Dashboard metrics come from the real API.
+- Vehicles, drivers, routes and trips use paginated API responses.
 - Trips connect vehicles, drivers and routes.
 - The API rejects trips with unavailable resources.
 - Viewer users can read data but cannot perform protected actions.
@@ -376,10 +388,10 @@ Before presenting the project:
 [ ] Angular is running on port 4200
 [ ] Login works
 [ ] Dashboard loads real data
-[ ] Vehicles list loads records
-[ ] Drivers list loads records
-[ ] Routes list loads records
-[ ] Trips list loads records with relations
+[ ] Vehicles list loads records and pagination controls
+[ ] Drivers list loads records and pagination controls
+[ ] Routes list loads records and pagination controls
+[ ] Trips list loads records with relations and pagination controls
 [ ] Final QA and Demo Checklist was completed
 [ ] README and smoke test guide are updated
 ```
@@ -396,10 +408,12 @@ This project demonstrates:
 - Guards for authentication and authorization
 - HTTP interceptors for token handling and global errors
 - Reactive forms with validation
+- Reusable UI components for shared behaviors such as pagination
 - Real REST API with Express and Prisma
 - PostgreSQL relational data model
 - Role-based Back-End authorization
 - Zod request validation
+- Paginated API contracts with response metadata
 - Back-End route tests with Vitest
 - Local mock API for independent Front-End fallback testing
 
@@ -416,6 +430,8 @@ Implemented:
 - Real API endpoints for users, vehicles, drivers, routes and trips
 - Users management workflow
 - Trip scheduling business rules
+- API pagination metadata
+- Front-End pagination UI for operational lists
 - Back-End route tests
 - Local mock API fallback
 - Full local smoke test guide
@@ -426,7 +442,6 @@ Possible future improvements:
 
 - Edit forms
 - Detail pages
-- Server-side pagination
 - Toast notifications
 - E2E tests
 - Dashboard charts
