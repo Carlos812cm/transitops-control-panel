@@ -18,11 +18,12 @@ Example:
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: '[https://your-transitops-api.example.com/api](https://your-transitops-api.example.com/api)',
+  apiUrl: 'https://your-transitops-api.example.com/api',
 };
 ```
 
-> **Warning** > Do not use `http://localhost:4000/api` in a public deployment.
+> **Warning**
+> Do not use `http://localhost:4000/api` in a public deployment.
 
 ### Development API URL
 
