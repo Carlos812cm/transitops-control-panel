@@ -10,7 +10,9 @@
     "test": "vitest run --config vitest.config.ts",
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "seed": "prisma db seed"
+    "seed": "prisma db seed",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed"
   },
   "keywords": [
     "transitops",

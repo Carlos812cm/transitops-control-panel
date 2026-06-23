@@ -4,6 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --port 4200",
+    "deploy:api:build": "cd server && npm install && npm run build",
+    "deploy:api:migrate": "cd server && npm run db:migrate:deploy",
+    "deploy:api:seed": "cd server && npm run db:seed",
+    "deploy:api:start": "cd server && npm start",
+    "deploy:web:build": "npm run build",
     "api": "node server/mock/index.cjs",
     "api:dev": "node --watch server/mock/index.cjs",
     "api:real": "cd server && npm run dev",
