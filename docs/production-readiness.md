@@ -97,6 +97,34 @@ Before publishing the demo:
 - Error responses do not leak stack traces.
 - Admin demo access is intentional.
 
+## API Deployment Command Flow
+
+Recommended Back-End deployment order:
+
+```bash
+npm run deploy:api:build
+npm run deploy:api:migrate
+npm run deploy:api:seed
+npm run deploy:api:start
+```
+
+Command purpose:
+
+| Command                      | Purpose                                                      |
+| ---------------------------- | ------------------------------------------------------------ |
+| `npm run deploy:api:build`   | Installs API dependencies and builds the TypeScript Back-End |
+| `npm run deploy:api:migrate` | Applies versioned Prisma migrations to the target database   |
+| `npm run deploy:api:seed`    | Seeds demo data into the target database                     |
+| `npm run deploy:api:start`   | Starts the compiled API server                               |
+
+## Seed Safety Note
+
+The seed command is intended only for demo or resettable environments.
+
+The current seed process deletes existing operational records and recreates demo data. Do not run it against a database containing real users, real trips, real vehicles or business data.
+
+For a public portfolio demo, this behavior is acceptable only when the database is dedicated to demo data.
+
 ## Deployment Smoke Test
 
 After deployment, validate:
