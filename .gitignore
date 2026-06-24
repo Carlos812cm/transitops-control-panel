@@ -58,8 +58,8 @@ server/.vite/
 **/dist/
 **/.vite/
 
-# Local profile uploads
-server/uploads/*
-!server/uploads/avatars/
-server/uploads/avatars/*
-!server/uploads/avatars/.gitkeep
+# Local uploaded files
+server/uploads/**
+!server/uploads/
+!server/uploads/**/
+!server/uploads/**/.gitkeep
