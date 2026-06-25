@@ -6,7 +6,28 @@ TransitOps Control Panel es una plataforma Full-Stack para operaciones de transp
 
 El sistema permite gestionar usuarios, vehículos, conductores, rutas y viajes mediante una interfaz administrativa con autenticación, autorización por roles, API REST real y persistencia en base de datos relacional.
 
-Versión estable actual: `v1.6.0`
+Versión estable actual: `v1.8.0`
+
+---
+
+## Demo pública
+
+| Recurso | URL |
+| --- | --- |
+| Demo pública Front-End | https://transitops-control-panel.onrender.com |
+| Health check público del API | https://transitops-api.onrender.com/api/health |
+| API base pública | https://transitops-api.onrender.com/api |
+
+Credenciales demo:
+
+| Rol | Email | Password | Uso |
+| --- | --- | --- | --- |
+| `ADMIN` | `admin@transitops.com` | `admin123` | Acceso completo para demo |
+| `OPERATOR` | `operator@transitops.com` | `operator123` | Flujo operativo de viajes |
+| `SUPERVISOR` | `supervisor@transitops.com` | `supervisor123` | Flujo operativo de viajes |
+| `VIEWER` | `viewer@transitops.com` | `viewer123` | Validación de solo lectura |
+
+> Estas credenciales son únicamente para una base de datos demo controlada. No deben reutilizarse en sistemas reales.
 
 ---
 
@@ -18,7 +39,7 @@ El proyecto puede explicarse en entrevistas desde tres perspectivas:
 
 - Como panel Front-End con Angular.
 - Como API Back-End con reglas de negocio.
-- Como sistema Full-Stack conectado a PostgreSQL.
+- Como sistema Full-Stack conectado a PostgreSQL y desplegado públicamente.
 
 ---
 
@@ -30,15 +51,18 @@ Usa estos documentos para validar y presentar el proyecto:
 | --- | --- |
 | [`docs/final-qa-and-demo-checklist.md`](docs/final-qa-and-demo-checklist.md) | QA final, revisión responsive, revisión de tema y flujo de demo para entrevista |
 | [`docs/real-api-smoke-test.md`](docs/real-api-smoke-test.md) | Validación local completa de PostgreSQL, API y Angular |
+| [`docs/releases/v1.8.0-demo-deployment.md`](docs/releases/v1.8.0-demo-deployment.md) | Notas del despliegue demo público |
 | [`README.md`](README.md) | Versión en inglés para revisión técnica y portafolio internacional |
 
 Flujo recomendado de portafolio:
 
 ```txt
-1. Leer el propósito del proyecto y el stack tecnológico.
-2. Ejecutar el Real API Smoke Test.
-3. Completar el Final QA and Demo Checklist.
-4. Usar el flujo de demo durante entrevistas.
+1. Abrir la demo pública del Front-End.
+2. Iniciar sesión con la cuenta ADMIN demo.
+3. Mostrar métricas del Dashboard y módulos operativos.
+4. Validar comportamiento por rol con la cuenta VIEWER.
+5. Explicar la arquitectura de API, base de datos y despliegue.
+6. Abrir el repositorio y recorrer la estructura del código.
 ```
 
 ---
@@ -58,6 +82,8 @@ Flujo recomendado de portafolio:
 | Express | API REST real y mock API local |
 | Prisma | ORM para base de datos |
 | PostgreSQL | Persistencia relacional |
+| Supabase PostgreSQL | Base de datos demo pública |
+| Render | Hosting demo público |
 | Docker | Contenedor local de base de datos |
 | Zod | Validación de requests en Back-End |
 | Vitest | Pruebas de API |
@@ -82,6 +108,7 @@ Flujo recomendado de portafolio:
 - Estados de carga, error y datos vacíos.
 - Tema claro y oscuro.
 - Idioma inglés y español.
+- Despliegue demo público conectado a base de datos real.
 - Mock API local como respaldo para pruebas del Front-End.
 
 ---
@@ -90,10 +117,10 @@ Flujo recomendado de portafolio:
 
 | Rol | Acceso |
 | --- | --- |
-| ADMIN | Acceso administrativo completo |
-| OPERATOR | Acceso operativo para viajes |
-| SUPERVISOR | Acceso operativo para viajes |
-| VIEWER | Acceso solo lectura |
+| `ADMIN` | Acceso administrativo completo |
+| `OPERATOR` | Acceso operativo para viajes |
+| `SUPERVISOR` | Acceso operativo para viajes |
+| `VIEWER` | Acceso solo lectura |
 
 ---
 
@@ -107,6 +134,8 @@ La API es la fuente final de validación. Entre las reglas principales:
 - Solo rutas activas pueden asignarse a viajes.
 - Los usuarios de solo lectura no pueden ejecutar acciones protegidas.
 - Las acciones administrativas requieren rol autorizado.
+- Los usuarios inactivos no pueden iniciar sesión.
+- Solo administradores pueden gestionar usuarios.
 - Los recursos con viajes relacionados están protegidos contra eliminación.
 
 ---
@@ -115,23 +144,51 @@ La API es la fuente final de validación. Entre las reglas principales:
 
 | Ruta | Descripción | Acceso |
 | --- | --- | --- |
-| /login | Login | Pública |
-| /register | Registro | Pública |
-| /dashboard | Dashboard operativo | Usuarios autenticados |
-| /vehicles | Gestión de vehículos | Usuarios autenticados |
-| /drivers | Gestión de conductores | Usuarios autenticados |
-| /routes | Gestión de rutas | Usuarios autenticados |
-| /trips | Gestión de viajes | Usuarios autenticados |
-| /users | Gestión de usuarios | ADMIN |
-| /settings | Configuración e idioma | Usuarios autenticados |
-| /access-denied | Acceso no autorizado | Usuarios autenticados |
+| `/login` | Login | Pública |
+| `/register` | Registro | Pública |
+| `/dashboard` | Dashboard operativo | Usuarios autenticados |
+| `/vehicles` | Gestión de vehículos | Usuarios autenticados |
+| `/vehicles/new` | Crear vehículo | `ADMIN` |
+| `/drivers` | Gestión de conductores | Usuarios autenticados |
+| `/drivers/new` | Crear conductor | `ADMIN` |
+| `/routes` | Gestión de rutas | Usuarios autenticados |
+| `/routes/new` | Crear ruta | `ADMIN` |
+| `/trips` | Gestión de viajes | Usuarios autenticados |
+| `/trips/new` | Crear viaje | `ADMIN`, `OPERATOR`, `SUPERVISOR` |
+| `/users` | Gestión de usuarios | `ADMIN` |
+| `/settings` | Configuración e idioma | Usuarios autenticados |
+| `/access-denied` | Acceso no autorizado | Usuarios autenticados |
+
+---
+
+## URLs base del API
+
+API pública demo:
+
+```txt
+https://transitops-api.onrender.com/api
+```
+
+API local de desarrollo:
+
+```txt
+http://localhost:4000/api
+```
+
+Configuradas en:
+
+```txt
+src/environments/environment.ts
+src/environments/environment.development.ts
+```
 
 ---
 
 ## API real
 
-La aplicación Angular consume una API REST local en el puerto 4000. La API real se encuentra en la carpeta `server` y expone endpoints para:
+La aplicación Angular consume una API REST real que expone endpoints para:
 
+- Health
 - Dashboard
 - Auth
 - Users
@@ -166,14 +223,35 @@ Scripts útiles:
 
 | Comando | Descripción |
 | --- | --- |
-| npm start | Inicia Angular |
-| npm run build | Compila Angular |
-| npm run test:api | Ejecuta pruebas de la mock API |
-| npm run api:real | Inicia la API real |
-| npm run api:real:seed | Ejecuta seed de la base de datos |
-| npm run api:real:typecheck | Valida TypeScript del Back-End |
-| npm run api:real:test | Ejecuta pruebas del Back-End |
-| npm run api:real:build | Compila el Back-End |
+| `npm start` | Inicia Angular |
+| `npm run build` | Compila Angular |
+| `npm run test:api` | Ejecuta pruebas de la mock API |
+| `npm run api:real` | Inicia la API real |
+| `npm run api:real:seed` | Ejecuta seed de la base de datos |
+| `npm run api:real:typecheck` | Valida TypeScript del Back-End |
+| `npm run api:real:test` | Ejecuta pruebas del Back-End |
+| `npm run api:real:build` | Compila el Back-End |
+| `npm run deploy:web:build` | Compila Angular para despliegue |
+| `npm run deploy:api:build` | Compila el API para despliegue |
+
+---
+
+## Despliegue demo
+
+La demo pública usa:
+
+| Capa | Proveedor | Notas |
+| --- | --- | --- |
+| Base de datos | Supabase PostgreSQL | Base demo dedicada con migraciones Prisma y seed controlado |
+| Back-End | Render Web Service | API Express desplegada desde `server` |
+| Front-End | Render Web Service | Build Angular SSR/híbrido desplegado desde la raíz del repositorio |
+
+Reglas de seguridad del despliegue:
+
+- Los secretos se configuran solo en Render y Supabase.
+- `DATABASE_URL` y `JWT_SECRET` no se versionan en el repositorio.
+- El seed demo solo debe ejecutarse contra una base de datos dedicada.
+- CORS debe permitir la URL pública del Front-End mediante `CLIENT_URL` en el servicio del API.
 
 ---
 
@@ -181,9 +259,11 @@ Scripts útiles:
 
 La guía completa para validar el sistema local está en:
 
-`docs/real-api-smoke-test.md`
+```txt
+docs/real-api-smoke-test.md
+```
 
-Validación recomendada antes de una demo:
+Validación local recomendada antes de una demo:
 
 - Build de Angular.
 - Pruebas de mock API.
@@ -191,13 +271,25 @@ Validación recomendada antes de una demo:
 - Pruebas del Back-End.
 - Build del Back-End.
 
+Validación pública recomendada:
+
+```txt
+1. Abrir https://transitops-api.onrender.com/api/health.
+2. Iniciar sesión desde la demo pública del Front-End.
+3. Validar Dashboard, Vehicles, Drivers, Routes y Trips.
+4. Validar comportamiento de solo lectura con VIEWER.
+5. Refrescar una ruta protegida como /dashboard.
+```
+
 ---
 
 ## Checklist final de QA y demo
 
 Antes de usar el proyecto en portafolio, revisión con reclutadores o entrevista técnica, valida la experiencia completa con:
 
-`docs/final-qa-and-demo-checklist.md`
+```txt
+docs/final-qa-and-demo-checklist.md
+```
 
 Esta guía cubre:
 
@@ -216,19 +308,21 @@ Esta guía cubre:
 
 Orden sugerido para presentar el proyecto:
 
-1. Login.
-2. Dashboard.
-3. Vehicles.
-4. Drivers.
-5. Routes.
-6. Trips.
-7. Users.
-8. Settings.
-9. Arquitectura del código.
+```txt
+1. Abrir la URL pública de la demo.
+2. Iniciar sesión con la cuenta ADMIN demo.
+3. Mostrar métricas del Dashboard.
+4. Mostrar Vehicles, Drivers, Routes y Trips.
+5. Demostrar reglas de negocio de viajes.
+6. Mostrar gestión de usuarios.
+7. Iniciar sesión con VIEWER y validar comportamiento de solo lectura.
+8. Explicar API, schema Prisma y arquitectura de despliegue.
+9. Recorrer la arquitectura del código.
+```
 
 Explicación breve:
 
-TransitOps Platform es un sistema administrativo Full-Stack para operaciones de transporte. Usa Angular para el panel de control, Express para la API, Prisma para el acceso a datos y PostgreSQL para la persistencia. El sistema gestiona usuarios, vehículos, conductores, rutas y viajes con autenticación, roles, listas paginadas y reglas de negocio aplicadas desde la API.
+> TransitOps Platform es un sistema administrativo Full-Stack para operaciones de transporte. Usa Angular para el panel de control, Express para la API, Prisma para el acceso a datos y PostgreSQL para la persistencia. La demo pública está desplegada con Render y Supabase, y permite gestionar usuarios, vehículos, conductores, rutas y viajes con autenticación, roles, listas paginadas y reglas de negocio aplicadas desde la API.
 
 Puntos clave para mostrar:
 
@@ -245,17 +339,19 @@ Puntos clave para mostrar:
 
 Antes de presentar:
 
-- PostgreSQL está corriendo.
-- La base de datos tiene datos de prueba.
-- La API real está activa.
-- Angular está activo.
-- El login funciona.
-- El Dashboard carga datos reales.
-- Vehicles, Drivers, Routes y Trips cargan registros.
-- Las listas operativas muestran controles de paginación.
-- Trips muestra relaciones entre vehículo, conductor y ruta.
-- El Final QA and Demo Checklist fue completado.
-- README y smoke test están actualizados.
+```txt
+[ ] Demo pública del Front-End disponible
+[ ] Health endpoint público del API responde correctamente
+[ ] Login con ADMIN funciona
+[ ] Dashboard carga datos reales
+[ ] Vehicles, Drivers, Routes y Trips cargan registros
+[ ] Las listas operativas muestran controles de paginación
+[ ] Trips muestra relaciones entre vehículo, conductor y ruta
+[ ] Comportamiento de solo lectura con VIEWER validado
+[ ] Refresh de rutas protegidas funciona
+[ ] Final QA and Demo Checklist completado
+[ ] README y release notes actualizados
+```
 
 ---
 
@@ -276,6 +372,7 @@ Este proyecto demuestra:
 - Autorización por roles en Back-End.
 - Contratos de API paginados con metadata de respuesta.
 - Pruebas de rutas con Vitest.
+- Despliegue demo público con Render y Supabase.
 
 ---
 
@@ -286,6 +383,9 @@ Implementado:
 - Panel Angular.
 - API real con Express.
 - Base de datos PostgreSQL con Prisma.
+- Base de datos demo pública en Supabase PostgreSQL.
+- API pública desplegada en Render.
+- Front-End Angular público desplegado en Render.
 - Dashboard real.
 - Endpoints reales para usuarios, vehículos, conductores, rutas y viajes.
 - Reglas de negocio para viajes.
@@ -303,7 +403,7 @@ Mejoras futuras posibles:
 - Notificaciones tipo toast.
 - Pruebas E2E.
 - Gráficas en Dashboard.
-- Configuración de despliegue.
+- Observabilidad y endurecimiento de CI/CD.
 
 ---
 
